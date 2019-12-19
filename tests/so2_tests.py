@@ -1,6 +1,6 @@
 import unittest
 import sys 
-sys.path.append(..)
+sys.path.append('..')
 import so2
 
 class SO2Test(unittest.TestCase):
