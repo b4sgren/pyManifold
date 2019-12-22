@@ -31,8 +31,12 @@ class SO2Test(unittest.TestCase):
     # def testHat(self):
     #     debug = 1
 
-    # def testVee(self):
-    #     debug = 1
+    def testVee(self):
+        for i in range(100):
+            theta_true = np.random.uniform(-np.pi, np.pi)
+            R = SO2(theta_true)
+            theta = SO2.vee(SO2.log(R))
+            self.assertAlmostEquals(theta, theta_true)
 
     # def testBoxPlus(self):
     #     debug = 1

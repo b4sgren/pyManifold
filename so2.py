@@ -17,8 +17,9 @@ class SO2:
         theta = np.arctan2(R.arr[1,0], R.arr[0,0])
         return G * theta
 
-    def vee(self, v):
-        debug = 1
+    @staticmethod
+    def vee(theta_x):
+        return theta_x[1,0]
 
     def hat(self, v):
         debug = 1
