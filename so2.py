@@ -6,8 +6,10 @@ class SO2:
         self.arr = np.array([[np.cos(theta), -np.sin(theta)],
                             [np.sin(theta), np.cos(theta)]]) #SHould the - sign be switched for our application? 
     
-    def exp(self, v):
-        debug = 1
+    @classmethod
+    def exp(cls, theta_x):
+        theta = theta_x[1,0]
+        return cls(theta)
     
     @staticmethod
     def log(R): 

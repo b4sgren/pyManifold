@@ -8,10 +8,16 @@ from IPython.core.debugger import Pdb
 
 class SO2Test(unittest.TestCase):
 
-    # def testExp(self):
-    #     theta = np.pi/2.0
-    #     R = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
-    #     theta_skew = 
+    def testExp(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            logR = np.array([[0, -theta], [theta, 0]])
+            R = SO2.exp(logR)
+            R_true = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+            self.assertAlmostEqual(R.arr[0,0], R_true[0,0])
+            self.assertAlmostEqual(R.arr[1,0], R_true[1,0])
+            self.assertAlmostEqual(R.arr[0,1], R_true[0,1])
+            self.assertAlmostEqual(R.arr[1,1], R_true[1,1])
 
     def testLog(self):
         for i in range(100):
