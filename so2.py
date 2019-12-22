@@ -1,15 +1,18 @@
 import numpy as np 
 
+G = np.array([[0, -1], [1, 0]])
 class SO2:
     def __init__(self, theta):
-        self.R = np.array([[np.cos(theta), np.sin(theta)],
+        self.arr = np.array([[np.cos(theta), np.sin(theta)],
                             [-np.sin(theta), np.cos(theta)]])
-        
+    
     def exp(self, v):
         debug = 1
     
-    def log(self, R2):
-        debug = 1
+    @staticmethod
+    def log(R):
+        theta = np.arccos(R[0,0])
+        return G * theta
 
     def vee(self, v):
         debug = 1
