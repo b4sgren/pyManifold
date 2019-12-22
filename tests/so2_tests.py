@@ -4,6 +4,8 @@ sys.path.append('..')
 from so2 import SO2
 import numpy as np
 
+from IPython.core.debugger import Pdb
+
 class SO2Test(unittest.TestCase):
 
     # def testExp(self):
@@ -12,11 +14,13 @@ class SO2Test(unittest.TestCase):
     #     theta_skew = 
 
     def testLog(self):
-        theta = np.pi/2.0
-        R = SO2(theta)
-        logR_true = np.array([[0, -theta], [theta, 0]])
-        logR = SO2.log(R.arr)
-        self.assertTrue((logR == logR_true).all())
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            R = SO2(theta)
+            logR_true = np.array([[0, -theta], [theta, 0]])
+            logR = SO2.log(R)
+            self.assertAlmostEqual(logR[1,0], logR_true[1,0])
+            self.assertAlmostEqual(logR[0,1], logR_true[0,1])
 
     # def testHat(self):
     #     debug = 1
