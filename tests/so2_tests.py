@@ -42,6 +42,24 @@ class SO2Test(unittest.TestCase):
             R = SO2(theta_true)
             theta = SO2.vee(SO2.log(R))
             self.assertAlmostEqual(theta, theta_true)
+    
+    def testMul(self):
+        for i in range(100):
+            theta1 = np.random.uniform(-np.pi, np.pi)
+            theta2 = np.random.uniform(-np.pi, np.pi)
+            R1 = SO2(theta1)
+            R2 = SO2(theta2)
+            R = R1 * R2
+            theta_true = theta1 + theta2
+            if theta_true > np.pi:
+                theta_true -= 2 * np.pi 
+            if theta_true < -np.pi:
+                theta_true += 2 * np.pi
+            R_true = np.array([[np.cos(theta_true), -np.sin(theta_true)], [np.sin(theta_true), np.cos(theta_true)]])
+            self.assertAlmostEqual(R_true[0,0], R.arr[0,0])
+            self.assertAlmostEqual(R_true[0,1], R.arr[0,1])
+            self.assertAlmostEqual(R_true[1,0], R.arr[1,0])
+            self.assertAlmostEqual(R_true[1,1], R.arr[1,1])
 
     # def testBoxPlus(self):
     #     debug = 1
