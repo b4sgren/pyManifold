@@ -28,15 +28,20 @@ class SO2Test(unittest.TestCase):
             self.assertAlmostEqual(logR[1,0], logR_true[1,0])
             self.assertAlmostEqual(logR[0,1], logR_true[0,1])
 
-    # def testHat(self):
-    #     debug = 1
+    def testHat(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            logR_true = np.array([[0, -theta], [theta, 0]])
+            logR = SO2.hat(theta)
+            self.assertAlmostEqual(logR[0,1], logR_true[0,1])
+            self.assertAlmostEqual(logR[1,0], logR_true[1,0])
 
     def testVee(self):
         for i in range(100):
             theta_true = np.random.uniform(-np.pi, np.pi)
             R = SO2(theta_true)
             theta = SO2.vee(SO2.log(R))
-            self.assertAlmostEquals(theta, theta_true)
+            self.assertAlmostEqual(theta, theta_true)
 
     # def testBoxPlus(self):
     #     debug = 1

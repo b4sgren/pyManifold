@@ -21,8 +21,9 @@ class SO2:
     def vee(theta_x):
         return theta_x[1,0]
 
-    def hat(self, v):
-        debug = 1
+    @staticmethod
+    def hat(theta):
+        return theta * G
     
     def boxplus(self, R2):
         debug = 1 #Make this a classmethod?
