@@ -19,4 +19,8 @@ class SE2:
     def inv(self):
         temp = np.zeros_like(self.arr)
         return SE2(self.arr[:2,:2].T, -self.arr[:2,:2].T @ self.arr[:2,2])
+
+    def __mul__(self, T2):
+        temp = self.arr @ T2.arr
+        return SE2(temp[:2,:2], temp[:2,2])
         
