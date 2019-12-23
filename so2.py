@@ -8,7 +8,11 @@ class SO2:
                                 [np.sin(theta), np.cos(theta)]]) #Should the - sign be switched for our application? 
         elif isinstance(theta, np.ndarray):
             self.arr = theta
-    
+            
+    def __mul__(self, R2):
+        arr = self.arr @ R2.arr
+        return SO2(arr)
+   
     @classmethod
     def exp(cls, theta_x):
         theta = theta_x[1,0]
@@ -27,12 +31,12 @@ class SO2:
     def hat(theta):
         return theta * G
     
-    def __mul__(self, R2):
-        arr = self.arr @ R2.arr
-        return SO2(arr)
+    @classmethod
+    def boxplus(cls, R, theta): #Needs to be tested
+        R2 = cls(theta)
+        return R * R2
 
-    def boxplus(self, R2):
-        debug = 1 #Make this a classmethod?
-
-    def boxminux(self, R2):
-        debug = 1 #staticmethod?
+    def boxminus(self, R2): #Needs to be tested
+        temp = self.arr @ R2.arr.T #R2 doesn't have a transpose function
+        theta = np.arctan2(temp.arr[1,0], temp.arr[0,0])
+        return theta
