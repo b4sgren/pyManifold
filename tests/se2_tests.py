@@ -44,6 +44,26 @@ class SE2_Test(unittest.TestCase):
             T_true = SE2(R_true, t_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
+    
+    def testLog(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            ct = np.cos(theta)
+            st = np.sin(theta)
+            R = np.array([[ct, -st], [st, ct]])
+
+            T = SE2(R, t)
+            logT = SE2.log(T)
+
+            logT_true = np.zeros((3,3)) #Form is [skew_theta, V^-1 * t; 0, 0, 0]
+            logT_true[0,1] = -theta
+            logT_true[1,0] = theta
+            V = 1/theta * np.array([[st, ct - 1], [1 - ct, st]])
+            logT_true[:2,2] = np.linalg.inv(V) @ t 
+
+            np.testing.assert_allclose(logT_true, logT)
 
 if __name__=="__main__":
     unittest.main()

@@ -20,7 +20,25 @@ class SE2:
         temp = np.zeros_like(self.arr)
         return SE2(self.arr[:2,:2].T, -self.arr[:2,:2].T @ self.arr[:2,2])
 
-    def __mul__(self, T2):
+    def __mul__(self, T2): # May need to check if this is an SE2 object or a point to be transformed
         temp = self.arr @ T2.arr
         return SE2(temp[:2,:2], temp[:2,2])
+    
+    @staticmethod
+    def log(T):
+        theta = np.arctan2(T.arr[1,0], T.arr[0,0])
+        t = T.arr[:2,2]
+
+        A = np.sin(theta)/theta
+        B = (1 - np.cos(theta))/theta 
+        normalizer = 1 / (A**2 + B**2)
+        V_inv = normalizer * np.array([[A, B], [-B, A]])
+
+        logT = np.zeros((3,3))
+        logT[:2,2] = V_inv @ t 
+        logT[0,1] = -theta
+        logT[1,0] = theta
+
+        return logT 
+
         
