@@ -57,11 +57,12 @@ class SE2_Test(unittest.TestCase):
             T = SE2(R, t)
             logT = SE2.log(T)
 
-            logT_true = np.zeros((3,3)) #Form is [skew_theta, V^-1 * t; 0, 0, 0]
+            logT_true = np.zeros((3,3)) 
             logT_true[0,1] = -theta
             logT_true[1,0] = theta
             V = 1/theta * np.array([[st, ct - 1], [1 - ct, st]])
             logT_true[:2,2] = np.linalg.inv(V) @ t 
+            logT_true[2,2] = 1
 
             np.testing.assert_allclose(logT_true, logT)
 
