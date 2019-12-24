@@ -66,5 +66,25 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(logT_true, logT)
 
+    def testExp(self):
+        for i in range(100):
+            v = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            logT = np.array([[0, -theta, v[0]],
+                            [theta, 0, v[1]],
+                            [0, 0, 1]])
+            
+            T = SE2.exp(logT)
+
+            T_true = np.eye(3)
+            ct = np.cos(theta)
+            st = np.sin(theta)
+            T_true[:2,:2] = np.array([[ct, -st], [st, ct]])
+            T_true[0,2] = (v[1] * (ct - 1)+ v[0] * st)/theta
+            T_true[1,2] = (v[0] * (1 - ct) + v[1] * st)/theta
+
+            np.testing.assert_allclose(T_true, T.arr)
+
 if __name__=="__main__":
     unittest.main()

@@ -41,5 +41,15 @@ class SE2:
         logT[2,2] = 1
 
         return logT 
+    
+    @classmethod
+    def exp(cls, X):
+        theta = X[1,0]
+        ct = np.cos(theta)
+        st = np.sin(theta)
+        R = np.array([[ct, -st], [st, ct]])
 
+        V = 1/theta * np.array([[st, ct-1], [1 - ct, st]])
+        t = V @ X[:2,2]
         
+        return cls(R, t)
