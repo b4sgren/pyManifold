@@ -85,6 +85,17 @@ class SE2_Test(unittest.TestCase):
             T_true[1,2] = (v[0] * (1 - ct) + v[1] * st)/theta
 
             np.testing.assert_allclose(T_true, T.arr)
+    
+    def testVee(self):
+        for i in range(100):
+            u = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            arr_true = np.array([u[0], u[1], theta])
+            X = np.array([[0, -theta, u[0]], [theta, 0, u[1]], [0, 0, 1]])
+            arr = SE2.vee(X)
+
+            np.testing.assert_allclose(arr_true, arr)
 
 if __name__=="__main__":
     unittest.main()

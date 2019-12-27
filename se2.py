@@ -53,3 +53,11 @@ class SE2:
         t = V @ X[:2,2]
         
         return cls(R, t)
+    
+    @staticmethod
+    def vee(X):
+        arr = np.zeros(3)
+        arr[:2] = X[:2,2]
+        arr[2] = X[1,0]
+
+        return arr
