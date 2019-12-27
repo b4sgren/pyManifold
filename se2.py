@@ -61,3 +61,13 @@ class SE2:
         arr[2] = X[1,0]
 
         return arr
+    
+    @staticmethod
+    def hat(arr):
+        X = np.zeros((3,3))
+        X[:2,2] = arr[:2]
+        X[0,1] = -arr[2]
+        X[1,0] = arr[2]
+        X[2,2] = 1.0
+
+        return X

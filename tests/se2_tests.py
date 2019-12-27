@@ -96,6 +96,17 @@ class SE2_Test(unittest.TestCase):
             arr = SE2.vee(X)
 
             np.testing.assert_allclose(arr_true, arr)
+    
+    def testHat(self):
+        for i in range(100):
+            u = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            arr = np.array([u[0], u[1], theta])
+            X_true = np.array([[0, -theta, u[0]], [theta, 0, u[1]], [0, 0, 1]])
+            X = SE2.hat(arr)
+
+            np.testing.assert_allclose(X_true, X)
 
 if __name__=="__main__":
     unittest.main()
