@@ -108,7 +108,7 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(X_true, X)
     
-    def testAdjoint(self): #Test rotating a tangent vector
+    def testAdjoint(self): 
         for i in range(100):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)
@@ -125,6 +125,27 @@ class SE2_Test(unittest.TestCase):
             adj_true[1, 2] = -t[0]
 
             np.testing.assert_allclose(adj_true, adj)
+    
+    def testRotateTangentVector(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+            u = np.random.uniform(-1, 1, size=2)
+            phi = np.random.uniform(-np.pi, np.pi)
+            delta = np.array([u[0], u[1], phi])
+
+            ct = np.cos(theta)
+            st = np.sin(theta)
+            R = np.array([[ct, -st], [st, ct]])
+            T = SE2(R, t)
+            
+            adj = T.Adj()
+
+            delta_rot = adj @ delta
+            delta_rot_true = np.array([0, 0, phi])
+            delta_rot_true[:2] = R @ u + phi * np.array([t[1], -t[0]])
+
+            np.testing.assert_allclose(delta_rot_true, delta_rot)
 
 if __name__=="__main__":
     unittest.main()

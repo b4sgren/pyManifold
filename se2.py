@@ -71,7 +71,7 @@ class SE2:
         return arr
     
     @staticmethod
-    def hat(arr):
+    def hat(arr): # Can I use G to for the Adjoint
         X = np.zeros((3,3))
         X[:2,2] = arr[:2]
         X[0,1] = -arr[2]
