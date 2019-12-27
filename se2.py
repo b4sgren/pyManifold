@@ -23,6 +23,14 @@ class SE2:
     def __mul__(self, T2): # May need to check if this is an SE2 object or a point to be transformed
         temp = self.arr @ T2.arr
         return SE2(temp[:2,:2], temp[:2,2])
+
+    def Adj(self):
+        adj = np.eye(3)
+        adj[:2, :2] = self.arr[:2, :2]
+        adj[0, 2] = self.arr[1, 2]
+        adj[1, 2] = -self.arr[0, 2]
+
+        return adj
     
     @staticmethod
     def log(T):

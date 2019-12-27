@@ -107,6 +107,24 @@ class SE2_Test(unittest.TestCase):
             X = SE2.hat(arr)
 
             np.testing.assert_allclose(X_true, X)
+    
+    def testAdjoint(self): #Test rotating a tangent vector
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            ct = np.cos(theta)
+            st = np.sin(theta)
+            R = np.array([[ct, -st], [st, ct]])
+            T = SE2(R, t)
+            adj = T.Adj()
+
+            adj_true = np.eye(3)
+            adj_true[:2, :2] = R 
+            adj_true[0, 2] = t[1]
+            adj_true[1, 2] = -t[0]
+
+            np.testing.assert_allclose(adj_true, adj)
 
 if __name__=="__main__":
     unittest.main()
