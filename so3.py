@@ -19,6 +19,7 @@ class SO3:
             theta = args[0]
             psi = args[1]
 
+            #May need to switch the signs on all these rotation matrices to get them to be passive rotations
             cps = np.cos(psi)
             sps = np.sin(psi)
             R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])

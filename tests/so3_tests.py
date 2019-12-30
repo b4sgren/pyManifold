@@ -1,4 +1,5 @@
 import numpy as np 
+from scipy.spatial.transform import Rotation
 import unittest
 import sys
 sys.path.append("..")
@@ -22,7 +23,7 @@ class SO3_testing(unittest.TestCase):
             sps = np.sin(angles[2])
             R3 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
 
-            R_true = R3 @ R2 @ R1 
+            R_true = Rotation.from_euler('ZYX', [angles[2], angles[1], angles[0]]).as_dcm() 
 
             R_ex2 = SO3(R_true)
 
