@@ -11,15 +11,15 @@ G = np.array([[[0, 0, 0],
                 [0, 0, 0]]])
 
 class SO3:
-    def __init__(self, args1, *args): # Add capability to check if phi is an 3x3 matrix instead of an angle
-        if len(args) == 0: #args1 is already a 3x3 rotation matrix
+    def __init__(self, args1, *args): # NOTE: Would it be better to have this be a scipy rotation object? Easily convert to axis-angle, rot. matrix, euler angles and quaternion this way
+        if len(args) == 0: #args1 a 3x3 rotation matrix
             self.arr = args1 
-        elif len(args) == 2: #Arguments passed in are RPY angles in that order (roll, pitch, yaw)
+        elif len(args) == 2: #args1 is roll, args has pitch and yaw
             phi = args1
             theta = args[0]
             psi = args[1]
 
-            #May need to switch the signs on all these rotation matrices to get them to be passive rotations
+            #NOTE: May need to switch the signs on all these rotation matrices to get them to be passive rotations
             cps = np.cos(psi)
             sps = np.sin(psi)
             R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
@@ -33,6 +33,9 @@ class SO3:
             R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
 
             self.arr = R1 @ R2 @ R3
+    
+    def __mul__(self, R2):
+        return SO3(self.arr @ R2.arr)
     
     @staticmethod 
     def log(R):
@@ -54,3 +57,7 @@ class SO3:
     @staticmethod
     def hat(omega):
         return (G @ omega).squeeze()
+    
+    @staticmethod 
+    def Adj(R):
+        return R.arr

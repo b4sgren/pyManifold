@@ -54,7 +54,7 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(R_true, R.arr)
     
-    def testVee(self):
+    def testVee(self): #Is the result an axis-angle representation? aka a rotation vector?
         for i in range(100):
             omega_true = np.random.uniform(-np.pi, np.pi, size=3)
             logR = np.array([[0, -omega_true[2], omega_true[1]],
