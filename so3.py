@@ -38,3 +38,10 @@ class SO3:
     def log(R):
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
         return theta / (2.0 * np.sin(theta)) * (R.arr - R.arr.T)
+    
+    @classmethod 
+    def exp(cls, logR):
+        w = np.array([logR[2,1], logR[0,2], logR[1,0]])
+        theta = np.sqrt(w @ w)
+        temp = np.eye(3) + np.sin(theta)/theta * logR + (1 - np.cos(theta))/ (theta**2) * (logR @ logR)
+        return cls(temp)

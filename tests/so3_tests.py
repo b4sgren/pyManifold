@@ -42,6 +42,17 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(logR_true, logR, atol=1e-10)
     
+    def testExp(self):
+        for i in range(100):
+            logR_vec = np.random.uniform(-np.pi, np.pi, size=3)
+            logR = np.array([[0, -logR_vec[2], logR_vec[1]],
+                        [logR_vec[2], 0, -logR_vec[0]],
+                        [-logR_vec[1], logR_vec[0], 0]])
+
+            R = SO3.exp(logR)
+            R_true = sp.linalg.expm(logR)
+
+            np.testing.assert_allclose(R_true, R.arr)
 
 if __name__=="__main__":
     unittest.main()
