@@ -1,4 +1,5 @@
 import numpy as np 
+import scipy as sp
 from scipy.spatial.transform import Rotation
 import unittest
 import sys
@@ -29,6 +30,17 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(R_true, R_ex.arr)
             np.testing.assert_allclose(R_true, R_ex2.arr)
+    
+    def testLog(self):
+        for i in range(100):
+            temp = Rotation.random().as_dcm()
+            R = SO3(temp)
+            
+            logR = SO3.log(R)
+
+            logR_true = sp.linalg.logm(temp)
+
+            np.testing.assert_allclose(logR_true, logR, atol=1e-10)
     
 
 if __name__=="__main__":
