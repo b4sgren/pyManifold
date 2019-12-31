@@ -53,6 +53,28 @@ class SO3_testing(unittest.TestCase):
             R_true = sp.linalg.expm(logR)
 
             np.testing.assert_allclose(R_true, R.arr)
+    
+    def testVee(self):
+        for i in range(100):
+            omega_true = np.random.uniform(-np.pi, np.pi, size=3)
+            logR = np.array([[0, -omega_true[2], omega_true[1]],
+                            [omega_true[2], 0, -omega_true[0]],
+                            [-omega_true[1], omega_true[0], 0]])
+
+            omega = SO3.vee(logR)
+            np.testing.assert_allclose(omega_true, omega)
+    
+    def testHat(self):
+        for i in range(100):
+            omega = np.random.uniform(-np.pi, np.pi, size=3)
+
+            logR_true = np.array([[0, -omega[2], omega[1]],
+                                [omega[2], 0, -omega[0]],
+                                [-omega[1], omega[0], 0]])
+            
+            logR = SO3.hat(omega)
+
+            np.testing.assert_allclose(logR_true, logR)
 
 if __name__=="__main__":
     unittest.main()

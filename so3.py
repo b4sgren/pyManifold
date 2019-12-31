@@ -45,3 +45,12 @@ class SO3:
         theta = np.sqrt(w @ w)
         temp = np.eye(3) + np.sin(theta)/theta * logR + (1 - np.cos(theta))/ (theta**2) * (logR @ logR)
         return cls(temp)
+    
+    @staticmethod 
+    def vee(logR):
+        omega = np.array([logR[2,1], logR[0,2], logR[1,0]])
+        return omega
+    
+    @staticmethod
+    def hat(omega):
+        return (G @ omega).squeeze()
