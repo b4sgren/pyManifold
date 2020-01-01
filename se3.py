@@ -1,11 +1,12 @@
 import numpy as np
+from IPython.core.debugger import Pdb
 
 G = np.zeros((6,4,4))
 G[0,0,3] = 1
 G[1,1,3] = 1
 G[2,2,3] = 1
-G[3,2,3] = -1 #Sign may be switched for all from this line on down for passive rotations
-G[3,3,2] = 1
+G[3,1,2] = -1 #Sign may be switched for all from this line on down for passive rotations
+G[3,2,1] = 1
 G[4,0,2] = 1
 G[4,2,0] = -1
 G[5,0,1] = -1
@@ -79,13 +80,18 @@ class SE3:
     
     @staticmethod 
     def hat(arr):
-        u = arr[:3]
-        w = arr[-3:]
+        return np.sum(G * arr[:,None, None], axis=0)
 
-        logT = np.zeros((4,4))
-        logT[:3,3] = u 
-        
-        tmp = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
-        logT[:3,:3] = tmp
+    @staticmethod
+    def Adj(T):
+        R = T.arr[:3,:3]
+        t = T.arr[:3,3]
 
-        return logT
+        Adj = np.zeros((6,6))
+        Adj[:3,:3] = R 
+        Adj[-3:,-3:] = R 
+
+        tx = np.array([[0, -t[2], t[1]], [t[2], 0, t[0]], [-t[1], t[0], 0]])
+        Adj[:3,-3:] = tx @ R
+
+        return Adj

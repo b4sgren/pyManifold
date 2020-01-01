@@ -89,6 +89,10 @@ class SE3_Test(unittest.TestCase):
             logT = SE3.hat(arr)
 
             np.testing.assert_allclose(logT_true, logT)
+    
+    def testAdj(self):
+        for i in range(100):
+            debug = 1
 
 if __name__=="__main__":
     unittest.main()
