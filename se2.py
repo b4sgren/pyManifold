@@ -72,10 +72,4 @@ class SE2:
     
     @staticmethod
     def hat(arr): # Can I use G to for the Adjoint
-        X = np.zeros((3,3))
-        X[:2,2] = arr[:2]
-        X[0,1] = -arr[2]
-        X[1,0] = arr[2]
-        X[2,2] = 1.0
-
-        return X
+        return np.sum(G * arr[:,None, None], axis=0)

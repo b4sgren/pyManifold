@@ -103,7 +103,7 @@ class SE2_Test(unittest.TestCase):
             theta = np.random.uniform(-np.pi, np.pi)
 
             arr = np.array([u[0], u[1], theta])
-            X_true = np.array([[0, -theta, u[0]], [theta, 0, u[1]], [0, 0, 1]])
+            X_true = np.array([[0, -theta, u[0]], [theta, 0, u[1]], [0, 0, 0]])
             X = SE2.hat(arr)
 
             np.testing.assert_allclose(X_true, X)
