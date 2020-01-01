@@ -37,17 +37,25 @@ class SE3:
             R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
 
             self.arr[:3,:3] = R1 @ R2 @ R3
+    
+    @property 
+    def R(self):
+        return self.arr[:3,:3]
+    
+    @property
+    def t(self):
+        return self.arr[:3,3]
 
     @staticmethod
     def log(T): #Add an R and t property to get rotation and translation
         theta = np.arccos((np.trace(T.arr[:3,:3]) - 1)/2.0) 
-        logR = theta / (2.0 * np.sin(theta)) * (T.arr[:3,:3] - T.arr[:3,:3].T)
+        logR = theta / (2.0 * np.sin(theta)) * (T.R - T.R.T)
 
         A = np.sin(theta)/theta 
         B = (1 - np.cos(theta))/ (theta**2)
 
         V_inv = np.eye(3) - 0.5 * logR + 1/theta**2 * (1 - A/(2 * B)) * (logR @ logR)
-        u = V_inv @ T.arr[:3,3] 
+        u = V_inv @ T.t
 
         logT = np.zeros((4,4))
         logT[:3,:3] = logR 
