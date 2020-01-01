@@ -46,7 +46,6 @@ class SE2:
         logT[:2,2] = V_inv @ t 
         logT[0,1] = -theta
         logT[1,0] = theta
-        logT[2,2] = 1
 
         return logT 
     
