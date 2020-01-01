@@ -76,6 +76,19 @@ class SE3_Test(unittest.TestCase):
             arr = SE3.vee(logT)
 
             np.testing.assert_allclose(arr_true, arr)
+    
+    def testHat(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=3)
+            R = Rotation.random().as_dcm()
+
+            T = SE3(t, R)
+            logT_true = SE3.log(T)
+            arr = SE3.vee(logT_true)
+
+            logT = SE3.hat(arr)
+
+            np.testing.assert_allclose(logT_true, logT)
 
 if __name__=="__main__":
     unittest.main()

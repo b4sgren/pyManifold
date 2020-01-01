@@ -76,3 +76,16 @@ class SE3:
         w = np.array([logT[2,1], logT[0,2], logT[1,0]])
 
         return np.concatenate((u,w))
+    
+    @staticmethod 
+    def hat(arr):
+        u = arr[:3]
+        w = arr[-3:]
+
+        logT = np.zeros((4,4))
+        logT[:3,3] = u 
+        
+        tmp = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
+        logT[:3,:3] = tmp
+
+        return logT
