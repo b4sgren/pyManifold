@@ -99,7 +99,7 @@ class SE3:
         Adj[:3,:3] = R 
         Adj[-3:,-3:] = R 
 
-        tx = np.array([[0, -t[2], t[1]], [t[2], 0, t[0]], [-t[1], t[0], 0]])
+        tx = np.array([[0, -t[2], t[1]], [t[2], 0, -t[0]], [-t[1], t[0], 0]])
         Adj[:3,-3:] = tx @ R
 
         return Adj

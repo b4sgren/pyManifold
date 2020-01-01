@@ -92,7 +92,22 @@ class SE3_Test(unittest.TestCase):
     
     def testAdj(self):
         for i in range(100):
-            debug = 1
+            t = np.random.uniform(-10, 10, size=3)
+            R = Rotation.random().as_dcm()
+
+            T = SE3(t, R)
+            Adj = SE3.Adj(T)
+
+            u = np.random.uniform(-1, 1, size=3)
+            w = np.random.uniform(-np.pi, np.pi, size=3)
+            delta = np.hstack((u,w))
+
+            delta2 = Adj @ delta
+            delta2_true = np.zeros(6)
+            delta2_true[-3:] = R @ w 
+            delta2_true[:3] = R @ u + np.cross(t, R @ w)
+
+            np.testing.assert_allclose(delta2_true, delta2)
 
 if __name__=="__main__":
     unittest.main()
