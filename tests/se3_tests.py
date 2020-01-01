@@ -60,6 +60,22 @@ class SE3_Test(unittest.TestCase):
             T = SE3.exp(logT)
 
             np.testing.assert_allclose(T_true, T.arr, atol=1e-8)
+    
+    def testVee(self):
+        for i in range(100):
+            u = np.random.uniform(-10, 10, size=3)
+            w = np.random.uniform(-np.pi, np.pi, size=3)
+
+            arr_true = np.hstack((u,w))
+
+            logR = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
+            logT = np.zeros((4,4))
+            logT[:3,:3] = logR 
+            logT[:3,3] = u
+            
+            arr = SE3.vee(logT)
+
+            np.testing.assert_allclose(arr_true, arr)
 
 if __name__=="__main__":
     unittest.main()

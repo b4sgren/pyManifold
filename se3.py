@@ -69,3 +69,10 @@ class SE3:
 
         t = V @ u
         return cls(t, R)
+    
+    @staticmethod 
+    def vee(logT):
+        u = logT[:3,3]
+        w = np.array([logT[2,1], logT[0,2], logT[1,0]])
+
+        return np.concatenate((u,w))
