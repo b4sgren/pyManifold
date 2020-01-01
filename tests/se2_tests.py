@@ -59,10 +59,6 @@ class SE2_Test(unittest.TestCase):
             logT = SE2.log(T)
 
             logT_true = spl.logm(T.arr)
-            #logT_true[0,1] = -theta
-            #logT_true[1,0] = theta
-            #V = 1/theta * np.array([[st, ct - 1], [1 - ct, st]])
-            #logT_true[:2,2] = np.linalg.inv(V) @ t 
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-7)
 
@@ -73,18 +69,13 @@ class SE2_Test(unittest.TestCase):
 
             logT = np.array([[0, -theta, v[0]],
                             [theta, 0, v[1]],
-                            [0, 0, 1]])
+                            [0, 0, 0]])
             
             T = SE2.exp(logT)
 
-            T_true = np.eye(3)
-            ct = np.cos(theta)
-            st = np.sin(theta)
-            T_true[:2,:2] = np.array([[ct, -st], [st, ct]])
-            T_true[0,2] = (v[1] * (ct - 1)+ v[0] * st)/theta
-            T_true[1,2] = (v[0] * (1 - ct) + v[1] * st)/theta
+            T_true = spl.expm(logT)
 
-            np.testing.assert_allclose(T_true, T.arr)
+            np.testing.assert_allclose(T_true, T.arr, atol=1e-7)
     
     def testVee(self):
         for i in range(100):
@@ -92,7 +83,7 @@ class SE2_Test(unittest.TestCase):
             theta = np.random.uniform(-np.pi, np.pi)
 
             arr_true = np.array([u[0], u[1], theta])
-            X = np.array([[0, -theta, u[0]], [theta, 0, u[1]], [0, 0, 1]])
+            X = np.array([[0, -theta, u[0]], [theta, 0, u[1]], [0, 0, 0]])
             arr = SE2.vee(X)
 
             np.testing.assert_allclose(arr_true, arr)
@@ -108,44 +99,44 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(X_true, X)
     
-    def testAdjoint(self): 
-        for i in range(100):
-            t = np.random.uniform(-10, 10, size=2)
-            theta = np.random.uniform(-np.pi, np.pi)
+    # def testAdjoint(self): 
+    #     for i in range(100):
+    #         t = np.random.uniform(-10, 10, size=2)
+    #         theta = np.random.uniform(-np.pi, np.pi)
 
-            ct = np.cos(theta)
-            st = np.sin(theta)
-            R = np.array([[ct, -st], [st, ct]])
-            T = SE2(R, t)
-            adj = T.Adj()
+    #         ct = np.cos(theta)
+    #         st = np.sin(theta)
+    #         R = np.array([[ct, -st], [st, ct]])
+    #         T = SE2(R, t)
+    #         adj = T.Adj()
 
-            adj_true = np.eye(3)
-            adj_true[:2, :2] = R 
-            adj_true[0, 2] = t[1]
-            adj_true[1, 2] = -t[0]
+    #         adj_true = np.eye(3)
+    #         adj_true[:2, :2] = R 
+    #         adj_true[0, 2] = t[1]
+    #         adj_true[1, 2] = -t[0]
 
-            np.testing.assert_allclose(adj_true, adj)
+    #         np.testing.assert_allclose(adj_true, adj)
     
-    def testRotateTangentVector(self):
-        for i in range(100):
-            t = np.random.uniform(-10, 10, size=2)
-            theta = np.random.uniform(-np.pi, np.pi)
-            u = np.random.uniform(-1, 1, size=2)
-            phi = np.random.uniform(-np.pi, np.pi)
-            delta = np.array([u[0], u[1], phi])
+    # def testRotateTangentVector(self):
+    #     for i in range(100):
+    #         t = np.random.uniform(-10, 10, size=2)
+    #         theta = np.random.uniform(-np.pi, np.pi)
+    #         u = np.random.uniform(-1, 1, size=2)
+    #         phi = np.random.uniform(-np.pi, np.pi)
+    #         delta = np.array([u[0], u[1], phi])
 
-            ct = np.cos(theta)
-            st = np.sin(theta)
-            R = np.array([[ct, -st], [st, ct]])
-            T = SE2(R, t)
+    #         ct = np.cos(theta)
+    #         st = np.sin(theta)
+    #         R = np.array([[ct, -st], [st, ct]])
+    #         T = SE2(R, t)
             
-            adj = T.Adj()
+    #         adj = T.Adj()
 
-            delta_rot = adj @ delta
-            delta_rot_true = np.array([0, 0, phi])
-            delta_rot_true[:2] = R @ u + phi * np.array([t[1], -t[0]])
+    #         delta_rot = adj @ delta
+    #         delta_rot_true = np.array([0, 0, phi])
+    #         delta_rot_true[:2] = R @ u + phi * np.array([t[1], -t[0]])
 
-            np.testing.assert_allclose(delta_rot_true, delta_rot)
+    #         np.testing.assert_allclose(delta_rot_true, delta_rot)
 
 if __name__=="__main__":
     unittest.main()
