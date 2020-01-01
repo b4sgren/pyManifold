@@ -32,6 +32,18 @@ class SE3_Test(unittest.TestCase):
             T_true[:3,3] = t
 
             np.testing.assert_allclose(T_true, T.arr) #This test is failing. Not sure what is wrong
+    
+    def testLog(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=3)
+            R = Rotation.random().as_dcm()
+
+            T = SE3(t, R)
+            logT = SE3.log(T)
+
+            logT_true = sp.linalg.logm(T.arr)
+
+            np.testing.assert_allclose(logT_true, logT, atol=1e-8)
 
 if __name__=="__main__":
     unittest.main()
