@@ -44,6 +44,22 @@ class SE3_Test(unittest.TestCase):
             logT_true = sp.linalg.logm(T.arr)
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-8)
+    
+    def testExp(self):
+        for i in range(100):
+            u = np.random.uniform(-10, 10, size=3)
+            w = np.random.uniform(-np.pi, np.pi, size=3)
+
+            logR = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
+            
+            logT = np.zeros((4,4))
+            logT[:3,:3] = logR 
+            logT[:3,3] = u 
+
+            T_true = sp.linalg.expm(logT)
+            T = SE3.exp(logT)
+
+            np.testing.assert_allclose(T_true, T.arr, atol=1e-8)
 
 if __name__=="__main__":
     unittest.main()

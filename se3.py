@@ -38,7 +38,7 @@ class SE3:
             self.arr[:3,:3] = R1 @ R2 @ R3
 
     @staticmethod
-    def log(T):
+    def log(T): #Add an R and t property to get rotation and translation
         theta = np.arccos((np.trace(T.arr[:3,:3]) - 1)/2.0) 
         logR = theta / (2.0 * np.sin(theta)) * (T.arr[:3,:3] - T.arr[:3,:3].T)
 
@@ -53,3 +53,19 @@ class SE3:
         logT[:3,3] = u 
 
         return logT
+    
+    @classmethod
+    def exp(cls, logT):
+        u = logT[:3,3]
+        w = np.array([logT[2,1], logT[0,2], logT[1,0]])
+
+        theta = np.sqrt(w @ w)
+        A = np.sin(theta) / theta 
+        B = (1 - np.cos(theta)) / (theta**2)
+        C = (1 - A) / (theta**2)
+
+        R = np.eye(3) + A * logT[:3,:3] + B * np.linalg.matrix_power(logT[:3,:3], 2)
+        V = np.eye(3) + B * logT[:3,:3] + C * np.linalg.matrix_power(logT[:3,:3], 2)
+
+        t = V @ u
+        return cls(t, R)
