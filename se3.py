@@ -92,8 +92,8 @@ class SE3:
 
     @staticmethod
     def Adj(T):
-        R = T.arr[:3,:3]
-        t = T.arr[:3,3]
+        R = T.R
+        t = T.t
 
         Adj = np.zeros((6,6))
         Adj[:3,:3] = R 
