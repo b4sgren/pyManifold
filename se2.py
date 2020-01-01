@@ -32,6 +32,14 @@ class SE2:
 
         return adj
     
+    @property 
+    def R(self):
+        return self.arr[:2,:2]
+    
+    @property 
+    def t(self):
+        return self.arr[:2,2]
+    
     @staticmethod
     def log(T):
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
