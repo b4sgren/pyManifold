@@ -38,6 +38,9 @@ class SE3:
 
             self.arr[:3,:3] = R1 @ R2 @ R3
     
+    def inv(self):
+        return SE3(-self.R.T @ self.t, self.R.T)
+    
     @property 
     def R(self):
         return self.arr[:3,:3]

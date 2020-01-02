@@ -17,7 +17,6 @@ class SE2:
         self.arr[:2,2] = t
     
     def inv(self):
-        temp = np.zeros_like(self.arr)
         return SE2(self.arr[:2,:2].T, -self.arr[:2,:2].T @ self.arr[:2,2])
 
     def __mul__(self, T2): # May need to check if this is an SE2 object or a point to be transformed

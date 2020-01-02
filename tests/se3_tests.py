@@ -108,6 +108,18 @@ class SE3_Test(unittest.TestCase):
             delta2_true[:3] = R @ u + np.cross(t, R @ w)
 
             np.testing.assert_allclose(delta2_true, delta2)
+    
+    def testInv(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=3)
+            R = Rotation.random().as_dcm()
+
+            T = SE3(t, R)
+
+            T_inv = T.inv()
+            T_inv_true = np.linalg.inv(T.arr)
+
+            np.testing.assert_allclose(T_inv_true, T_inv.arr)
 
 if __name__=="__main__":
     unittest.main()
