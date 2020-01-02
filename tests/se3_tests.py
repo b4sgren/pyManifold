@@ -120,6 +120,24 @@ class SE3_Test(unittest.TestCase):
             T_inv_true = np.linalg.inv(T.arr)
 
             np.testing.assert_allclose(T_inv_true, T_inv.arr)
+    
+    def testGroupAction(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=3)
+            t2 = np.random.uniform(-10, 10, size=3)
+            R = Rotation.random().as_dcm()
+            R2 = Rotation.random().as_dcm()
+
+            T1 = SE3(t, R)
+            T2 = SE3(t2, R2)
+
+            T3 = T1 * T2
+
+            R3 = R @ R2
+            t3 = R @ t2 + t
+            T3_true = SE3(t3, R3)
+
+            np.testing.assert_allclose(T3_true.arr, T3.arr)
 
 if __name__=="__main__":
     unittest.main()

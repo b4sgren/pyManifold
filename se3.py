@@ -41,6 +41,10 @@ class SE3:
     def inv(self):
         return SE3(-self.R.T @ self.t, self.R.T)
     
+    def __mul__(self, T):
+        temp = self.arr @ T.arr
+        return SE3(temp[:3,3], temp[:3,:3])
+    
     @property 
     def R(self):
         return self.arr[:3,:3]
