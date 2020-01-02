@@ -22,7 +22,7 @@ class SO2Test(unittest.TestCase):
     def testLog(self):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
-            R = SO2(theta)
+            R = SO2.fromAngle(theta)
             logR_true = np.array([[0, -theta], [theta, 0]])
             logR = SO2.log(R)
             self.assertAlmostEqual(logR[1,0], logR_true[1,0])
@@ -39,7 +39,7 @@ class SO2Test(unittest.TestCase):
     def testVee(self):
         for i in range(100):
             theta_true = np.random.uniform(-np.pi, np.pi)
-            R = SO2(theta_true)
+            R = SO2.fromAngle(theta_true)
             theta = SO2.vee(SO2.log(R))
             self.assertAlmostEqual(theta, theta_true)
     
@@ -47,8 +47,8 @@ class SO2Test(unittest.TestCase):
         for i in range(100):
             theta1 = np.random.uniform(-np.pi, np.pi)
             theta2 = np.random.uniform(-np.pi, np.pi)
-            R1 = SO2(theta1)
-            R2 = SO2(theta2)
+            R1 = SO2.fromAngle(theta1)
+            R2 = SO2.fromAngle(theta2)
             R = R1 * R2
             theta_true = theta1 + theta2
             if theta_true > np.pi:
@@ -64,7 +64,7 @@ class SO2Test(unittest.TestCase):
     def testInv(self):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
-            R = SO2(theta)
+            R = SO2.fromAngle(theta)
             mat = R.arr 
 
             R_inv_true = np.linalg.inv(mat)

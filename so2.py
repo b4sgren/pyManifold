@@ -2,12 +2,8 @@ import numpy as np
 
 G = np.array([[0, -1], [1, 0]])
 class SO2:
-    def __init__(self, theta):
-        if isinstance(theta, float):
-            self.arr = np.array([[np.cos(theta), -np.sin(theta)],
-                                [np.sin(theta), np.cos(theta)]]) #Should the - sign be switched for our application? 
-        elif isinstance(theta, np.ndarray):
-            self.arr = theta
+    def __init__(self, R):
+        self.arr = R
             
     def __mul__(self, R2):
         arr = self.arr @ R2.arr
@@ -19,11 +15,18 @@ class SO2:
     @property 
     def R(self):
         return self.arr 
+    
+    @classmethod 
+    def fromAngle(cls, theta):
+        ct = np.cos(theta)
+        st = np.sin(theta)
+        R = np.array([[ct, -st], [st, ct]])
+        return cls(R)
 
     @classmethod
     def exp(cls, theta_x):
         theta = theta_x[1,0]
-        return cls(theta)
+        return cls.fromAngle(theta)
     
     @staticmethod
     def log(R): 
