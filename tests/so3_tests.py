@@ -75,6 +75,16 @@ class SO3_testing(unittest.TestCase):
             logR = SO3.hat(omega)
 
             np.testing.assert_allclose(logR_true, logR)
+    
+    def testInv(self):
+        for i in range(100):
+            mat = Rotation.random().as_dcm()
+            R = SO3(mat)
+
+            R_inv = R.inv()
+            R_inv_true = np.linalg.inv(mat)
+
+            np.testing.assert_allclose(R_inv_true, R_inv.arr)
 
 if __name__=="__main__":
     unittest.main()

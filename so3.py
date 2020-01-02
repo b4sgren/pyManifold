@@ -37,6 +37,9 @@ class SO3:
     def __mul__(self, R2):
         return SO3(self.arr @ R2.arr)
 
+    def inv(self):
+        return SO3(self.arr.T)
+
     @property 
     def R(self):
         return self.arr
