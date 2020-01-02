@@ -61,11 +61,16 @@ class SO2Test(unittest.TestCase):
             self.assertAlmostEqual(R_true[1,0], R.arr[1,0])
             self.assertAlmostEqual(R_true[1,1], R.arr[1,1])
 
-    # def testBoxPlus(self):
-    #     debug = 1
+    def testInv(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            R = SO2(theta)
+            mat = R.arr 
 
-    # def testBoxMinus(self):
-    #     debug = 1
+            R_inv_true = np.linalg.inv(mat)
+            R_inv = R.inv()
+
+            np.testing.assert_allclose(R_inv_true, R_inv.arr)
 
 if __name__=="__main__":
     unittest.main()

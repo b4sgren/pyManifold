@@ -13,6 +13,9 @@ class SO2:
         arr = self.arr @ R2.arr
         return SO2(arr)
     
+    def inv(self):
+        return SO2(self.arr.T)
+    
     @property 
     def R(self):
         return self.arr 
