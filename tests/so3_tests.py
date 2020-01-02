@@ -85,6 +85,17 @@ class SO3_testing(unittest.TestCase):
             R_inv_true = np.linalg.inv(mat)
 
             np.testing.assert_allclose(R_inv_true, R_inv.arr)
+    
+    def testFromAxisEuler(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            vec = np.random.uniform(-1, 1, size=3)
+            vec = vec / np.linalg.norm(vec)
+
+            R = SO3.fromAxisAngle(theta * vec)
+            R_true = Rotation.from_rotvec(vec*theta).as_dcm()
+
+            np.testing.assert_allclose(R_true, R.arr)
 
 if __name__=="__main__":
     unittest.main()

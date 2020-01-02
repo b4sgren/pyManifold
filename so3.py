@@ -46,8 +46,13 @@ class SO3:
         return cls(R1 @ R2 @ R3)
     
     @classmethod 
-    def fromAxisAngle(cls, vec):
-        debug = 1
+    def fromAxisAngle(cls, w):
+        theta = np.linalg.norm(w)
+        skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
+
+        arr = np.eye(3) + np.sin(theta) / theta * skew_w + (1 - np.cos(theta)) / (theta**2) * (skew_w @ skew_w)
+
+        return cls(arr)
 
     @classmethod #Not sure that I want this one. I will have a separate quaternion class that I want to implement
     def fromQuaternion(cls, q):
