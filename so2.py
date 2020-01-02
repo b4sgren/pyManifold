@@ -12,7 +12,11 @@ class SO2:
     def __mul__(self, R2):
         arr = self.arr @ R2.arr
         return SO2(arr)
-   
+    
+    @property 
+    def R(self):
+        return self.arr 
+
     @classmethod
     def exp(cls, theta_x):
         theta = theta_x[1,0]

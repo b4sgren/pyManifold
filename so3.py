@@ -36,6 +36,10 @@ class SO3:
     
     def __mul__(self, R2):
         return SO3(self.arr @ R2.arr)
+
+    @property 
+    def R(self):
+        return self.arr
     
     @staticmethod 
     def log(R):
@@ -58,6 +62,6 @@ class SO3:
     def hat(omega):
         return (G @ omega).squeeze()
     
-    @staticmethod 
-    def Adj(R):
-        return R.arr
+    @property 
+    def Adj(self): #Need to test this still
+        return self.arr
