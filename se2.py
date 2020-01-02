@@ -52,7 +52,7 @@ class SE2:
     @staticmethod
     def log(T):
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
-        t = T.arr[:2,2]
+        t = T.t
 
         A = np.sin(theta)/theta
         B = (1 - np.cos(theta))/theta 
@@ -71,12 +71,11 @@ class SE2:
         theta = X[1,0]
         ct = np.cos(theta)
         st = np.sin(theta)
-        R = np.array([[ct, -st], [st, ct]])
 
         V = 1/theta * np.array([[st, ct-1], [1 - ct, st]])
         t = V @ X[:2,2]
         
-        return cls(R, t)
+        return cls.fromAngle(theta, t)
     
     @staticmethod
     def vee(X):
