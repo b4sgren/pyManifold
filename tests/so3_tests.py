@@ -10,7 +10,7 @@ class SO3_testing(unittest.TestCase):
     def testConstructor(self):
         for i in range(100):
             angles = np.random.uniform(-np.pi, np.pi, size=3)
-            R_ex = SO3(angles[0], angles[1], angles[2])
+            R_ex = SO3.fromRPY(angles)
 
             cp = np.cos(angles[0])
             sp = np.sin(angles[0])

@@ -11,28 +11,8 @@ G = np.array([[[0, 0, 0],
                 [0, 0, 0]]])
 
 class SO3:
-    def __init__(self, args1, *args): # NOTE: Would it be better to have this be a scipy rotation object? Easily convert to axis-angle, rot. matrix, euler angles and quaternion this way
-        if len(args) == 0: #args1 a 3x3 rotation matrix
-            self.arr = args1 
-        elif len(args) == 2: #args1 is roll, args has pitch and yaw
-            phi = args1
-            theta = args[0]
-            psi = args[1]
-
-            #NOTE: May need to switch the signs on all these rotation matrices to get them to be passive rotations
-            cps = np.cos(psi)
-            sps = np.sin(psi)
-            R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
-
-            ct = np.cos(theta)
-            st = np.sin(theta)
-            R2 = np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
-
-            cp = np.cos(phi)
-            sp = np.sin(phi)
-            R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
-
-            self.arr = R1 @ R2 @ R3
+    def __init__(self, R): 
+        self.arr = R 
     
     def __mul__(self, R2):
         return SO3(self.arr @ R2.arr)
@@ -44,6 +24,35 @@ class SO3:
     def R(self):
         return self.arr
     
+    @classmethod 
+    def fromRPY(cls, angles):
+        phi = angles[0]
+        theta = angles[1]
+        psi = angles[2]
+        
+        #NOTE: May need to switch the signs on all these rotation matrices to get them to be passive rotations
+        cps = np.cos(psi)
+        sps = np.sin(psi)
+        R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
+
+        ct = np.cos(theta)
+        st = np.sin(theta)
+        R2 = np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
+
+        cp = np.cos(phi)
+        sp = np.sin(phi)
+        R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
+
+        return cls(R1 @ R2 @ R3)
+    
+    @classmethod 
+    def fromAxisAngle(cls, vec):
+        debug = 1
+
+    @classmethod #Not sure that I want this one. I will have a separate quaternion class that I want to implement
+    def fromQuaternion(cls, q):
+        debug = 1
+    
     @staticmethod 
     def log(R):
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
@@ -53,8 +62,8 @@ class SO3:
     def exp(cls, logR):
         w = np.array([logR[2,1], logR[0,2], logR[1,0]])
         theta = np.sqrt(w @ w)
-        temp = np.eye(3) + np.sin(theta)/theta * logR + (1 - np.cos(theta))/ (theta**2) * (logR @ logR)
-        return cls(temp)
+        R = np.eye(3) + np.sin(theta)/theta * logR + (1 - np.cos(theta))/ (theta**2) * (logR @ logR)
+        return cls(R)
     
     @staticmethod 
     def vee(logR):
