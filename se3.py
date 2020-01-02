@@ -90,16 +90,16 @@ class SE3:
     def hat(arr):
         return np.sum(G * arr[:,None, None], axis=0)
 
-    @staticmethod
-    def Adj(T):
-        R = T.R
-        t = T.t
+    @property
+    def Adj(self):
+        R = self.R
+        t = self.t
 
-        Adj = np.zeros((6,6))
-        Adj[:3,:3] = R 
-        Adj[-3:,-3:] = R 
+        adj = np.zeros((6,6))
+        adj[:3,:3] = R 
+        adj[-3:,-3:] = R 
 
         tx = np.array([[0, -t[2], t[1]], [t[2], 0, -t[0]], [-t[1], t[0], 0]])
-        Adj[:3,-3:] = tx @ R
+        adj[:3,-3:] = tx @ R
 
-        return Adj
+        return adj

@@ -24,6 +24,7 @@ class SE2:
         temp = self.arr @ T2.arr
         return SE2(temp[:2,:2], temp[:2,2])
 
+    @property 
     def Adj(self):
         adj = np.eye(3)
         adj[:2, :2] = self.arr[:2, :2]

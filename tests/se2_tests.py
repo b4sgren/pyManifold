@@ -108,7 +108,7 @@ class SE2_Test(unittest.TestCase):
             st = np.sin(theta)
             R = np.array([[ct, -st], [st, ct]])
             T = SE2(R, t)
-            adj = T.Adj()
+            adj = T.Adj
 
             adj_true = np.eye(3)
             adj_true[:2, :2] = R 
@@ -130,7 +130,7 @@ class SE2_Test(unittest.TestCase):
             R = np.array([[ct, -st], [st, ct]])
             T = SE2(R, t)
             
-            adj = T.Adj()
+            adj = T.Adj
 
             delta_rot = adj @ delta
             delta_rot_true = np.array([0, 0, phi])

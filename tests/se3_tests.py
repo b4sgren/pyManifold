@@ -96,7 +96,7 @@ class SE3_Test(unittest.TestCase):
             R = Rotation.random().as_dcm()
 
             T = SE3(t, R)
-            Adj = SE3.Adj(T)
+            Adj = T.Adj
 
             u = np.random.uniform(-1, 1, size=3)
             w = np.random.uniform(-np.pi, np.pi, size=3)
