@@ -22,6 +22,7 @@ class SE2:
     def __mul__(self, T2): # May need to check if this is an SE2 object or a point to be transformed
         temp = self.arr @ T2.arr
         return SE2(temp[:2,:2], temp[:2,2])
+    
 
     @property 
     def Adj(self):
@@ -39,6 +40,14 @@ class SE2:
     @property 
     def t(self):
         return self.arr[:2,2]
+    
+    @classmethod
+    def fromAngle(cls, theta, t):
+        ct = np.cos(theta)
+        st = np.sin(theta)
+        R = np.array([[ct, -st], [st, ct]])
+
+        return cls(R, t)
     
     @staticmethod
     def log(T):

@@ -137,6 +137,22 @@ class SE2_Test(unittest.TestCase):
             delta_rot_true[:2] = R @ u + phi * np.array([t[1], -t[0]])
 
             np.testing.assert_allclose(delta_rot_true, delta_rot)
+    
+    def testFromAngle(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            T = SE2.fromAngle(theta, t)
+            
+            ct = np.cos(theta)
+            st = np.sin(theta)
+            R = np.array([[ct, -st], [st, ct]])
+            T_true = np.eye(3)
+            T_true[:2,:2] = R 
+            T_true[:2,2] = t
+
+            np.testing.assert_allclose(T_true, T.arr)
 
 if __name__=="__main__":
     unittest.main()

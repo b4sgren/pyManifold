@@ -46,7 +46,7 @@ class SO3:
         return cls(R1 @ R2 @ R3)
     
     @classmethod 
-    def fromAxisAngle(cls, w):
+    def fromAxisAngle(cls, w): #May need to do transpose to get passive rotation
         theta = np.linalg.norm(w)
         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
