@@ -1,4 +1,5 @@
 import numpy as np 
+from IPython.core.debugger import Pdb
 
 #G might change if the R part of arr changes
 G = np.array([[[0, 0, 1],
@@ -19,9 +20,18 @@ class SE2:
     def inv(self):
         return SE2(self.arr[:2,:2].T, -self.arr[:2,:2].T @ self.arr[:2,2])
 
-    def __mul__(self, T2): # May need to check if this is an SE2 object or a point to be transformed
-        temp = self.arr @ T2.arr
-        return SE2(temp[:2,:2], temp[:2,2])
+    def __mul__(self, T2): # May need to check if this is an SE2 object or a point to be transformed. 
+        if isinstance(T2, SE2):
+            temp = self.arr @ T2.arr
+            return SE2(temp[:2,:2], temp[:2,2])
+        elif isinstance(T2, np.ndarray):
+            if not T2.size == 2:
+                raise ValueError("Array is to long. Make sure the array is a 1D array with size 2")
+            else:
+                return self.R @ T2 + self.t
+        else:
+            Pdb().set_trace()
+            raise ValueError("Type not supported. Make sure the type is an SE2 object")
     
 
     @property 
@@ -86,5 +96,5 @@ class SE2:
         return arr
     
     @staticmethod
-    def hat(arr): # Can I use G to for the Adjoint
+    def hat(arr): 
         return np.sum(G * arr[:,None, None], axis=0)

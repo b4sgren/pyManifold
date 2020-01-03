@@ -45,6 +45,21 @@ class SE2_Test(unittest.TestCase):
             T_true = SE2(R_true, t_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
+        
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            T = SE2.fromAngle(theta, t)
+
+            vec = np.random.uniform(-5, 5, size=2)
+
+            pt = T * vec
+            vec = np.hstack((vec, [1]))
+
+            pt_true = T.arr @ vec
+
+            np.testing.assert_allclose(pt_true[:2], pt)
     
     def testLog(self):
         for i in range(100):
