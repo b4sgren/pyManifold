@@ -138,6 +138,19 @@ class SE3_Test(unittest.TestCase):
             T3_true = SE3(t3, R3)
 
             np.testing.assert_allclose(T3_true.arr, T3.arr)
+        
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=3)
+            R = Rotation.random().as_dcm()
+
+            T = SE3(t, R)
+
+            pt = np.random.uniform(-5, 5, size=3)
+
+            rot_pt = T * pt 
+            rot_pt_true = T.R @ pt + T.t
+
+            np.testing.assert_allclose(rot_pt_true, rot_pt)
 
 if __name__=="__main__":
     unittest.main()

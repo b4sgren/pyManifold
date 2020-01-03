@@ -42,8 +42,17 @@ class SE3:
         return SE3(-self.R.T @ self.t, self.R.T)
     
     def __mul__(self, T):
-        temp = self.arr @ T.arr
-        return SE3(temp[:3,3], temp[:3,:3])
+        if isinstance(T, SE3):
+            temp = self.arr @ T.arr
+            return SE3(temp[:3,3], temp[:3,:3])
+        elif isinstance(T, np.ndarray):
+            if not T.size == 3:
+                raise ValueError("T is the incorrect shape. T must be a 1D array with length 3")
+            else:
+                temp = self.arr @ np.hstack((T, [1])) 
+                return temp[:-1]
+        else:
+            raise ValueError("Type not supported. T must be an SE3 object or an numpy array")
     
     @property 
     def R(self):

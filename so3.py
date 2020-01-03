@@ -16,7 +16,7 @@ class SO3:
     
     def __mul__(self, R2):
         if isinstance(R2, SO3):
-            return SO3(self.arr @ R2.arr)
+            return SO3(self.R @ R2.R)
         elif isinstance(R2, np.ndarray):
             if not R2.size == 3:
                 raise ValueError("R2 needs to be a 1D array of length 3")
