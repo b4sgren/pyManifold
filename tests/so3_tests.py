@@ -96,6 +96,30 @@ class SO3_testing(unittest.TestCase):
             R_true = Rotation.from_rotvec(vec*theta).as_dcm()
 
             np.testing.assert_allclose(R_true, R.arr)
+    
+    def testGroupAction(self):
+        for i in range(100):
+            rot1 = Rotation.random().as_dcm()
+            rot2 = Rotation.random().as_dcm()
+
+            R1 = SO3(rot1)
+            R2 = SO3(rot2)
+
+            R3 = R1 * R2 
+            R3_true = rot1 @ rot2
+
+            np.testing.assert_allclose(R3_true, R3.arr)
+        
+        for i in range(100):
+            rot1 = Rotation.random().as_dcm()
+
+            R = SO3(rot1)
+            pt = np.random.uniform(-5, 5, size=3)
+
+            rot_pt = R * pt 
+            rot_pt_true = rot1 @ pt
+
+            np.testing.assert_allclose(rot_pt_true, rot_pt)
 
 if __name__=="__main__":
     unittest.main()

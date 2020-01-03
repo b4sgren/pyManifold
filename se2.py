@@ -1,5 +1,4 @@
 import numpy as np 
-from IPython.core.debugger import Pdb
 
 #G might change if the R part of arr changes
 G = np.array([[[0, 0, 1],
@@ -30,7 +29,6 @@ class SE2:
             else:
                 return self.R @ T2 + self.t
         else:
-            Pdb().set_trace()
             raise ValueError("Type not supported. Make sure the type is an SE2 object")
     
 

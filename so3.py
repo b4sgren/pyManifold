@@ -15,7 +15,15 @@ class SO3:
         self.arr = R 
     
     def __mul__(self, R2):
-        return SO3(self.arr @ R2.arr)
+        if isinstance(R2, SO3):
+            return SO3(self.arr @ R2.arr)
+        elif isinstance(R2, np.ndarray):
+            if not R2.size == 3:
+                raise ValueError("R2 needs to be a 1D array of length 3")
+            else:
+                return self.R @ R2 
+        else:
+            raise ValueError("Type not supported. Make sure R2 is an SO3 object or a numpy array")
 
     def inv(self):
         return SO3(self.arr.T)
