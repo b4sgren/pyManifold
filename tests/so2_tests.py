@@ -60,6 +60,21 @@ class SO2Test(unittest.TestCase):
             self.assertAlmostEqual(R_true[0,1], R.arr[0,1])
             self.assertAlmostEqual(R_true[1,0], R.arr[1,0])
             self.assertAlmostEqual(R_true[1,1], R.arr[1,1])
+        
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            R = SO2.fromAngle(theta)
+
+            pt = np.random.uniform(-5, 5, size=2)
+
+            rot_pt = R * pt
+
+            x_true = np.cos(theta) * pt[0] - np.sin(theta) * pt[1]
+            y_true = np.sin(theta) * pt[0] + np.cos(theta) * pt[1]
+
+            rot_pt_true = np.array([x_true, y_true])
+
+            np.testing.assert_allclose(rot_pt_true, rot_pt)
 
     def testInv(self):
         for i in range(100):
