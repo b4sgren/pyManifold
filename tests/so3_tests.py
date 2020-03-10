@@ -53,6 +53,18 @@ class SO3_testing(unittest.TestCase):
             R_true = sp.linalg.expm(logR)
 
             np.testing.assert_allclose(R_true, R.arr)
+        
+        for i in range(100):
+            logR_vec = np.random.uniform(0.0, 1e-3, size=3)
+            logR = np.array([[0, -logR_vec[2], logR_vec[1]],
+                        [logR_vec[2], 0, -logR_vec[0]],
+                        [-logR_vec[1], logR_vec[0], 0]])
+
+            R = SO3.exp(logR)
+            R_true = sp.linalg.expm(logR)
+
+            np.testing.assert_allclose(R_true, R.arr)
+
     
     def testVee(self): #Is the result an axis-angle representation? aka a rotation vector?
         for i in range(100):

@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 
 G = np.array([[[0, 0, 0],
                 [0, 0, -1],
@@ -68,9 +68,15 @@ class SO3:
     
     @classmethod 
     def exp(cls, logR):
-        w = np.array([logR[2,1], logR[0,2], logR[1,0]])
+        w = cls.vee(logR) 
         theta = np.sqrt(w @ w)
-        R = np.eye(3) + np.sin(theta)/theta * logR + (1 - np.cos(theta))/ (theta**2) * (logR @ logR)
+        if theta > 1e-3:
+            R = np.eye(3) + np.sin(theta)/theta * logR + (1 - np.cos(theta))/ (theta**2) * (logR @ logR)
+        else: # Do taylor series expansion for small thetas
+            stheta = 1 - theta**2 / 6.0 + theta**4 / 120.0 
+            ctheta = 1/2.0 - theta**2 / 24.0 + theta**4 / 720
+            R = np.eye(3) + stheta * logR + ctheta * (logR @ logR)
+
         return cls(R)
     
     @staticmethod 
