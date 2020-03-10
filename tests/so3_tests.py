@@ -148,6 +148,20 @@ class SO3_testing(unittest.TestCase):
             rot_pt_true = rot1 @ pt
 
             np.testing.assert_allclose(rot_pt_true, rot_pt)
+    
+    def testAdjoint(self):
+        for i in range(100):
+            delta = np.random.uniform(-np.pi, np.pi, size=3)
+            rot = Rotation.random().as_dcm()
+            R = SO3(rot)
+
+            Adj_R = R.Adj
+
+            # Pdb().set_trace()
+            T_true = R * SO3.exp(SO3.hat(delta))
+            T = SO3.exp(SO3.hat(Adj_R @ delta)) * R
+
+            np.testing.assert_allclose(T_true.R, T.R)
 
 if __name__=="__main__":
     unittest.main()
