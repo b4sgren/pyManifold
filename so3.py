@@ -64,7 +64,11 @@ class SO3:
     @staticmethod 
     def log(R):
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
-        return theta / (2.0 * np.sin(theta)) * (R.arr - R.arr.T)
+        if theta > 1e-3:
+            return theta / (2.0 * np.sin(theta)) * (R.R - R.R.T) # Define subtraction operator
+        else: # Do taylor series expansion
+            temp = 1/2.0 * (1 + theta**2 / 3.0 + 7 * theta**4 / 360)
+            return temp * (R.R - R.R.T)
     
     @classmethod 
     def exp(cls, logR):

@@ -6,6 +6,8 @@ import sys
 sys.path.append("..")
 from so3 import SO3
 
+from IPython.core.debugger import Pdb
+
 class SO3_testing(unittest.TestCase):
     def testConstructor(self):
         for i in range(100):
@@ -41,6 +43,19 @@ class SO3_testing(unittest.TestCase):
             logR_true = sp.linalg.logm(temp)
 
             np.testing.assert_allclose(logR_true, logR, atol=1e-10)
+        
+        for i in range(100): #Test taylor series expansion
+            vec = np.random.uniform(-3.0, 3.0, size=3)
+            vec = vec / np.linalg.norm(vec)
+            ang = np.random.uniform(-1e-3, 1e-3)
+            temp = vec * ang
+            R = SO3.fromAxisAngle(temp)
+
+            logR = SO3.log(R)
+            logR_true = sp.linalg.logm(R.R)
+            # Pdb().set_trace()
+
+            np.testing.assert_allclose(logR_true, logR, atol=1e-10)
     
     def testExp(self):
         for i in range(100):
@@ -54,7 +69,7 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(R_true, R.arr)
         
-        for i in range(100):
+        for i in range(100): #Test taylor series
             logR_vec = np.random.uniform(0.0, 1e-3, size=3)
             logR = np.array([[0, -logR_vec[2], logR_vec[1]],
                         [logR_vec[2], 0, -logR_vec[0]],
