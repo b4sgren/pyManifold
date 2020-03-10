@@ -25,9 +25,11 @@ class SO3:
         else:
             raise ValueError("Type not supported. Make sure R2 is an SO3 object or a numpy array")
     
-    def __sub__(self, R2):
+    def __sub__(self, R2): #May add a vector to define as a box minus
         if isinstance(R2, SO3):
             return self.R - R2.R
+        else:
+            raise ValueError("Type not supported. Make sure R2 is an SO3 object")
 
     def inv(self):
         return SO3(self.arr.T)
