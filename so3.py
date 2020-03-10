@@ -38,7 +38,6 @@ class SO3:
         theta = angles[1]
         psi = angles[2]
         
-        #NOTE: May need to switch the signs on all these rotation matrices to get them to be passive rotations
         cps = np.cos(psi)
         sps = np.sin(psi)
         R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
@@ -54,7 +53,7 @@ class SO3:
         return cls(R1 @ R2 @ R3)
     
     @classmethod 
-    def fromAxisAngle(cls, w): #May need to do transpose to get passive rotation
+    def fromAxisAngle(cls, w): 
         theta = np.linalg.norm(w)
         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
@@ -62,10 +61,6 @@ class SO3:
 
         return cls(arr)
 
-    @classmethod #Not sure that I want this one. I will have a separate quaternion class that I want to implement
-    def fromQuaternion(cls, q):
-        debug = 1
-    
     @staticmethod 
     def log(R):
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)

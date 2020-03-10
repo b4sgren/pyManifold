@@ -2,15 +2,16 @@ import numpy as np
 from IPython.core.debugger import Pdb
 
 G = np.zeros((6,4,4))
-G[0,0,3] = 1
-G[1,1,3] = 1
-G[2,2,3] = 1
-G[3,1,2] = -1 #Sign may be switched for all from this line on down for passive rotations
-G[3,2,1] = 1
-G[4,0,2] = 1
-G[4,2,0] = -1
-G[5,0,1] = -1
-G[5,1,0] = 1
+G[0,1,2] = -1 
+G[0,2,1] = 1
+G[1,0,2] = 1
+G[1,2,0] = -1
+G[2,0,1] = -1
+G[2,1,0] = 1
+G[3,0,3] = 1
+G[4,1,3] = 1
+G[5,2,3] = 1
+
 
 class SE3:
     def __init__(self, t, *args):
@@ -100,7 +101,8 @@ class SE3:
         u = logT[:3,3]
         w = np.array([logT[2,1], logT[0,2], logT[1,0]])
 
-        return np.concatenate((u,w))
+        # return np.concatenate((u,w))
+        return np.concatenate((w, u))
     
     @staticmethod 
     def hat(arr):

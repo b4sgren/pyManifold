@@ -66,7 +66,7 @@ class SE3_Test(unittest.TestCase):
             u = np.random.uniform(-10, 10, size=3)
             w = np.random.uniform(-np.pi, np.pi, size=3)
 
-            arr_true = np.hstack((u,w))
+            arr_true = np.hstack((w,u))
 
             logR = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
             logT = np.zeros((4,4))
