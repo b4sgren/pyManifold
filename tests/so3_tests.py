@@ -53,7 +53,6 @@ class SO3_testing(unittest.TestCase):
 
             logR = SO3.log(R)
             logR_true = sp.linalg.logm(R.R)
-            # Pdb().set_trace()
 
             np.testing.assert_allclose(logR_true, logR, atol=1e-10)
     
@@ -109,9 +108,11 @@ class SO3_testing(unittest.TestCase):
             R = SO3(mat)
 
             R_inv = R.inv()
+            R_T = R.transpose()
             R_inv_true = np.linalg.inv(mat)
 
-            np.testing.assert_allclose(R_inv_true, R_inv.arr)
+            np.testing.assert_allclose(R_inv_true, R_inv.R)
+            np.testing.assert_allclose(R_inv_true, R_T.R)
     
     def testFromAxisEuler(self):
         for i in range(100):

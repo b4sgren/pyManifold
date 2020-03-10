@@ -15,7 +15,7 @@ class SO3:
         self.arr = R 
     
     def __mul__(self, R2):
-        if isinstance(R2, SO3):
+        if isinstance(R2, SO3): #Do I want to define this for other 3x3 matrices?
             return SO3(self.R @ R2.R)
         elif isinstance(R2, np.ndarray):
             if not R2.size == 3:
@@ -24,8 +24,15 @@ class SO3:
                 return self.R @ R2 
         else:
             raise ValueError("Type not supported. Make sure R2 is an SO3 object or a numpy array")
+    
+    def __sub__(self, R2):
+        if isinstance(R2, SO3):
+            return self.R - R2.R
 
     def inv(self):
+        return SO3(self.arr.T)
+    
+    def transpose(self):
         return SO3(self.arr.T)
 
     @property 
