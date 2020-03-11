@@ -92,6 +92,12 @@ class SO3:
 
         return cls(R)
     
+    @classmethod 
+    def Exp(cls, w):
+        logR = cls.hat(w)
+        R = cls.exp(logR)
+        return R
+    
     @staticmethod 
     def vee(logR):
         omega = np.array([logR[2,1], logR[0,2], logR[1,0]])

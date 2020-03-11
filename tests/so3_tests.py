@@ -157,8 +157,10 @@ class SO3_testing(unittest.TestCase):
 
             Adj_R = R.Adj
 
-            T_true = R * SO3.exp(SO3.hat(delta)) #This notation is messy. Add a check to exp function to accept a 3 vector as well as a skew matrix
-            T = SO3.exp(SO3.hat(Adj_R @ delta)) * R
+            # T_true = R * SO3.exp(SO3.hat(delta)) #This notation is messy. Add a check to exp function to accept a 3 vector as well as a skew matrix
+            # T = SO3.exp(SO3.hat(Adj_R @ delta)) * R
+            T_true = R * SO3.Exp(delta)
+            T = SO3.Exp(Adj_R @ delta) * R
 
             np.testing.assert_allclose(T_true.R, T.R)
 
