@@ -18,16 +18,16 @@ class SO3:
         if isinstance(R2, SO3): #Do I want to define this for other 3x3 matrices?
             return SO3(self.R @ R2.R)
         elif isinstance(R2, np.ndarray):
-            if not R2.size == 3:
+            if not R2.shape[0] == 3:
                 raise ValueError("R2 needs to be a 1D array of length 3")
             else:
                 return self.R @ R2 
         else:
             raise ValueError("Type not supported. Make sure R2 is an SO3 object or a numpy array")
     
-    def __sub__(self, R2): #May add a vector to define as a box minus
+    def __sub__(self, R2): 
         if isinstance(R2, SO3):
-            return self.R - R2.R
+            return self.R - R2.R #override this to do a box minus type thing
         else:
             raise ValueError("Type not supported. Make sure R2 is an SO3 object")
 
