@@ -74,7 +74,7 @@ class SO3:
     def log(R):
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
         if theta > 1e-3 and np.abs(np.abs(theta) - np.pi) > 1e-3:
-            return theta / (2.0 * np.sin(theta)) * (R - R.transpose()) # Define subtraction operator
+            return theta / (2.0 * np.sin(theta)) * (R.R - R.transpose().R) 
         else: # Do taylor series expansion
             temp = 1/2.0 * (1 + theta**2 / 3.0 + 7 * theta**4 / 360)
             return temp * (R - R.transpose())
@@ -113,5 +113,5 @@ class SO3:
         return (G @ omega).squeeze()
     
     @property 
-    def Adj(self): #Need to test this still
+    def Adj(self): 
         return self.arr
