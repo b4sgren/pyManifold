@@ -80,6 +80,11 @@ class SO3:
             return temp * (R - R.transpose())
     
     @classmethod 
+    def Log(cls, R): #easy call to go straight to a vector
+        logR = cls.log(R)
+        return cls.vee(logR)
+    
+    @classmethod 
     def exp(cls, logR):
         w = cls.vee(logR) 
         theta = np.sqrt(w @ w)
@@ -93,7 +98,7 @@ class SO3:
         return cls(R)
     
     @classmethod 
-    def Exp(cls, w):
+    def Exp(cls, w): # one call to go straight from vector to SO3 object
         logR = cls.hat(w)
         R = cls.exp(logR)
         return R
