@@ -36,10 +36,20 @@ class SO2:
         theta = theta_x[1,0]
         return cls.fromAngle(theta)
     
+    @classmethod 
+    def Exp(cls, theta):
+        logR = cls.hat(theta)
+        return cls.exp(logR)
+    
     @staticmethod
     def log(R): 
         theta = np.arctan2(R.arr[1,0], R.arr[0,0])
         return G * theta
+    
+    @classmethod
+    def Log(cls, R):
+        logR = cls.log(R)
+        return cls.vee(logR)
 
     @staticmethod
     def vee(theta_x):

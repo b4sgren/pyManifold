@@ -86,6 +86,19 @@ class SO2Test(unittest.TestCase):
             R_inv = R.inv()
 
             np.testing.assert_allclose(R_inv_true, R_inv.arr)
+    
+    def testAdjoint(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            R = SO2.fromAngle(theta)
+            delta = np.random.uniform(-np.pi, np.pi)
+
+            Adj_R = R.Adj
+
+            Rf = R * SO2.Exp(delta)
+            Rf_true = SO2.Exp(delta) * R 
+
+            np.testing.assert_allclose(Rf_true.R, Rf.R)
 
 if __name__=="__main__":
     unittest.main()
