@@ -185,6 +185,19 @@ class SE3_Test(unittest.TestCase):
             T_true = SE3(t, R_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
+    
+    def testFromAxisAngle(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=3)
+            ang = np.random.uniform(-np.pi, np.pi)
+            vec = np.random.uniform(-1, 1, size=3)
+            vec = vec / np.linalg.norm(vec) * ang 
+
+            T = SE3.fromAxisAngle(t, vec)
+            R_true = Rotation.from_rotvec(vec).as_dcm()
+            T_true = SE3(t, R_true)
+
+            np.testing.assert_allclose(T_true.arr, T.arr)
 
 if __name__=="__main__":
     unittest.main()

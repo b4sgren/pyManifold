@@ -102,7 +102,14 @@ class SE3:
         theta = np.linalg.norm(w)
         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
-        arr = np.eye(3) + np.sin(theta) / theta * skew_w + (1 - np.cos(theta)) / (theta**2) * (skew_w @ skew_w) #Should consider Taylor series for this
+        if theta > 1e-3:
+            A = np.sin(theta)/ theta 
+            B = (1 - np.cos(theta)) / (theta**2)
+        else:
+            A = 1 - theta**2 / 6.0 + theta**4 / 120.0
+            B = 0.5 - theta**2 / 24.0 + theta**4 / 720.0
+
+        arr = np.eye(3) + A * skew_w + B * (skew_w @ skew_w) 
         return cls(t, arr)
 
     @staticmethod
