@@ -39,7 +39,6 @@ class SO3_testing(unittest.TestCase):
             R = SO3(temp)
             
             logR = SO3.log(R)
-
             logR_true = sp.linalg.logm(temp)
 
             if np.linalg.norm(logR_true - logR, ord='fro') > 1e-3:
@@ -60,6 +59,12 @@ class SO3_testing(unittest.TestCase):
             logR = SO3.log(R)
             logR_true = sp.linalg.logm(R.R)
 
+            if np.linalg.norm(logR_true - logR, ord='fro') > 1e-3:
+                Pdb().set_trace()
+                debug = 1
+                temp = SO3.log(R)
+
+
             np.testing.assert_allclose(logR_true, logR, atol=1e-10)
         
         for i in range(100): #Around pi
@@ -71,6 +76,11 @@ class SO3_testing(unittest.TestCase):
 
             logR = SO3.log(R)
             logR_true = sp.linalg.logm(R.R)
+            
+            if np.linalg.norm(logR_true - logR, ord='fro') > 1e-3:
+                Pdb().set_trace()
+                debug = 1
+                temp = SO3.log(R)
 
             np.testing.assert_allclose(logR_true, logR, atol=1e-10)
     

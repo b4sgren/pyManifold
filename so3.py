@@ -69,7 +69,14 @@ class SO3:
         theta = np.linalg.norm(w)
         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
-        arr = np.eye(3) + np.sin(theta) / theta * skew_w + (1 - np.cos(theta)) / (theta**2) * (skew_w @ skew_w) #Do taylor series expansion
+        if np.abs(theta) > 1e-3:
+            A = np.sin(theta) / theta 
+            B = (1 - np.cos(theta)) / (theta**2)
+        else:
+            A = 1.0 - theta**2 / 6.0 + theta**4 / 120.0
+            B = 0.5 - theta**2 / 24.0 + theta**4/720.0
+
+        arr = np.eye(3) + A * skew_w + B * (skew_w @ skew_w) #Do taylor series expansion
 
         return cls(arr)
 
@@ -77,11 +84,11 @@ class SO3:
     def log(R):
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
         if np.abs(theta) < 1e-3: # Do taylor series expansion
-            temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360) #Is the issue that this taylor series is around 0 and not around pi?
+            temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360) 
             return temp * (R - R.transpose())
         elif np.abs(np.abs(theta) - np.pi) < 1e-3:
             temp = - np.pi/(theta - np.pi) - 1 - np.pi/6 * (theta - np.pi) - (theta - np.pi)**2/6 - 7*np.pi/360 * (theta - np.pi)**3 - 7/360.0 * (theta - np.pi)**4
-            return temp * (R - R.transpose())
+            return temp/2.0 * (R - R.transpose())
         else:
             return theta / (2.0 * np.sin(theta)) * (R - R.transpose()) 
     
