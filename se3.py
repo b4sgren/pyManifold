@@ -11,6 +11,7 @@ G[3,0,3] = 1
 G[4,1,3] = 1
 G[5,2,3] = 1
 
+#Jacobians, and overload plus and minus for box plus and box minus
 
 class SE3:
     def __init__(self, t, *args): 
@@ -29,7 +30,6 @@ class SE3:
                 self.arr[:3,:3] = args[0]
             else:
                 raise ValueError("Pass in a 3x3 rotation matrix. If initializing using RPY angles or axis angle use the fromRPY or from AxisAngle methods")
-
     
     def inv(self):
         return SE3(-self.R.T @ self.t, self.R.T)
@@ -176,3 +176,5 @@ class SE3:
         adj[3:,:3] = tx @ R
 
         return adj
+    
+    #Left and right jacobian stuff goes here
