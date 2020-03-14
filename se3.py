@@ -57,7 +57,7 @@ class SE3:
                 temp = self.arr @ np.hstack((T, [1])) 
                 return temp[:-1]
         else:
-            raise ValueError("Type not supported. T must be an SE3 object or an numpy array")
+            raise ValueError("Type not supported. T must be an SE3 object or an numpy array with length 3")
     
     @property 
     def R(self):
@@ -66,6 +66,44 @@ class SE3:
     @property
     def t(self):
         return self.arr[:3,3]
+    
+    @classmethod 
+    def fromRPY(cls, t, angles): #Test this
+        if not angles.size == 3:
+            raise ValueError("To use fromRPY the input must be a numpy array of length 3")
+        if not t.size == 3:
+            raise ValueError("The translation vector must be a numppy array of length 3")
+
+        phi = angles[0]
+        theta = angles[1]
+        psi = angles[2]
+
+        cps = np.cos(psi)
+        sps = np.sin(psi)
+        R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
+
+        ct = np.cos(theta)
+        st = np.sin(theta)
+        R2 = np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
+
+        cp = np.cos(phi)
+        sp = np.sin(phi)
+        R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
+
+        return cls(t, R1 @ R2 @ R3)
+    
+    @classmethod 
+    def fromAxisAngle(cls, t, w): #Need to test this
+        if not t.size == 3:
+            raise ValueError("The translation vector must be a numpy array of length 3")
+        if not w.size == 3:
+            raise ValueError("The axis angle vector must be a numpy array of length 3. The norm of the vector is the angle of rotation")
+
+        theta = np.linalg.norm(w)
+        skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
+
+        arr = np.eye(3) + np.sin(theta) / theta * skew_w + (1 - np.cos(theta)) / (theta**2) * (skew_w @ skew_w) #Should consider Taylor series for this
+        return cls(t, arr)
 
     @staticmethod
     def log(T):  #Do taylor series expansion

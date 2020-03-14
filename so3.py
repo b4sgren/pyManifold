@@ -12,7 +12,10 @@ G = np.array([[[0, 0, 0],
 
 class SO3:
     def __init__(self, R): 
-        self.arr = R 
+        if R.shape[0] ==3 and R.shape[1] == 3:
+            self.arr = R 
+        else:
+            raise ValueError("Input is a 3x3 numpy array. Otherwise use fromRPY or FromAxisAngle")
     
     def __mul__(self, R2):
         if isinstance(R2, SO3): #Do I want to define this for other 3x3 matrices?
