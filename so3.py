@@ -115,3 +115,5 @@ class SO3:
     @property 
     def Adj(self): 
         return self.arr
+    
+    #Left and right jacobians go here. Read about them first
