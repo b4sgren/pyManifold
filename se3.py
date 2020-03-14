@@ -16,7 +16,12 @@ G[5,2,3] = 1
 class SE3:
     def __init__(self, t, *args):
         self.arr = np.eye(4)
-        self.arr[:3, 3] = t
+        if t.size == 16:
+            self.arr = t 
+        elif t.size == 3:
+            self.arr[:3, 3] = t
+        else:
+            raise ValueError("T must be a 4x4 transformation matrix or a 3 vector for translation")
 
         if len(args) == 1: #Rotation passed in as a rotation matrix
             self.arr[:3,:3] = args[0]
@@ -64,7 +69,7 @@ class SE3:
         return self.arr[:3,3]
 
     @staticmethod
-    def log(T): #Add an R and t property to get rotation and translation
+    def log(T):  #Do taylor series expansion
         theta = np.arccos((np.trace(T.arr[:3,:3]) - 1)/2.0) 
         logR = theta / (2.0 * np.sin(theta)) * (T.R - T.R.T)
 
@@ -86,15 +91,25 @@ class SE3:
         w = np.array([logT[2,1], logT[0,2], logT[1,0]])
 
         theta = np.sqrt(w @ w)
-        A = np.sin(theta) / theta 
-        B = (1 - np.cos(theta)) / (theta**2)
-        C = (1 - A) / (theta**2)
+        if theta > 1e-3:
+            A = np.sin(theta) / theta  
+            B = (1 - np.cos(theta)) / (theta**2)
+            C = (1 - A) / (theta**2)
+        else: #Taylor series expansion
+            A = 1.0 - theta**2/6.0 + theta**4/120.0 
+            B = 0.5 - theta**2 / 24.0 + theta**4 / 720.0
+            C = 1/6.0 - theta**2/120.0 + theta**4 / 5040.0
 
         R = np.eye(3) + A * logT[:3,:3] + B * np.linalg.matrix_power(logT[:3,:3], 2)
         V = np.eye(3) + B * logT[:3,:3] + C * np.linalg.matrix_power(logT[:3,:3], 2)
 
         t = V @ u
         return cls(t, R)
+    
+    @classmethod 
+    def Exp(cls, arr): #One call to go from a vector to Transformation matrix
+        logT = cls.hat(arr)
+        return cls.exp(logT)
     
     @staticmethod 
     def vee(logT):

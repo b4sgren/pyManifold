@@ -59,7 +59,20 @@ class SE3_Test(unittest.TestCase):
             T_true = sp.linalg.expm(logT)
             T = SE3.exp(logT)
 
-            np.testing.assert_allclose(T_true, T.arr, atol=1e-8)
+            np.testing.assert_allclose(T_true, T.arr)
+        
+        for i in range(100): #Test small thetas
+            u = np.random.uniform(-10, 10, size=3)
+            w = np.random.uniform(-1.0, 1.0, size=3)
+            ang = np.random.uniform(-1e-3, 1e-3)
+            w = w / np.linalg.norm(w) * ang
+
+            arr = np.concatenate((w, u))
+
+            T_true = sp.linalg.expm(SE3.hat(arr))
+            T = SE3.Exp(arr)
+
+            np.testing.assert_allclose(T_true, T.arr)
     
     def testVee(self):
         for i in range(100):
