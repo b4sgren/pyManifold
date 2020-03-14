@@ -174,6 +174,17 @@ class SE3_Test(unittest.TestCase):
             rot_pt_true = T.R @ pt + T.t
 
             np.testing.assert_allclose(rot_pt_true, rot_pt)
+    
+    def testFromRPY(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=3)
+            rpy = np.random.uniform(-np.pi, np.pi, size=3)
+
+            T = SE3.fromRPY(t, rpy)
+            R_true = Rotation.from_euler('ZYX', [rpy[2], rpy[1], rpy[0]]).as_dcm()
+            T_true = SE3(t, R_true)
+
+            np.testing.assert_allclose(T_true.arr, T.arr)
 
 if __name__=="__main__":
     unittest.main()
