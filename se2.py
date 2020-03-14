@@ -18,7 +18,7 @@ class SE2:
     def inv(self):
         return SE2(self.arr[:2,:2].T, -self.arr[:2,:2].T @ self.arr[:2,2])
 
-    def __mul__(self, T2): # May need to check if this is an SE2 object or a point to be transformed. 
+    def __mul__(self, T2): 
         if isinstance(T2, SE2):
             temp = self.arr @ T2.arr
             return SE2(temp[:2,:2], temp[:2,2])
@@ -32,11 +32,12 @@ class SE2:
     
 
     @property 
-    def Adj(self): #The test passes but I'm not sure this is correct right now
-        adj = np.eye(3)
-        adj[:2, :2] = self.arr[:2, :2]
-        adj[0, 2] = self.arr[1, 2]
-        adj[1, 2] = -self.arr[0, 2]
+    def Adj(self): 
+        J = np.array([[0, 1], [-1, 0]])
+        adj = np.zeros((3,3))
+        adj[0,0] = 1
+        adj[1:,0] = J @ self.t 
+        adj[1:,1:] = self.R
 
         return adj
     
@@ -57,7 +58,7 @@ class SE2:
         return cls(R, t)
     
     @staticmethod
-    def log(T):
+    def log(T): #Implement taylor series expansion
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
         t = T.t
 
@@ -73,16 +74,26 @@ class SE2:
 
         return logT 
     
+    @classmethod 
+    def Log(cls, T):
+        logT = cls.log(T)
+        return cls.vee(logT)
+    
     @classmethod
-    def exp(cls, X):
+    def exp(cls, X): #Taylor series expansion
         theta = X[1,0]
         ct = np.cos(theta)
         st = np.sin(theta)
 
-        V = 1/theta * np.array([[st, ct-1], [1 - ct, st]])
+        V = 1/theta * np.array([[st, ct-1], [1 - ct, st]]) 
         t = V @ X[:2,2]
         
         return cls.fromAngle(theta, t)
+    
+    @classmethod 
+    def Exp(cls, vec):
+        logR = cls.hat(vec)
+        return cls.exp(logR)
     
     @staticmethod
     def vee(X):

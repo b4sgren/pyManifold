@@ -5,6 +5,8 @@ sys.path.append("..")
 import numpy as np 
 from se2 import SE2 
 
+from IPython.core.debugger import Pdb
+
 class SE2_Test(unittest.TestCase):
     def testInv(self):
         for i in range(100):
@@ -125,33 +127,33 @@ class SE2_Test(unittest.TestCase):
             T = SE2(R, t)
             adj = T.Adj
 
-            adj_true = np.eye(3)
-            adj_true[:2, :2] = R 
-            adj_true[0, 2] = t[1]
-            adj_true[1, 2] = -t[0]
+            adj_true = np.zeros((3,3))
+            adj_true[1:, 1:] = R 
+            adj_true[1, 0] = t[1]
+            adj_true[2, 0] = -t[0]
+            adj_true[0,0] = 1
 
             np.testing.assert_allclose(adj_true, adj)
     
-    # def testRotateTangentVector(self):
-    #     for i in range(100):
-    #         t = np.random.uniform(-10, 10, size=2)
-    #         theta = np.random.uniform(-np.pi, np.pi)
-    #         u = np.random.uniform(-1, 1, size=2)
-    #         phi = np.random.uniform(-np.pi, np.pi)
-    #         delta = np.array([u[0], u[1], phi])
+    def testRotateTangentVector(self):
+        for i in range(100):
+            t = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+            u = np.random.uniform(-1, 1, size=2)
+            phi = np.random.uniform(-np.pi, np.pi)
+            delta = np.array([phi, u[0], u[1]])
 
-    #         ct = np.cos(theta)
-    #         st = np.sin(theta)
-    #         R = np.array([[ct, -st], [st, ct]])
-    #         T = SE2(R, t)
+            ct = np.cos(theta)
+            st = np.sin(theta)
+            R = np.array([[ct, -st], [st, ct]])
+            T = SE2(R, t)
             
-    #         adj = T.Adj
+            adj = T.Adj
 
-    #         delta_rot = adj @ delta
-    #         delta_rot_true = np.array([0, 0, phi])
-    #         delta_rot_true[:2] = R @ u + phi * np.array([t[1], -t[0]])
+            T2_true = T * SE2.Exp(delta)
+            T2 = SE2.Exp(adj @ delta) * T
 
-    #         np.testing.assert_allclose(delta_rot_true, delta_rot)
+            np.testing.assert_allclose(T2_true.arr, T2.arr)
     
     def testFromAngle(self):
         for i in range(100):
