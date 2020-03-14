@@ -13,7 +13,7 @@ G[5,2,3] = 1
 
 
 class SE3:
-    def __init__(self, t, *args): #Add a from euler, and rot_vec
+    def __init__(self, t, *args): 
         self.arr = np.eye(4)
         if t.size == 16:
             self.arr = t 
@@ -22,26 +22,14 @@ class SE3:
         else:
             raise ValueError("T must be a 4x4 transformation matrix or a 3 vector for translation")
 
-        if len(args) == 1: #Rotation passed in as a rotation matrix
-            self.arr[:3,:3] = args[0]
-        if len(args) == 3: #Rotation passed in as RPY angles in that order 
-            phi = args[0]
-            theta = args[1]
-            psi = args[2]
+        if len(args) > 1:
+            raise ValueError("Pass in a 3x3 rotation matrix if t is a translation vector and not a 4x4 transformation matrix")
+        elif len(args) == 1:
+            if args[0].shape[0] == 3 and args[0].shape[1] == 3:
+                self.arr[:3,:3] = args[0]
+            else:
+                raise ValueError("Pass in a 3x3 rotation matrix. If initializing using RPY angles or axis angle use the fromRPY or from AxisAngle methods")
 
-            cps = np.cos(psi)
-            sps = np.sin(psi)
-            R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
-
-            ct = np.cos(theta)
-            st = np.sin(theta)
-            R2 = np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
-
-            cp = np.cos(phi)
-            sp = np.sin(phi)
-            R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
-
-            self.arr[:3,:3] = R1 @ R2 @ R3
     
     def inv(self):
         return SE3(-self.R.T @ self.t, self.R.T)
@@ -68,7 +56,7 @@ class SE3:
         return self.arr[:3,3]
     
     @classmethod 
-    def fromRPY(cls, t, angles): #Test this
+    def fromRPY(cls, t, angles): 
         if not angles.size == 3:
             raise ValueError("To use fromRPY the input must be a numpy array of length 3")
         if not t.size == 3:
@@ -93,7 +81,7 @@ class SE3:
         return cls(t, R1 @ R2 @ R3)
     
     @classmethod 
-    def fromAxisAngle(cls, t, w): #Need to test this
+    def fromAxisAngle(cls, t, w): 
         if not t.size == 3:
             raise ValueError("The translation vector must be a numpy array of length 3")
         if not w.size == 3:
