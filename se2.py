@@ -1,14 +1,13 @@
 import numpy as np 
 
-#G might change if the R part of arr changes
-G = np.array([[[0, 0, 1],
+G = np.array([[[0, -1, 0],
+                [1, 0, 0],
+                [0, 0, 0]],
+               [[0, 0, 1],
                 [0, 0, 0],
                 [0, 0, 0]],
                [[0, 0, 0],
-                [0, 0, 1],
-                [0, 0, 0]],
-               [[0, -1, 0],
-                [1, 0, 0], 
+                [0, 0, 1], 
                 [0, 0, 0]]])
 class SE2:
     def __init__(self, R, t):
@@ -33,7 +32,7 @@ class SE2:
     
 
     @property 
-    def Adj(self):
+    def Adj(self): #The test passes but I'm not sure this is correct right now
         adj = np.eye(3)
         adj[:2, :2] = self.arr[:2, :2]
         adj[0, 2] = self.arr[1, 2]
@@ -88,8 +87,8 @@ class SE2:
     @staticmethod
     def vee(X):
         arr = np.zeros(3)
-        arr[:2] = X[:2,2]
-        arr[2] = X[1,0]
+        arr[1:] = X[:2,2]
+        arr[0] = X[1,0]
 
         return arr
     
