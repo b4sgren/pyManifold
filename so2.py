@@ -1,6 +1,8 @@
 import numpy as np 
 
 G = np.array([[0, -1], [1, 0]])
+
+#TODO: add jacobians, overload +/- for box plus and box minus
 class SO2:
     def __init__(self, R):
         self.arr = R
