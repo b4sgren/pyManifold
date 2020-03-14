@@ -74,7 +74,20 @@ class SE2_Test(unittest.TestCase):
 
             T = SE2(R, t)
             logT = SE2.log(T)
+            logT_true = spl.logm(T.arr)
+            if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
+                Pdb().set_trace()
+                debug = 1
 
+            np.testing.assert_allclose(logT_true, logT, atol=1e-7)
+        
+    def testTaylorLog(self):
+        for i in range(100): #Test taylor series
+            t = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-1e-3, 1e-3)
+
+            T = SE2.fromAngle(theta, t)
+            logT = SE2.log(T)
             logT_true = spl.logm(T.arr)
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-7)
@@ -135,7 +148,6 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(adj_true, adj)
     
-    def testRotateTangentVector(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)

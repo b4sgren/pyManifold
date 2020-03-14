@@ -105,11 +105,11 @@ class SE3:
         theta = np.arccos((np.trace(T.arr[:3,:3]) - 1)/2.0) 
         logR = theta / (2.0 * np.sin(theta)) * (T.R - T.R.T)
 
-        if theta > 1e-3 and np.abs(np.abs(theta) - np.pi) > 1e-3:
+        if np.abs(theta) > 1e-3 and np.abs(np.abs(theta) - np.pi) > 1e-3:
             A = np.sin(theta)/theta 
             B = (1 - np.cos(theta))/ (theta**2)
         else:
-            A = 1.0 - theta**2/6.0 + theta**4/120.0
+            A = 1.0 - theta**2/6.0 + theta**4/120.0 #Not sure this is the right way to do Taylor series for this
             B = 0.5 - theta**2/24.0 + theta**4/720.0
 
         V_inv = np.eye(3) - 0.5 * logR + 1/theta**2 * (1 - A/(2 * B)) * (logR @ logR)
@@ -132,7 +132,7 @@ class SE3:
         w = np.array([logT[2,1], logT[0,2], logT[1,0]])
 
         theta = np.sqrt(w @ w)
-        if theta > 1e-3:
+        if np.abs(theta) > 1e-3:
             A = np.sin(theta) / theta  
             B = (1 - np.cos(theta)) / (theta**2)
             C = (1 - A) / (theta**2)

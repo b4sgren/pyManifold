@@ -62,8 +62,12 @@ class SE2:
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
         t = T.t
 
-        A = np.sin(theta)/theta
-        B = (1 - np.cos(theta))/theta 
+        if np.abs(theta) > 1e-3:
+            A = np.sin(theta)/theta
+            B = (1 - np.cos(theta))/theta 
+        else: 
+            A = 1 - theta**2 / 6.0 + theta**4 / 120.0
+            B = theta/2.0 - theta**3 / 24.0 + theta**5/720.0
         normalizer = 1 / (A**2 + B**2)
         V_inv = normalizer * np.array([[A, B], [-B, A]])
 

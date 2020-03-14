@@ -69,14 +69,14 @@ class SO3:
         theta = np.linalg.norm(w)
         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
-        arr = np.eye(3) + np.sin(theta) / theta * skew_w + (1 - np.cos(theta)) / (theta**2) * (skew_w @ skew_w)
+        arr = np.eye(3) + np.sin(theta) / theta * skew_w + (1 - np.cos(theta)) / (theta**2) * (skew_w @ skew_w) #Do taylor series expansion
 
         return cls(arr)
 
     @staticmethod 
     def log(R):
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
-        if theta > 1e-3 and np.abs(np.abs(theta) - np.pi) > 1e-3:
+        if np.abs(theta) > 1e-3 and np.abs(np.abs(theta) - np.pi) > 1e-3:
             return theta / (2.0 * np.sin(theta)) * (R.R - R.transpose().R) 
         else: # Do taylor series expansion
             temp = 1/2.0 * (1 + theta**2 / 3.0 + 7 * theta**4 / 360)
@@ -91,7 +91,7 @@ class SO3:
     def exp(cls, logR):
         w = cls.vee(logR) 
         theta = np.sqrt(w @ w)
-        if theta > 1e-3:
+        if np.abs(theta) > 1e-3:
             R = np.eye(3) + np.sin(theta)/theta * logR + (1 - np.cos(theta))/ (theta**2) * (logR @ logR)
         else: # Do taylor series expansion for small thetas
             stheta = 1 - theta**2 / 6.0 + theta**4 / 120.0 

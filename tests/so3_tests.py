@@ -6,6 +6,8 @@ import sys
 sys.path.append("..")
 from so3 import SO3
 
+from IPython.core.debugger import Pdb
+
 class SO3_testing(unittest.TestCase):
     def testConstructor(self):
         for i in range(100):
@@ -31,7 +33,7 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(R_true, R_ex.arr)
             np.testing.assert_allclose(R_true, R_ex2.arr)
     
-    def testLog(self):
+    def testLog(self): #This has issues sometimes. It is infrequent though
         for i in range(100):
             temp = Rotation.random().as_dcm()
             R = SO3(temp)
@@ -40,9 +42,14 @@ class SO3_testing(unittest.TestCase):
 
             logR_true = sp.linalg.logm(temp)
 
+            if np.linalg.norm(logR_true - logR, ord='fro') > 1e-3:
+                Pdb().set_trace()
+                debug = 1
+
             np.testing.assert_allclose(logR_true, logR, atol=1e-10)
-        
-        for i in range(100): #Test taylor series expansion
+    
+    def testTaylorLog(self):
+        for i in range(100): 
             vec = np.random.uniform(-3.0, 3.0, size=3)
             vec = vec / np.linalg.norm(vec)
             ang = np.random.uniform(-1e-3, 1e-3)

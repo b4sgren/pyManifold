@@ -20,7 +20,7 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(T_true, T.arr)
         
-    def testLog(self):
+    def testLog(self): #This fails occassionally
         for i in range(100):
             t = np.random.uniform(-10, 10, size=3)
             R = Rotation.random().as_dcm()
@@ -29,8 +29,13 @@ class SE3_Test(unittest.TestCase):
             logT = SE3.log(T)
             logT_true = sp.linalg.logm(T.arr)
 
+            if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
+                Pdb().set_trace()
+                debug = 1
+
             np.testing.assert_allclose(logT_true, logT, atol=1e-8)
         
+    def testTaylorLog(self):
         for i in range(100): #Test taylor series expansion
             t = np.random.uniform(-10, 10, size=3)
             ang = np.random.uniform(-1e-3, 1e-3)
