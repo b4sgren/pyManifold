@@ -6,8 +6,6 @@ import sys
 sys.path.append("..")
 from so3 import SO3
 
-from IPython.core.debugger import Pdb
-
 class SO3_testing(unittest.TestCase):
     def testConstructor(self):
         for i in range(100):

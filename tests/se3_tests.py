@@ -31,7 +31,7 @@ class SE3_Test(unittest.TestCase):
             T_true[:3,:3] = R 
             T_true[:3,3] = t
 
-            np.testing.assert_allclose(T_true, T.arr) #This test is failing. Not sure what is wrong
+            np.testing.assert_allclose(T_true, T.arr) 
     
     def testLog(self):
         for i in range(100):
@@ -116,23 +116,21 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(logT_true, logT)
     
     def testAdj(self):
-        for i in range(100):
+        for i in range(100): 
             t = np.random.uniform(-10, 10, size=3)
             R = Rotation.random().as_dcm()
-
             T = SE3(t, R)
-            Adj = T.Adj
 
-            u = np.random.uniform(-1, 1, size=3)
+            u = np.random.uniform(-1.0, 1.0, size=3)
             w = np.random.uniform(-np.pi, np.pi, size=3)
-            delta = np.hstack((u,w))
+            delta = np.concatenate((w, u))
 
-            delta2 = Adj @ delta
-            delta2_true = np.zeros(6)
-            delta2_true[-3:] = R @ w 
-            delta2_true[:3] = R @ u + np.cross(t, R @ w)
+            Adj_T = T.Adj
 
-            np.testing.assert_allclose(delta2_true, delta2)
+            T1_true = T * SE3.Exp(delta)
+            T1 = SE3.Exp(Adj_T @ delta) * T
+
+            np.testing.assert_allclose(T1_true.arr, T1.arr) #This one is not working
     
     def testInv(self):
         for i in range(100):

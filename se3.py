@@ -1,5 +1,4 @@
 import numpy as np
-from IPython.core.debugger import Pdb
 
 G = np.zeros((6,4,4))
 G[0,1,2] = -1 
@@ -14,7 +13,7 @@ G[5,2,3] = 1
 
 
 class SE3:
-    def __init__(self, t, *args):
+    def __init__(self, t, *args): #Add a from euler, and rot_vec
         self.arr = np.eye(4)
         if t.size == 16:
             self.arr = t 
@@ -141,6 +140,6 @@ class SE3:
         adj[-3:,-3:] = R 
 
         tx = np.array([[0, -t[2], t[1]], [t[2], 0, -t[0]], [-t[1], t[0], 0]])
-        adj[:3,-3:] = tx @ R
+        adj[3:,:3] = tx @ R
 
         return adj
