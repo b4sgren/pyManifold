@@ -110,7 +110,7 @@ class SE3:
             B = (1 - np.cos(theta))/ (theta**2)
         else:
             A = 1.0 - theta**2/6.0 + theta**4/120.0 #Not sure this is the right way to do Taylor series for this
-            B = 0.5 - theta**2/24.0 + theta**4/720.0
+            B = 0.5 - theta**2/24.0 + theta**4/720.0 #Also possibly because taylor series is around 0 and not pi
 
         V_inv = np.eye(3) - 0.5 * logR + 1/theta**2 * (1 - A/(2 * B)) * (logR @ logR)
         u = V_inv @ T.t

@@ -76,11 +76,14 @@ class SO3:
     @staticmethod 
     def log(R):
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
-        if np.abs(theta) > 1e-3 and np.abs(np.abs(theta) - np.pi) > 1e-3:
-            return theta / (2.0 * np.sin(theta)) * (R.R - R.transpose().R) 
-        else: # Do taylor series expansion
-            temp = 1/2.0 * (1 + theta**2 / 3.0 + 7 * theta**4 / 360)
+        if np.abs(theta) < 1e-3: # Do taylor series expansion
+            temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360) #Is the issue that this taylor series is around 0 and not around pi?
             return temp * (R - R.transpose())
+        elif np.abs(np.abs(theta) - np.pi) < 1e-3:
+            temp = - np.pi/(theta - np.pi) - 1 - np.pi/6 * (theta - np.pi) - (theta - np.pi)**2/6 - 7*np.pi/360 * (theta - np.pi)**3 - 7/360.0 * (theta - np.pi)**4
+            return temp * (R - R.transpose())
+        else:
+            return theta / (2.0 * np.sin(theta)) * (R - R.transpose()) 
     
     @classmethod 
     def Log(cls, R): #easy call to go straight to a vector
