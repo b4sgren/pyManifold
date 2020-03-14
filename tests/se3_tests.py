@@ -40,7 +40,19 @@ class SE3_Test(unittest.TestCase):
 
             T = SE3(t, R)
             logT = SE3.log(T)
+            logT_true = sp.linalg.logm(T.arr)
 
+            np.testing.assert_allclose(logT_true, logT, atol=1e-8)
+        
+        for i in range(100): #Test taylor series expansion
+            t = np.random.uniform(-10, 10, size=3)
+            ang = np.random.uniform(-1e-3, 1e-3)
+            vec = np.random.uniform(-1.0, 1.0, size=3)
+            vec = vec / np.linalg.norm(vec) * ang
+
+            R = Rotation.from_rotvec(vec).as_dcm()
+            T = SE3(t, R)
+            logT = SE3.log(T)
             logT_true = sp.linalg.logm(T.arr)
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-8)
