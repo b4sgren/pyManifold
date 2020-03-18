@@ -103,16 +103,25 @@ class SE3:
     @staticmethod
     def log(T):  #Do taylor series expansion
         theta = np.arccos((np.trace(T.arr[:3,:3]) - 1)/2.0) 
-        logR = theta / (2.0 * np.sin(theta)) * (T.R - T.R.T)
+        if np.abs(theta) < 1e-3:
+            temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360) 
+            logR =  temp * (T.R - T.R.T)
+        elif np.abs(np.abs(theta) - np.pi) < 1e-3:
+            temp = - np.pi/(theta - np.pi) - 1 - np.pi/6 * (theta - np.pi) - (theta - np.pi)**2/6 - 7*np.pi/360 * (theta - np.pi)**3 - 7/360.0 * (theta - np.pi)**4
+            logR =  temp/2.0 * (T.R - T.R.T)
+        else:
+            logR = theta / (2.0 * np.sin(theta)) * (T.R - T.R.T) 
 
         if np.abs(theta) > 1e-3 and np.abs(np.abs(theta) - np.pi) > 1e-3:
-            A = np.sin(theta)/theta 
-            B = (1 - np.cos(theta))/ (theta**2)
+            # A = np.sin(theta)/theta 
+            # B = (1 - np.cos(theta))/ (theta**2)
+            temp = np.sin(theta) / (theta * (1 - np.cos(theta)))
         else:
-            A = 1.0 - theta**2/6.0 + theta**4/120.0 #Not sure this is the right way to do Taylor series for this
-            B = 0.5 - theta**2/24.0 + theta**4/720.0 #Also possibly because taylor series is around 0 and not pi
+            # A = 1.0 - theta**2/6.0 + theta**4/120.0 
+            # B = 0.5 - theta**2/24.0 + theta**4/720.0 
+            temp = 2/theta**2 - 1/6.0 - theta**2/360 - theta**4/15120
 
-        V_inv = np.eye(3) - 0.5 * logR + 1/theta**2 * (1 - A/(2 * B)) * (logR @ logR)
+        V_inv = np.eye(3) - 0.5 * logR + (1/theta**2 - temp/2) * (logR @ logR)
         u = V_inv @ T.t
 
         logT = np.zeros((4,4))

@@ -6,6 +6,8 @@ import sys
 sys.path.append('..')
 from se3 import SE3
 
+from IPython.core.debugger import Pdb
+
 class SE3_Test(unittest.TestCase):
     def testConstructor(self):
         for i in range(100):
@@ -46,6 +48,11 @@ class SE3_Test(unittest.TestCase):
             T = SE3(t, R)
             logT = SE3.log(T)
             logT_true = sp.linalg.logm(T.arr)
+            
+            if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
+                Pdb().set_trace()
+                debug = 1
+
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-8)
     
