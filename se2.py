@@ -86,10 +86,15 @@ class SE2:
     @classmethod
     def exp(cls, X): #Taylor series expansion
         theta = X[1,0]
-        ct = np.cos(theta)
-        st = np.sin(theta)
 
-        V = 1/theta * np.array([[st, ct-1], [1 - ct, st]]) 
+        if np.abs(theta) > 1e-3:
+            A = np.sin(theta)/theta 
+            B = (1 - np.cos(theta))/theta
+        else:
+            A = 1 - theta**2 / 6.0 + theta**4 / 120.0
+            B = theta/2.0 - theta**3 / 24.0 + theta**5/720.0
+
+        V = np.array([[A, -B], [B, A]])
         t = V @ X[:2,2]
         
         return cls.fromAngle(theta, t)

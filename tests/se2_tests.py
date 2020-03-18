@@ -111,7 +111,18 @@ class SE2_Test(unittest.TestCase):
 
             T_true = spl.expm(logT)
 
-            np.testing.assert_allclose(T_true, T.arr, atol=1e-7)
+            np.testing.assert_allclose(T_true, T.arr)
+    
+    def testTaylorExp(self):
+        for i in range(100):
+            v = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-1e-3, 1e-3)
+            arr = np.array([theta, v[0], v[1]])
+
+            T = SE2.Exp(arr)
+            T_true = spl.expm(SE2.hat(arr))
+
+            np.testing.assert_allclose(T_true, T.arr)
     
     def testVee(self):
         for i in range(100):
