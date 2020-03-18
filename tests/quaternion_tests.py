@@ -26,8 +26,14 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(w_true, w)
 
-    # def testHat(self):
-        # debug = 1
+    def testHat(self):
+        for i in range(100):
+            vec = np.random.uniform(-1.0, 1.0, size=3)
+
+            log_q = Quaternion.hat(vec)
+            log_q_true = np.array([0, vec[0], vec[1], vec[2]])
+
+            np.testing.assert_allclose(log_q_true, log_q)
 
 if __name__=="__main__":
     unittest.main()
