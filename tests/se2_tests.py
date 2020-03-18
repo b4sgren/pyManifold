@@ -78,6 +78,7 @@ class SE2_Test(unittest.TestCase):
             if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
                 Pdb().set_trace()
                 debug = 1
+                temp = SE2.log(T)
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-7)
         
@@ -89,6 +90,11 @@ class SE2_Test(unittest.TestCase):
             T = SE2.fromAngle(theta, t)
             logT = SE2.log(T)
             logT_true = spl.logm(T.arr)
+            
+            if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
+                Pdb().set_trace()
+                debug = 1
+                temp = SE2.log(T)
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-7)
 

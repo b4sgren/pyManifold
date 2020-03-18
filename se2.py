@@ -58,14 +58,14 @@ class SE2:
         return cls(R, t)
     
     @staticmethod
-    def log(T): #Implement taylor series expansion
+    def log(T): 
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
         t = T.t
 
         if np.abs(theta) > 1e-3:
             A = np.sin(theta)/theta
             B = (1 - np.cos(theta))/theta 
-        else: 
+        else:  
             A = 1 - theta**2 / 6.0 + theta**4 / 120.0
             B = theta/2.0 - theta**3 / 24.0 + theta**5/720.0
         normalizer = 1 / (A**2 + B**2)
