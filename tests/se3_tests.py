@@ -34,6 +34,7 @@ class SE3_Test(unittest.TestCase):
             if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
                 Pdb().set_trace()
                 debug = 1
+                logT2 = SE3.log(T)
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-8)
         
@@ -52,9 +53,27 @@ class SE3_Test(unittest.TestCase):
             if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
                 Pdb().set_trace()
                 debug = 1
-
+                logT2 = SE3.log(T)
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-8)
+        
+        for i in range(100): #Test taylor series around pi
+            t = np.random.uniform(-10, 10, size=3)
+            ang = np.random.uniform(-1e-3, 1e-3) + np.pi 
+            vec = np.random.uniform(-1.0, 1.0, size=3)
+            vec = vec / np.linalg.norm(vec) * ang 
+
+            R = Rotation.from_rotvec(vec).as_dcm()
+            T = SE3(t, R)
+            logT = SE3.log(T)
+            logT_true = sp.linalg.logm(T.arr)
+
+            if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
+                Pdb().set_trace()
+                debug = 1
+                logT2 = SE3.log(T)
+            
+            np.testing.assert_allclose(logT_true, logT, atol=1e-6, rtol=1e-6)
     
     def testExp(self):
         for i in range(100):

@@ -101,7 +101,7 @@ class SE3:
         return cls(t, arr)
 
     @staticmethod
-    def log(T):  #Do taylor series expansion
+    def log(T):  
         theta = np.arccos((np.trace(T.arr[:3,:3]) - 1)/2.0) 
         if np.abs(theta) < 1e-3:
             temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360) 
@@ -112,14 +112,10 @@ class SE3:
         else:
             logR = theta / (2.0 * np.sin(theta)) * (T.R - T.R.T) 
 
-        if np.abs(theta) > 1e-3 and np.abs(np.abs(theta) - np.pi) > 1e-3:
-            # A = np.sin(theta)/theta 
-            # B = (1 - np.cos(theta))/ (theta**2)
+        if np.abs(theta) > 1e-3: 
             temp = np.sin(theta) / (theta * (1 - np.cos(theta)))
         else:
-            # A = 1.0 - theta**2/6.0 + theta**4/120.0 
-            # B = 0.5 - theta**2/24.0 + theta**4/720.0 
-            temp = 2/theta**2 - 1/6.0 - theta**2/360 - theta**4/15120
+            temp = 2/theta**2 - 1/6.0 - theta**2/360.0 - theta**4/15120.0
 
         V_inv = np.eye(3) - 0.5 * logR + (1/theta**2 - temp/2) * (logR @ logR)
         u = V_inv @ T.t
