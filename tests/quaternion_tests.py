@@ -38,15 +38,15 @@ class Quaternion_Testing(unittest.TestCase):
     def testFromRot(self): #This test fails. Need to determine if the quaternion used by Scipy is the same format as my quaternion
         for i in range(100):
             R = Rotation.random().as_dcm()
-            q = Quaternion.fromRotationMatrix(R)
+            q1 = Quaternion.fromRotationMatrix(R)
             q_true = Rotation.from_dcm(R).as_quat()
             q_true = switchOrder(q_true)
 
-            if np.linalg.norm(q_true - q.arr) > 1e-3:
-                # Pdb().set_trace()
+            if np.linalg.norm(q_true - q1.arr) > 1e-3:
+                Pdb().set_trace()
                 q2 = Quaternion.fromRotationMatrix(R)
 
-            # np.testing.assert_allclose(q_true, q.arr)
+            np.testing.assert_allclose(q_true, q1.arr)
     
     def testFromAxisAngle(self):
         for i in range(100):
