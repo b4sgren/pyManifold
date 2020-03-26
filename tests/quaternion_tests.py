@@ -82,6 +82,22 @@ class Quaternion_Testing(unittest.TestCase):
                 q2 = Quaternion.fromRPY(ang[0], ang[1], ang[2])
             
             np.testing.assert_allclose(q_true, q1.arr)
+    
+    def testQuaternionMultiply(self):
+        for i in range(100):
+            rot1 = Rotation.random()
+            rot2 = Rotation.random()
+
+            q_true = (rot1 * rot2).as_quat()
+            q_true = switchOrder(q_true)
+            if q_true[0] < 0.0:
+                q_true *= -1
+
+            q1 = Quaternion(switchOrder(rot1.as_quat()))
+            q2 = Quaternion(switchOrder(rot2.as_quat()))
+            q3 = q1 * q2
+
+            np.testing.assert_allclose(q_true, q3.arr)
 
 if __name__=="__main__":
     unittest.main()

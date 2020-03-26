@@ -17,6 +17,20 @@ class Quaternion:
         else:
             raise ValueError("Input must be a numpy array of length 4")
     
+    def __mul__(self, q):
+        if isinstance(q, Quaternion):
+            q_res = np.zeros(4)
+            q_res[0] = self.arr[0] * q.arr[0] - self.arr[1] * q.arr[1] - self.arr[2] * q.arr[2] - self.arr[3] * q.arr[3]
+            q_res[1] = self.arr[0] * q.arr[1] + self.arr[1] * q.arr[0] + self.arr[2] * q.arr[3] - self.arr[3] * q.arr[2]
+            q_res[2] = self.arr[0] * q.arr[2] - self.arr[1] * q.arr[3] + self.arr[2] * q.arr[0] + self.arr[3] * q.arr[1]
+            q_res[3] = self.arr[0] * q.arr[3] + self.arr[1] * q.arr[2] - self.arr[2] * q.arr[1] + self.arr[3] * q.arr[0]
+
+            if q_res[0] < 0.0:
+                q_res *= -1
+            return Quaternion(q_res)
+        else:
+            raise ValueError("Input must be an instance of Quaternion")
+    
     @classmethod 
     def fromRotationMatrix(cls, R):
         if not R.shape == (3,3):
