@@ -99,5 +99,17 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(q_true, q3.arr)
 
+    def testInv(self):
+        for i in range(100):
+            R = Rotation.random().as_quat()
+            R = switchOrder(R)
+
+            q = Quaternion(R)
+            q_inv = q.inv()
+            res = q * q_inv 
+            res_true = np.array([1.0, 0.0, 0.0, 0.0])
+
+            np.testing.assert_allclose(res_true, res.arr, atol=1e-8)
+
 if __name__=="__main__":
     unittest.main()

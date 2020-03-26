@@ -31,6 +31,11 @@ class Quaternion:
         else:
             raise ValueError("Input must be an instance of Quaternion")
     
+    def inv(self):
+        q = self.arr.copy()
+        q[1:] *= -1 
+        return Quaternion(q)
+    
     @classmethod 
     def fromRotationMatrix(cls, R):
         if not R.shape == (3,3):
