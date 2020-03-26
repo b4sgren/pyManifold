@@ -37,7 +37,7 @@ class Quaternion:
             q = np.array([1/s * (R[0,1] - R[1,0]), 1/s * (R[2,0] + R[0,2]), 1/s * (R[2,1] + R[1,2]), s/4])
 
         if q[0] < 0: #Always want the real part to be positive
-            q = -q
+            q *= -1
         
         return cls(q)
     
@@ -50,6 +50,9 @@ class Quaternion:
         v = (vec / theta).squeeze() #Make a unit vector
         st2 = np.sin(theta/2)
         q = np.array([np.cos(theta/2), v[0] * st2, v[1] * st2, v[2] * st2])
+
+        if q[0] < 0.0: #This shouldn't be necessary b/c theta should never be greater than pi rads
+            q *= -1
         return cls(q)
     
     @staticmethod 

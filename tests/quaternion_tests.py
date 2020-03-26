@@ -66,6 +66,7 @@ class Quaternion_Testing(unittest.TestCase):
                 q2 = Quaternion.fromAxisAngle(vec)
 
             np.testing.assert_allclose(q_true, q1.arr)
+    
 
 if __name__=="__main__":
     unittest.main()
