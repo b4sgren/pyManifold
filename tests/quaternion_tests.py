@@ -45,8 +45,6 @@ class Quaternion_Testing(unittest.TestCase):
             q_true[0] = np.cos(theta/2)
             q_true[1:] = np.sin(theta/2) * v
  
-            if np.sign(q1.arr[0]) < 0.0:
-                q1 = Quaternion(-q1.arr) #Still need to add inverse function
             if np.sign(q_true[0]) < 0.0:
                 q_true *= -1
  
