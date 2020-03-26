@@ -67,6 +67,21 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(q_true, q1.arr)
     
+    def testFromRPY(self):
+        for i in range(100):
+            ang = np.random.uniform(-np.pi, np.pi, size=3)
+            q1 = Quaternion.fromRPY(ang[0], ang[1], ang[2])
+            q_true = Rotation.from_euler('ZYX', [ang[2], ang[1], ang[0]]).as_quat()
+            q_true = switchOrder(q_true)
+
+            if q_true[0] < 0.0:
+                q_true *= -1
+            
+            if np.linalg.norm(q_true - q1.arr) > 1e-3:
+                Pdb().set_trace()
+                q2 = Quaternion.fromRPY(ang[0], ang[1], ang[2])
+            
+            np.testing.assert_allclose(q_true, q1.arr)
 
 if __name__=="__main__":
     unittest.main()

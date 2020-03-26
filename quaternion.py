@@ -55,6 +55,25 @@ class Quaternion:
             q *= -1
         return cls(q)
     
+    @classmethod 
+    def fromRPY(cls, phi, theta, psi):
+        c_phi = np.cos(phi/2)
+        s_phi = np.sin(phi/2)
+        c_theta = np.cos(theta/2)
+        s_theta = np.sin(theta/2)
+        c_psi = np.cos(psi/2)
+        s_psi = np.sin(psi/2)
+
+        q = np.zeros(4)
+        q[0] = c_psi * c_theta * c_phi + s_psi * s_theta * s_phi  
+        q[1] = c_psi * c_theta * s_phi - s_psi * s_theta * c_phi  
+        q[2] = c_psi * s_theta * c_phi + s_psi * c_theta * s_phi  
+        q[3] = s_psi * c_theta * c_phi - c_psi * s_theta * s_phi  
+
+        if q[0] < 0.0:
+            q *= -1
+        return cls(q)
+    
     @staticmethod 
     def hat(omega):
         if isinstance(omega, np.ndarray):
