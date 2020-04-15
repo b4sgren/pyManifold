@@ -1,12 +1,5 @@
 import numpy as np 
 
-# J = np.array([[[0, 1], #Not sure I will use this since I have 3 complex numbers
-#                [1, 0]],
-#                [[0, complex(0, -1)],
-#                [complex(0, 1), 0]],
-#                [[1, 0],
-#                [0, -1]]])
-
 class Quaternion:
     def __init__(self, q):
         if isinstance(q, np.ndarray):
