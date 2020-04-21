@@ -24,6 +24,11 @@ class Quaternion:
         else:
             raise ValueError("Input must be an instance of Quaternion")
     
+    def rot(self, v):
+        q_temp = Quaternion(np.hstack((0, v)))
+        vp = self * q_temp #* self.inv()
+        return vp.arr[1:]
+    
     def inv(self):
         q = self.arr.copy()
         q[1:] *= -1 
@@ -87,7 +92,32 @@ class Quaternion:
         return cls(q)
     
     @staticmethod 
-    def hat(omega):
+    def log(q):
+        q0 = q.arr[0]
+        qv = q.arr[1:]
+        qn = np.linalg.norm(qv)
+
+        w = 2 * np.arctan(qn/q0) * qv/qn
+        return w
+    
+    @staticmethod
+    def Log(q): #Seems a little redundant
+        return Quaternion.log(q)
+
+    @classmethod
+    def exp(cls, w):
+        theta = np.linalg.norm(w)
+        
+        q0 = np.cos(theta/2)
+        qv = np.sin(theta/2) * w / theta
+        return cls(np.hstack((q0, qv)))
+    
+    @staticmethod
+    def Exp(cls, w): #Seems a little redundant
+        return cls.exp(w)
+    
+    @staticmethod 
+    def hat(omega): #Is this method necessary in this class?
         if isinstance(omega, np.ndarray):
             if omega.shape == (3,) or omega.shape == (3,1) or omega.shape == (1,3):
                 q = np.array([0, omega.item(0), omega.item(1), omega.item(2)])
@@ -99,7 +129,7 @@ class Quaternion:
         return q
     
     @staticmethod
-    def vee(log_q):
+    def vee(log_q): #Is this method necessary in this class
         if isinstance(log_q, np.ndarray):
             if log_q.shape == (4,) or log_q.shape == (4,1) or log_q.shape == (1,4):
                 log_q = log_q.squeeze()

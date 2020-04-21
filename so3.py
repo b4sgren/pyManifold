@@ -17,8 +17,8 @@ class SO3:
         else:
             raise ValueError("Input is a 3x3 numpy array. Otherwise use fromRPY or FromAxisAngle")
     
-    def __mul__(self, R2):
-        if isinstance(R2, SO3): #Do I want to define this for other 3x3 matrices?
+    def __mul__(self, R2): #I think that I will redefine the rotation on a vector as a separate function
+        if isinstance(R2, SO3): 
             return SO3(self.R @ R2.R)
         elif isinstance(R2, np.ndarray):
             if not R2.shape[0] == 3:
