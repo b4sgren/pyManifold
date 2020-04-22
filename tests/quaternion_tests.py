@@ -115,30 +115,30 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(res_true, res.arr, atol=1e-8)
     
-    def testLog(self): #Doesn't pass. Signs are messed up a little bit
-        for i in range(100):
-            R = Rotation.random().as_dcm()
-            q = Quaternion.fromRotationMatrix(R)
-            # R = R.transpose()
+    # def testLog(self): #Doesn't pass. Signs are messed up a little bit
+    #     for i in range(100):
+    #         R = Rotation.random().as_dcm()
+    #         q = Quaternion.fromRotationMatrix(R)
+    #         # R = R.transpose()
 
-            w = Quaternion.log(q)
-            logR = sp.linalg.logm(R)
-            w_true = np.array([-logR[1,2], logR[2,0], -logR[0,1]])
-            # Pdb().set_trace()
+    #         w = Quaternion.log(q)
+    #         logR = sp.linalg.logm(R)
+    #         w_true = np.array([-logR[1,2], logR[2,0], -logR[0,1]])
+    #         # Pdb().set_trace()
 
-            # np.testing.assert_allclose(w_true, w)
+    #         # np.testing.assert_allclose(w_true, w)
     
-    def testExp(self): #Values match but sign often doesn't
-        for i in range(100):
-            R = Rotation.random().as_dcm()
-            logR = sp.linalg.logm(R)
-            w = np.array([-logR[1,2], logR[2,0], -logR[0,1]])
+    # def testExp(self): #Values match but sign often doesn't
+    #     for i in range(100):
+    #         R = Rotation.random().as_dcm()
+    #         logR = sp.linalg.logm(R)
+    #         w = np.array([-logR[1,2], logR[2,0], -logR[0,1]])
 
-            q = Quaternion.exp(w)
-            q_true = Quaternion.fromRotationMatrix(R)
-            # Pdb().set_trace()
+    #         q = Quaternion.exp(w)
+    #         q_true = Quaternion.fromRotationMatrix(R)
+    #         # Pdb().set_trace()
 
-            # np.testing.assert_allclose(q_true.arr, q.arr)
+    #         # np.testing.assert_allclose(q_true.arr, q.arr)
     
     def testVectorRotation(self): #This isn't working at all
         for i in range(100):
@@ -151,7 +151,7 @@ class Quaternion_Testing(unittest.TestCase):
             vp = R @ v
             my_vp = my_q.rot(v)
 
-            # np.testing.assert_allclose(vp, my_vp)
+            np.testing.assert_allclose(vp, my_vp)
 
 if __name__=="__main__":
     unittest.main()
