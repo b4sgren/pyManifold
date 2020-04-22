@@ -127,17 +127,23 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(w_true, w)
     
-    # def testExp(self): #Values match but sign often doesn't
-    #     for i in range(100):
-    #         R = Rotation.random().as_dcm()
-    #         logR = sp.linalg.logm(R)
-    #         w = np.array([-logR[1,2], logR[2,0], -logR[0,1]])
+    def testExp(self): #Values match but sign often doesn't
+        for i in range(100):
+            r = Rotation.random()
+            R = r.as_dcm()
+            logR = sp.linalg.logm(R)
+            w = np.array([0, -logR[1,2], logR[0,2], -logR[0,1]])
 
-    #         q = Quaternion.exp(w)
-    #         q_true = Quaternion.fromRotationMatrix(R)
-    #         # Pdb().set_trace()
+            q = Quaternion.exp(w)
+            q_true = switchOrder(r.as_quat())
+            if q_true[0] < 0.0:
+                q_true *= -1
 
-    #         # np.testing.assert_allclose(q_true.arr, q.arr)
+            if np.linalg.norm(q_true - q.arr) > 1e-3:
+                Pdb().set_trace()
+                q2 = Quaternion.exp(w)
+
+            np.testing.assert_allclose(q_true, q.arr)
     
     def testVectorRotation(self): #This isn't working at all
         for i in range(100):

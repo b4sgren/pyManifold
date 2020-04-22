@@ -117,7 +117,10 @@ class Quaternion:
         theta = np.linalg.norm(w)
         
         q0 = np.cos(theta/2)
-        qv = np.sin(theta/2) * w / theta
+        qv = np.sin(theta/2) * w[1:] / theta
+        if q0 < 0.0:
+            q0 *= -1
+            qv *= -1
         return cls(np.hstack((q0, qv)))
     
     @staticmethod
