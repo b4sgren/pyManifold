@@ -1,4 +1,5 @@
 import numpy as np 
+from IPython.core.debugger import Pdb
 
 class Quaternion:
     def __init__(self, q):
@@ -13,10 +14,12 @@ class Quaternion:
     def __mul__(self, q):
         if isinstance(q, Quaternion):
             q_res = np.zeros(4)
-            q_res[0] = self.arr[0] * q.arr[0] - self.arr[1] * q.arr[1] - self.arr[2] * q.arr[2] - self.arr[3] * q.arr[3]
-            q_res[1] = self.arr[0] * q.arr[1] + self.arr[1] * q.arr[0] + self.arr[2] * q.arr[3] - self.arr[3] * q.arr[2]
-            q_res[2] = self.arr[0] * q.arr[2] - self.arr[1] * q.arr[3] + self.arr[2] * q.arr[0] + self.arr[3] * q.arr[1]
-            q_res[3] = self.arr[0] * q.arr[3] + self.arr[1] * q.arr[2] - self.arr[2] * q.arr[1] + self.arr[3] * q.arr[0]
+            # q_res[0] = self.arr[0] * q.arr[0] - self.arr[1] * q.arr[1] - self.arr[2] * q.arr[2] - self.arr[3] * q.arr[3]
+            # q_res[1] = self.arr[0] * q.arr[1] + self.arr[1] * q.arr[0] + self.arr[2] * q.arr[3] - self.arr[3] * q.arr[2]
+            # q_res[2] = self.arr[0] * q.arr[2] - self.arr[1] * q.arr[3] + self.arr[2] * q.arr[0] + self.arr[3] * q.arr[1]
+            # q_res[3] = self.arr[0] * q.arr[3] + self.arr[1] * q.arr[2] - self.arr[2] * q.arr[1] + self.arr[3] * q.arr[0]
+            Q = self.arr[0] * np.eye(4) + np.block([[0, -self.arr[1:]], [self.arr[1:, None], self.skew(self.arr[1:])]])
+            q_res = Q @ q.arr
 
             if q_res[0] < 0.0:
                 q_res *= -1
@@ -33,6 +36,9 @@ class Quaternion:
         q = self.arr.copy()
         q[1:] *= -1 
         return Quaternion(q)
+    
+    def skew(self, v):
+        return np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
     
     @classmethod 
     def fromRotationMatrix(cls, R):
@@ -98,7 +104,7 @@ class Quaternion:
         qn = np.linalg.norm(qv)
 
         w = 2 * np.arctan(qn/q0) * qv/qn
-        return return np.hstack((0, w))
+        return  np.hstack((0, w))
     
     @staticmethod
     def Log(q): #Seems a little redundant
