@@ -35,7 +35,7 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(log_q_true, log_q)
     
-    def testFromRot(self): #This test fails. All values are correct but sometimes the vector part has the wrong sign
+    def testFromRot(self): #Not convinced that FromRotationMatrix is actually working
         for i in range(100):
             R = Rotation.random().as_dcm()
             q1 = Quaternion.fromRotationMatrix(R)
@@ -144,6 +144,21 @@ class Quaternion_Testing(unittest.TestCase):
                 q2 = Quaternion.exp(w)
 
             np.testing.assert_allclose(q_true, q.arr)
+        
+        for i in range(100): #Taylor series portion
+            ang = np.random.uniform(-1e-3, 1e-3)
+            vec = np.random.uniform(-1, 1, size=3)
+            w = vec / np.linalg.norm(vec) * ang
+
+            q = Quaternion.Exp(w)
+            logR = Quaternion.skew(w)
+            R = sp.linalg.expm(logR)
+            q_true = switchOrder(Rotation.from_dcm(R).as_quat())
+            if np.linalg.norm(q_true - q.arr) > 1e-3:
+                Pdb().set_trace()
+                q2 = Quaternion.Exp(w)
+
+            np.testing.assert_allclose(q_true, q.arr, atol=1e-6)
     
     def testVectorRotation(self): #This isn't working at all
         for i in range(100):

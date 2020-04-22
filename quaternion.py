@@ -21,7 +21,7 @@ class Quaternion:
             raise ValueError("Input must be an instance of Quaternion")
     
     def quatMul(self, q):
-            Q = self.w * np.eye(4) + np.block([[0, -self.v], [self.v[:, None], self.skew(self.v)]])
+            Q = self.w * np.eye(4) + np.block([[0, -self.v], [self.v[:, None], Quaternion.skew(self.v)]])
             q_res = Q @ q.arr 
             return Quaternion(q_res)
     
@@ -36,7 +36,8 @@ class Quaternion:
         q[1:] *= -1 
         return Quaternion(q)
     
-    def skew(self, v):
+    @staticmethod
+    def skew(v):
         return np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
     
     @property 
@@ -105,7 +106,7 @@ class Quaternion:
         return cls(q)
     
     @staticmethod 
-    def log(q): #Error checking and Taylor series expansion
+    def log(q): #Taylor series expansion
         q0 = q.w
         qv = q.v
         qn = np.linalg.norm(qv)
@@ -119,17 +120,21 @@ class Quaternion:
         return Quaternion.vee(logq)
 
     @classmethod
-    def exp(cls, w): #Error checking and taylor series expansion
+    def exp(cls, w): #taylor series expansion
         theta = np.linalg.norm(w)
         
-        q0 = np.cos(theta/2)
-        qv = np.sin(theta/2) * w[1:] / theta
+        if np.abs(theta) > 2e-3:
+            q0 = np.cos(theta/2)
+            qv = np.sin(theta/2) * w[1:] / theta
+        else:
+            q0 = 1 - (theta/2)**2 + (theta/2)**4/24
+            qv = (0.5 - (theta**2)/48 + (theta**4)/3840) * w[1:]
         if q0 < 0.0:
             q0 *= -1
             qv *= -1
         return cls(np.hstack((q0, qv)))
     
-    @staticmethod
+    @classmethod
     def Exp(cls, w):
         logq = cls.hat(w)
         return cls.exp(logq)
