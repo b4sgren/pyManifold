@@ -98,11 +98,12 @@ class Quaternion:
         qn = np.linalg.norm(qv)
 
         w = 2 * np.arctan(qn/q0) * qv/qn
-        return w
+        return return np.hstack((0, w))
     
     @staticmethod
     def Log(q): #Seems a little redundant
-        return Quaternion.log(q)
+        logq = Quaternion.log(q)
+        return Quaternion.vee(logq)
 
     @classmethod
     def exp(cls, w):
@@ -114,7 +115,8 @@ class Quaternion:
     
     @staticmethod
     def Exp(cls, w): #Seems a little redundant
-        return cls.exp(w)
+        logq = cls.hat(w)
+        return cls.exp(logq)
     
     @staticmethod 
     def hat(omega): #Is this method necessary in this class?
