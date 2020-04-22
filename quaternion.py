@@ -15,14 +15,14 @@ class Quaternion:
         if isinstance(q, Quaternion):
             q_res = self.quatMul(q)
 
-            if q_res.arr[0] < 0.0:
+            if q_res.w < 0.0:
                 q_res.arr *= -1
             return q_res
         else:
             raise ValueError("Input must be an instance of Quaternion")
     
     def quatMul(self, q):
-            Q = self.arr[0] * np.eye(4) + np.block([[0, -self.arr[1:]], [self.arr[1:, None], self.skew(self.arr[1:])]])
+            Q = self.w * np.eye(4) + np.block([[0, -self.v], [self.v[:, None], self.skew(self.v)]])
             q_res = Q @ q.arr 
             return Quaternion(q_res)
     
@@ -39,6 +39,14 @@ class Quaternion:
     
     def skew(self, v):
         return np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+    
+    @property 
+    def w(self):
+        return self.arr[0]
+    
+    @property
+    def v(self):
+        return self.arr[1:]
     
     @classmethod 
     def fromRotationMatrix(cls, R):
@@ -99,12 +107,11 @@ class Quaternion:
     
     @staticmethod 
     def log(q):
-        q0 = q.arr[0]
-        qv = q.arr[1:]
+        q0 = q.w
+        qv = q.v
         qn = np.linalg.norm(qv)
 
         w = 2 * np.arctan(qn/q0) * qv/qn
-        theta = np.linalg.norm(qv)
         return  np.hstack((0, w))
     
     @staticmethod
