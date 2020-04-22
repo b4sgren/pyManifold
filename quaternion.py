@@ -15,9 +15,9 @@ class Quaternion:
         if isinstance(q, Quaternion):
             q_res = self.quatMul(q)
 
-            if q_res[0] < 0.0:
-                q_res *= -1
-            return Quaternion(q_res)
+            if q_res.arr[0] < 0.0:
+                q_res.arr *= -1
+            return q_res
         else:
             raise ValueError("Input must be an instance of Quaternion")
     
