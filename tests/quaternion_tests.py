@@ -115,7 +115,7 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(res_true, res.arr, atol=1e-8)
     
-    def testLog(self): #Doesn't pass. Signs are messed up a little bit
+    def testLog(self): 
         for i in range(100):
             r = Rotation.random()
             q = Quaternion(switchOrder(r.as_quat()))
@@ -126,8 +126,22 @@ class Quaternion_Testing(unittest.TestCase):
             w_true = np.array([-logR[1,2], logR[0,2], -logR[0,1]])
 
             np.testing.assert_allclose(w_true, w)
+        
+        for i in range(100): #Taylor series
+            ang = np.random.uniform(-1e-3, 1e-3)
+            vec = np.random.uniform(-1, 1, size=3)
+            w_true = vec / np.linalg.norm(vec) * ang
+
+            q = Quaternion.fromAxisAngle(w_true)
+            w = Quaternion.Log(q)
+            if np.linalg.norm(w_true - w) > 1e-3:
+                Pdb().set_trace()
+                q2 = Quaternion.Log(q)
+            
+            np.testing.assert_allclose(w_true, w)
+
     
-    def testExp(self): #Values match but sign often doesn't
+    def testExp(self): 
         for i in range(100):
             r = Rotation.random()
             R = r.as_dcm()

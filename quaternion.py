@@ -109,9 +109,12 @@ class Quaternion:
     def log(q): #Taylor series expansion
         q0 = q.w
         qv = q.v
-        qn = np.linalg.norm(qv)
+        theta = np.linalg.norm(qv)
 
-        w = 2 * np.arctan(qn/q0) * qv/qn
+        if np.abs(theta) > 1e-3:
+            w = 2 * np.arctan(theta/q0) * qv/theta
+        else:
+            w = 2 * qv * (1/q0 - theta**2/(3 * q0**3) + theta**4/(5 * q0**5))
         return  np.hstack((0, w))
     
     @staticmethod
@@ -120,7 +123,7 @@ class Quaternion:
         return Quaternion.vee(logq)
 
     @classmethod
-    def exp(cls, w): #taylor series expansion
+    def exp(cls, w): 
         theta = np.linalg.norm(w)
         
         if np.abs(theta) > 2e-3:
