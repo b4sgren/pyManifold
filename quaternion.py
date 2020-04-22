@@ -1,5 +1,4 @@
 import numpy as np 
-from IPython.core.debugger import Pdb
 
 class Quaternion:
     def __init__(self, q):
@@ -106,7 +105,7 @@ class Quaternion:
         return cls(q)
     
     @staticmethod 
-    def log(q):
+    def log(q): #Error checking and Taylor series expansion
         q0 = q.w
         qv = q.v
         qn = np.linalg.norm(qv)
@@ -115,12 +114,12 @@ class Quaternion:
         return  np.hstack((0, w))
     
     @staticmethod
-    def Log(q): #Seems a little redundant
+    def Log(q):
         logq = Quaternion.log(q)
         return Quaternion.vee(logq)
 
     @classmethod
-    def exp(cls, w):
+    def exp(cls, w): #Error checking and taylor series expansion
         theta = np.linalg.norm(w)
         
         q0 = np.cos(theta/2)
@@ -131,12 +130,12 @@ class Quaternion:
         return cls(np.hstack((q0, qv)))
     
     @staticmethod
-    def Exp(cls, w): #Seems a little redundant
+    def Exp(cls, w):
         logq = cls.hat(w)
         return cls.exp(logq)
     
     @staticmethod 
-    def hat(omega): #Is this method necessary in this class?
+    def hat(omega): 
         if isinstance(omega, np.ndarray):
             if omega.shape == (3,) or omega.shape == (3,1) or omega.shape == (1,3):
                 q = np.array([0, omega.item(0), omega.item(1), omega.item(2)])
@@ -148,7 +147,7 @@ class Quaternion:
         return q
     
     @staticmethod
-    def vee(log_q): #Is this method necessary in this class
+    def vee(log_q): 
         if isinstance(log_q, np.ndarray):
             if log_q.shape == (4,) or log_q.shape == (4,1) or log_q.shape == (1,4):
                 log_q = log_q.squeeze()
