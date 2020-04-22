@@ -147,7 +147,7 @@ class Quaternion_Testing(unittest.TestCase):
             my_vp = my_q.rot(v)
             # Pdb().set_trace()
 
-            # np.testing.assert_allclose(vp, my_vp)
+            np.testing.assert_allclose(vp, my_vp)
 
 if __name__=="__main__":
     unittest.main()

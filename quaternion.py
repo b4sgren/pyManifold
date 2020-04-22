@@ -13,13 +13,7 @@ class Quaternion:
     
     def __mul__(self, q):
         if isinstance(q, Quaternion):
-            q_res = np.zeros(4)
-            # q_res[0] = self.arr[0] * q.arr[0] - self.arr[1] * q.arr[1] - self.arr[2] * q.arr[2] - self.arr[3] * q.arr[3]
-            # q_res[1] = self.arr[0] * q.arr[1] + self.arr[1] * q.arr[0] + self.arr[2] * q.arr[3] - self.arr[3] * q.arr[2]
-            # q_res[2] = self.arr[0] * q.arr[2] - self.arr[1] * q.arr[3] + self.arr[2] * q.arr[0] + self.arr[3] * q.arr[1]
-            # q_res[3] = self.arr[0] * q.arr[3] + self.arr[1] * q.arr[2] - self.arr[2] * q.arr[1] + self.arr[3] * q.arr[0]
-            Q = self.arr[0] * np.eye(4) + np.block([[0, -self.arr[1:]], [self.arr[1:, None], self.skew(self.arr[1:])]])
-            q_res = Q @ q.arr
+            q_res = self.quatMul(q)
 
             if q_res[0] < 0.0:
                 q_res *= -1
@@ -27,9 +21,15 @@ class Quaternion:
         else:
             raise ValueError("Input must be an instance of Quaternion")
     
+    def quatMul(self, q):
+            Q = self.arr[0] * np.eye(4) + np.block([[0, -self.arr[1:]], [self.arr[1:, None], self.skew(self.arr[1:])]])
+            q_res = Q @ q.arr 
+            return Quaternion(q_res)
+    
     def rot(self, v):
-        q_temp = Quaternion(np.hstack((0, v)))
-        vp = self * q_temp #* self.inv()
+        q_v = Quaternion(np.hstack((0, v)))
+        q_mid = self.quatMul(q_v)
+        vp = q_mid.quatMul(self.inv())
         return vp.arr[1:]
     
     def inv(self):
