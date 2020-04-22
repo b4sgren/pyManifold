@@ -115,18 +115,17 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(res_true, res.arr, atol=1e-8)
     
-    # def testLog(self): #Doesn't pass. Signs are messed up a little bit
-    #     for i in range(100):
-    #         R = Rotation.random().as_dcm()
-    #         q = Quaternion.fromRotationMatrix(R)
-    #         # R = R.transpose()
+    def testLog(self): #Doesn't pass. Signs are messed up a little bit
+        for i in range(100):
+            r = Rotation.random()
+            q = Quaternion(switchOrder(r.as_quat()))
+            R = r.as_dcm()
 
-    #         w = Quaternion.log(q)
-    #         logR = sp.linalg.logm(R)
-    #         w_true = np.array([-logR[1,2], logR[2,0], -logR[0,1]])
-    #         # Pdb().set_trace()
+            w = Quaternion.log(q)[1:]
+            logR = sp.linalg.logm(R)
+            w_true = np.array([-logR[1,2], logR[0,2], -logR[0,1]])
 
-    #         # np.testing.assert_allclose(w_true, w)
+            np.testing.assert_allclose(w_true, w)
     
     # def testExp(self): #Values match but sign often doesn't
     #     for i in range(100):

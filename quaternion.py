@@ -104,6 +104,7 @@ class Quaternion:
         qn = np.linalg.norm(qv)
 
         w = 2 * np.arctan(qn/q0) * qv/qn
+        theta = np.linalg.norm(qv)
         return  np.hstack((0, w))
     
     @staticmethod
