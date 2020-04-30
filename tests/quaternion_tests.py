@@ -133,12 +133,12 @@ class Quaternion_Testing(unittest.TestCase):
             w_true = vec / np.linalg.norm(vec) * ang
 
             q = Quaternion.fromAxisAngle(w_true)
-            w = Quaternion.Log(q)
-            if np.linalg.norm(w_true - w) > 1e-3:
+            w1 = Quaternion.Log(q)
+            if np.linalg.norm(w_true - w1) > 1e-3:
                 Pdb().set_trace()
-                q2 = Quaternion.Log(q)
+                w2 = Quaternion.Log(q)
             
-            np.testing.assert_allclose(w_true, w)
+            np.testing.assert_allclose(w_true, w1)
 
     
     def testExp(self): 

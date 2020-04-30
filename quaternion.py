@@ -114,7 +114,7 @@ class Quaternion:
         if np.abs(theta) > 1e-3:
             w = 2 * np.arctan(theta/q0) * qv/theta
         else:
-            w = 2 * qv * (1/q0 - theta**2/(3 * q0**3) + theta**4/(5 * q0**5))
+            w = 2 * qv * (1/q0 - (theta**2)/(3 * q0**3) + (theta**4)/(5 * q0**5))
         return  np.hstack((0, w))
     
     @staticmethod
