@@ -186,6 +186,20 @@ class Quaternion_Testing(unittest.TestCase):
             my_vp = my_q.rot(v)
 
             np.testing.assert_allclose(vp, my_vp)
+    
+    def testAdjoint(self):
+        for i in range(100):
+            delta = np.random.uniform(-np.pi, np.pi, size=3)
+            rot = Rotation.random()
+            q = Quaternion(switchOrder(rot.as_quat()))
+
+            q_true = q * Quaternion.Exp(delta)
+            q1 = Quaternion.Exp(q.Adj.rot(delta)) * q
+            if np.linalg.norm(q_true.arr - q1.arr) > 1e-3:
+                Pdb().set_trace()
+                q2 = Quaternion(q.Adj @ delta) * q
+
+            np.testing.assert_allclose(q_true.arr, q1.arr)
 
 if __name__=="__main__":
     unittest.main()

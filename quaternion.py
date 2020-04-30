@@ -25,7 +25,7 @@ class Quaternion:
             q_res = Q @ q.arr 
             return Quaternion(q_res)
     
-    def rot(self, v):
+    def rot(self, v): #page 14 for a faster way possibly
         q_v = Quaternion(np.hstack((0, v)))
         q_mid = self.quatMul(q_v)
         vp = q_mid.quatMul(self.inv())
@@ -166,3 +166,11 @@ class Quaternion:
             raise ValueError('Input must be a numpy array of length 4')
 
         return w
+    
+    @property
+    def Adj(self):
+        # q0 = self.w
+        # qv = self.v 
+        # R = (2*q0 - 1) * np.eye(3) - 2 * q0 * Quaternion.skew(qv) + 2 * np.outer(qv, qv)
+        # return R.T
+        return self
