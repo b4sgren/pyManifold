@@ -26,7 +26,7 @@ class SO3_testing(unittest.TestCase):
             sps = np.sin(angles[2])
             R3 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
 
-            R_true = Rotation.from_euler('ZYX', [angles[2], angles[1], angles[0]]).as_dcm() 
+            R_true = Rotation.from_euler('ZYX', [angles[2], angles[1], angles[0]]).as_matrix() 
 
             R_ex2 = SO3(R_true)
 
@@ -35,7 +35,7 @@ class SO3_testing(unittest.TestCase):
     
     def testLog(self): #This has issues sometimes. It is infrequent though
         for i in range(100):
-            temp = Rotation.random().as_dcm()
+            temp = Rotation.random().as_matrix()
             R = SO3(temp)
             
             logR = SO3.log(R)
@@ -132,7 +132,7 @@ class SO3_testing(unittest.TestCase):
     
     def testInv(self):
         for i in range(100):
-            mat = Rotation.random().as_dcm()
+            mat = Rotation.random().as_matrix()
             R = SO3(mat)
 
             R_inv = R.inv()
@@ -149,14 +149,14 @@ class SO3_testing(unittest.TestCase):
             vec = vec / np.linalg.norm(vec)
 
             R = SO3.fromAxisAngle(theta * vec)
-            R_true = Rotation.from_rotvec(vec*theta).as_dcm()
+            R_true = Rotation.from_rotvec(vec*theta).as_matrix()
 
             np.testing.assert_allclose(R_true, R.arr)
     
     def testGroupAction(self):
         for i in range(100):
-            rot1 = Rotation.random().as_dcm()
-            rot2 = Rotation.random().as_dcm()
+            rot1 = Rotation.random().as_matrix()
+            rot2 = Rotation.random().as_matrix()
 
             R1 = SO3(rot1)
             R2 = SO3(rot2)
@@ -167,7 +167,7 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(R3_true, R3.arr)
         
         for i in range(100):
-            rot1 = Rotation.random().as_dcm()
+            rot1 = Rotation.random().as_matrix()
 
             R = SO3(rot1)
             pt = np.random.uniform(-5, 5, size=3)
@@ -180,7 +180,7 @@ class SO3_testing(unittest.TestCase):
     def testAdjoint(self):
         for i in range(100):
             delta = np.random.uniform(-np.pi, np.pi, size=3)
-            rot = Rotation.random().as_dcm()
+            rot = Rotation.random().as_matrix()
             R = SO3(rot)
 
             Adj_R = R.Adj

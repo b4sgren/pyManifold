@@ -12,7 +12,7 @@ class SE3_Test(unittest.TestCase):
     def testConstructor(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=3)
-            R = Rotation.random().as_dcm()
+            R = Rotation.random().as_matrix()
 
             T_true = np.eye(4)
             T_true[:3,:3] = R 
@@ -25,7 +25,7 @@ class SE3_Test(unittest.TestCase):
     def testLog(self): #This fails occassionally
         for i in range(100):
             t = np.random.uniform(-10, 10, size=3)
-            R = Rotation.random().as_dcm()
+            R = Rotation.random().as_matrix()
 
             T = SE3(t, R)
             logT = SE3.log(T)
@@ -45,7 +45,7 @@ class SE3_Test(unittest.TestCase):
             vec = np.random.uniform(-1.0, 1.0, size=3)
             vec = vec / np.linalg.norm(vec) * ang
 
-            R = Rotation.from_rotvec(vec).as_dcm()
+            R = Rotation.from_rotvec(vec).as_matrix()
             T = SE3(t, R)
             logT = SE3.log(T)
             logT_true = sp.linalg.logm(T.arr)
@@ -63,7 +63,7 @@ class SE3_Test(unittest.TestCase):
             vec = np.random.uniform(-1.0, 1.0, size=3)
             vec = vec / np.linalg.norm(vec) * ang 
 
-            R = Rotation.from_rotvec(vec).as_dcm()
+            R = Rotation.from_rotvec(vec).as_matrix()
             T = SE3(t, R)
             logT = SE3.log(T)
             logT_true = sp.linalg.logm(T.arr)
@@ -123,7 +123,7 @@ class SE3_Test(unittest.TestCase):
     def testHat(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=3)
-            R = Rotation.random().as_dcm()
+            R = Rotation.random().as_matrix()
 
             T = SE3(t, R)
             logT_true = SE3.log(T)
@@ -136,7 +136,7 @@ class SE3_Test(unittest.TestCase):
     def testAdj(self):
         for i in range(100): 
             t = np.random.uniform(-10, 10, size=3)
-            R = Rotation.random().as_dcm()
+            R = Rotation.random().as_matrix()
             T = SE3(t, R)
 
             u = np.random.uniform(-1.0, 1.0, size=3)
@@ -153,7 +153,7 @@ class SE3_Test(unittest.TestCase):
     def testInv(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=3)
-            R = Rotation.random().as_dcm()
+            R = Rotation.random().as_matrix()
 
             T = SE3(t, R)
 
@@ -166,8 +166,8 @@ class SE3_Test(unittest.TestCase):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=3)
             t2 = np.random.uniform(-10, 10, size=3)
-            R = Rotation.random().as_dcm()
-            R2 = Rotation.random().as_dcm()
+            R = Rotation.random().as_matrix()
+            R2 = Rotation.random().as_matrix()
 
             T1 = SE3(t, R)
             T2 = SE3(t2, R2)
@@ -182,7 +182,7 @@ class SE3_Test(unittest.TestCase):
         
         for i in range(100):
             t = np.random.uniform(-10, 10, size=3)
-            R = Rotation.random().as_dcm()
+            R = Rotation.random().as_matrix()
 
             T = SE3(t, R)
 
@@ -199,7 +199,7 @@ class SE3_Test(unittest.TestCase):
             rpy = np.random.uniform(-np.pi, np.pi, size=3)
 
             T = SE3.fromRPY(t, rpy)
-            R_true = Rotation.from_euler('ZYX', [rpy[2], rpy[1], rpy[0]]).as_dcm()
+            R_true = Rotation.from_euler('ZYX', [rpy[2], rpy[1], rpy[0]]).as_matrix()
             T_true = SE3(t, R_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
@@ -212,7 +212,7 @@ class SE3_Test(unittest.TestCase):
             vec = vec / np.linalg.norm(vec) * ang 
 
             T = SE3.fromAxisAngle(t, vec)
-            R_true = Rotation.from_rotvec(vec).as_dcm()
+            R_true = Rotation.from_rotvec(vec).as_matrix()
             T_true = SE3(t, R_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)

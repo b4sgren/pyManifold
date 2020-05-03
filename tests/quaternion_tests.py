@@ -198,10 +198,10 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion(switchOrder(rot.as_quat()))
 
             q_true = q * Quaternion.Exp(delta)
-            q1 = Quaternion.Exp(q.Adj.rot(delta)) * q
+            q1 = Quaternion.Exp(q.Adj.rot(delta)) * q #This passes if I do q.Adj.inv() but I don't think that is right. I think I have an implementation error. Maybe in generating the rotations
             if np.linalg.norm(q_true.arr - q1.arr) > 1e-3:
                 Pdb().set_trace()
-                q2 = Quaternion(q.Adj @ delta) * q
+                q2 = Quaternion(q.Adj.rotdelta) * q
 
             np.testing.assert_allclose(q_true.arr, q1.arr)
         
