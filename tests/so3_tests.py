@@ -189,6 +189,13 @@ class SO3_testing(unittest.TestCase):
             T = SO3.Exp(Adj_R @ delta) * R
 
             np.testing.assert_allclose(T_true.R, T.R)
+    
+    def testRandom(self):
+        for i in range(100):
+            R = SO3.random()
+            detR = np.linalg.det(R.R)
+
+            np.testing.assert_allclose(1.0, detR)
 
 if __name__=="__main__":
     unittest.main()

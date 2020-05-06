@@ -79,6 +79,17 @@ class SO3:
         arr = np.eye(3) + A * skew_w + B * (skew_w @ skew_w) #Do taylor series expansion
 
         return cls(arr)
+    
+    @classmethod 
+    def random(cls):
+        x = np.random.uniform(0, 1, size=3)
+        psi = 2 * np.pi * x[0]
+        R = np.array([[np.cos(psi), np.sin(psi), 0], [-np.sin(psi), np.cos(psi), 0], [0, 0, 1]])
+        v = np.array([np.cos(2 * np.pi * x[1]) * np.sqrt(x[2]),
+                     np.sin(2 * np.pi * x[1]) * np.sqrt(x[2]),
+                     np.sqrt(1 - x[2])])
+        H = np.eye(3) - 2 * np.outer(v, v)
+        return cls(-H @ R)
 
     @staticmethod 
     def log(R):
