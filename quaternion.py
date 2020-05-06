@@ -1,5 +1,7 @@
 import numpy as np 
 
+from IPython.core.debugger import Pdb
+
 class Quaternion:
     def __init__(self, q):
         if isinstance(q, np.ndarray):
@@ -17,6 +19,18 @@ class Quaternion:
         return self.arr[0]
     
     @property
+    def qx(self):
+        return self.arr[1]
+    
+    @property 
+    def qy(self):
+        return self.arr[2]
+    
+    @property 
+    def qz(self):
+        return self.arr[3]
+    
+    @property
     def qv(self):
         return self.arr[1:]
     
@@ -28,12 +42,15 @@ class Quaternion:
         return self.otimes(q)
     
     def otimes(self, q):
-        Q = np.block([[-self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]])
+        Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See QUat for Err State KF
         return Quaternion(Q @ q.q)
     
     def skew(self):
         qv = self.qv
         return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
+    
+    def inv(self):
+        return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
     
     @classmethod
     def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)

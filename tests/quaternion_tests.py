@@ -14,6 +14,33 @@ class Quaternion_Testing(unittest.TestCase):
             q_norm = np.linalg.norm(q.q)
 
             np.testing.assert_allclose(1.0, q_norm)
+        
+    def testQuaternionMultiply(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
+
+            q3 = q1 * q2
+
+            q3_true = np.array([q1.qw * q2.qw - q1.qx * q2.qx - q1.qy * q2.qy - q1.qz * q2.qz,
+                                q1.qw * q2.qx + q1.qx * q2.qw + q1.qy * q2.qz - q1.qz * q2.qy,
+                                q1.qw * q2.qy - q1.qx * q2.qz + q1.qy * q2.qw + q1.qz * q2.qx,
+                                q1.qw * q2.qz + q1.qx * q2.qy - q1.qy * q2.qx + q1.qz * q2.qw])
+            
+            if q3_true[0] < 0:
+                q3_true *= -1
+            
+            np.testing.assert_allclose(q3_true, q3.q)
+    
+    def testInverse(self):
+        for i in range(100):
+            q = Quaternion.random()
+            q_inv = q.inv()
+
+            I = q * q_inv 
+            I_true = np.array([1.0, 0., 0., 0.])
+
+            np.testing.assert_allclose(I_true, I.q)
 
 if __name__=="__main__":
     unittest.main()
