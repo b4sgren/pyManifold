@@ -81,6 +81,15 @@ class SO3:
         return cls(arr)
     
     @classmethod 
+    def fromQuaternion(cls, q):
+        qw = q[0]
+        qv = q[1:]
+        qv_skew = np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
+
+        R = (2 * qw**2 - 1) * np.eye(3) - 2 * qw * qv_skew + 2 * np.outer(qv, qv)
+        return cls(R) 
+    
+    @classmethod 
     def random(cls):
         x = np.random.uniform(0, 1, size=3)
         psi = 2 * np.pi * x[0]

@@ -2,6 +2,9 @@ import numpy as np
 
 from IPython.core.debugger import Pdb
 
+def skew(qv):
+    return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
+
 class Quaternion:
     def __init__(self, q):
         if isinstance(q, np.ndarray):
@@ -40,7 +43,7 @@ class Quaternion:
     
     @property 
     def R(self): #The problem is in here I believe
-        return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * self.skew() + 2 * np.outer(self.qv, self.qv)
+        return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
     
     def __mul__(self, q):
         return self.otimes(q)
@@ -55,6 +58,13 @@ class Quaternion:
     
     def inv(self):
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
+    
+    def rot(self, v):
+        qw = self.qw 
+        qv = self.qv
+
+        t = 2 * skew(v) @ qv
+        return v + qw * t + skew(t) @ qv
     
     @classmethod
     def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)

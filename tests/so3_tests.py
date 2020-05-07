@@ -196,6 +196,9 @@ class SO3_testing(unittest.TestCase):
             detR = np.linalg.det(R.R)
 
             np.testing.assert_allclose(1.0, detR)
+    
+    def testFromQuaternion(self):
+        debug = 1 #How to test
 
 if __name__=="__main__":
     unittest.main()
