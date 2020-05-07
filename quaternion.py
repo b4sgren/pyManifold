@@ -128,3 +128,30 @@ class Quaternion:
     @staticmethod 
     def vee(W):
         return W[1:]
+    
+    @staticmethod 
+    def log(q):
+        qw = q.qw 
+        qv = q.qv 
+        w = 2 * np.arctan(np.linalg.norm(qv)/qw) * qv/np.linalg.norm(qv)
+        return np.hstack((0, w))
+    
+    @staticmethod 
+    def Log(q):
+        W = Quaternion.log(q)
+        return Quaternion.vee(W)
+    
+    @classmethod
+    def exp(cls, W):
+        w = W[1:]
+        theta = np.linalg.norm(w)
+        v = w / theta 
+
+        qw = np.cos(theta/2)
+        qv = v * np.sin(theta/2)
+        return cls(np.hstack((qw, qv)))
+    
+    @staticmethod 
+    def Exp(w):
+        W = Quaternion.hat(w)
+        return Quaternion.exp(W)

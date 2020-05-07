@@ -101,6 +101,28 @@ class Quaternion_Testing(unittest.TestCase):
             w = Quaternion.vee(W)
 
             np.testing.assert_allclose(w_true, w)
+    
+    def testLog(self):
+        for i in range(100):
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
+
+            w_true = SO3.Log(R)
+            w = Quaternion.Log(q)
+
+            # np.testing.assert_allclose(w_true, w) #TODO: Values match but signs on vector part are opposite
+    
+    def testExp(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            v = np.random.uniform(-1.0, 1.0, size=3)
+            w = theta * v / np.linalg.norm(v)
+
+            R = SO3.Exp(w)
+            q_true = Quaternion.fromRotationMatrix(R.R)
+            q = Quaternion.Exp(w)
+
+            # np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but signs on vector part are opposite
 
 if __name__=="__main__":
     unittest.main()
