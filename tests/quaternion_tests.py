@@ -91,6 +91,16 @@ class Quaternion_Testing(unittest.TestCase):
             W_true = np.array([0, w[0], w[1], w[2]])
 
             np.testing.assert_allclose(W_true, W)
+    
+    def testVee(self):
+        for i in range(100):
+            W = np.random.uniform(-10, 10, size=4)
+            W[0] = 0
+
+            w_true = W[1:]
+            w = Quaternion.vee(W)
+
+            np.testing.assert_allclose(w_true, w)
 
 if __name__=="__main__":
     unittest.main()

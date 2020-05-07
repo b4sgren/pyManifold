@@ -124,3 +124,7 @@ class Quaternion:
     @staticmethod
     def hat(w):
         return np.hstack((0, w))
+    
+    @staticmethod 
+    def vee(W):
+        return W[1:]
