@@ -1,7 +1,5 @@
 import numpy as np 
 
-from IPython.core.debugger import Pdb
-
 def skew(qv):
     return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
 
@@ -134,7 +132,7 @@ class Quaternion:
         return W[1:]
     
     @staticmethod 
-    def log(q):
+    def log(q): #TODO: Taylor series expansion
         qw = q.qw 
         qv = q.qv 
         w = 2 * np.arctan(np.linalg.norm(qv)/qw) * qv/np.linalg.norm(qv)
@@ -146,7 +144,7 @@ class Quaternion:
         return Quaternion.vee(W)
     
     @classmethod
-    def exp(cls, W):
+    def exp(cls, W): #Taylor series expansion in fromAxisAngle function
         w = W[1:]
         return cls.fromAxisAngle(w)
     
