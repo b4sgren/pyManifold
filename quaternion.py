@@ -42,10 +42,10 @@ class Quaternion:
         return self.arr
     
     @property 
-    def R(self): #The problem is in here I believe
+    def R(self): 
         return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
     
-    def __mul__(self, q):
+    def __mul__(self, q): #may need to define this for the reverse order
         return self.otimes(q)
     
     def otimes(self, q):
@@ -92,3 +92,22 @@ class Quaternion:
             q = np.array([1/s * (R[0,1] - R[1,0]), 1/s * (R[2,0] + R[0,2]), 1/s * (R[2,1] + R[1,2]), s/4])
         
         return Quaternion(q)
+    
+    @classmethod 
+    def fromRPY(cls, rpy):
+        phi = rpy[0]
+        theta = rpy[1]
+        psi = rpy[2]
+
+        cp = np.cos(phi/2)
+        sp = np.sin(phi/2)
+        ct = np.cos(theta/2)
+        st = np.sin(theta/2)
+        cpsi = np.cos(psi/2)
+        spsi = np.sin(psi/2)
+
+        qw = cpsi * ct * cp + spsi * st * sp  #The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
+        qx = -cpsi * ct * sp + spsi * st * cp 
+        qy = -cpsi * st * cp - spsi * ct * sp 
+        qz = -spsi * ct * cp + cpsi * st * sp 
+        return cls(np.array([qw, qx, qy, qz]))

@@ -61,6 +61,15 @@ class Quaternion_Testing(unittest.TestCase):
             vp = q.rot(v)
 
             np.testing.assert_allclose(vp_true, vp)
+    
+    def testFromRPY(self):
+        for i in range(100):
+            rpy = np.random.uniform(-np.pi, np.pi, size=3)
+            R = SO3.fromRPY(rpy).R 
+            q = Quaternion.fromRPY(rpy)
+            q_true = Quaternion.fromRotationMatrix(R)
+
+            np.testing.assert_allclose(q_true.q, q.q)
 
 if __name__=="__main__":
     unittest.main()
