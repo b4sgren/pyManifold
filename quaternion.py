@@ -111,3 +111,16 @@ class Quaternion:
         qy = -cpsi * st * cp - spsi * ct * sp 
         qz = -spsi * ct * cp + cpsi * st * sp 
         return cls(np.array([qw, qx, qy, qz]))
+    
+    @classmethod 
+    def fromAxisAngle(cls, vec):
+        theta = np.linalg.norm(vec)
+        v = vec / theta
+
+        qw = np.cos(theta/2)
+        qv = v * np.sin(theta/2)
+        return cls(np.hstack((qw, qv)))
+    
+    @staticmethod
+    def hat(w):
+        return np.hstack((0, w))

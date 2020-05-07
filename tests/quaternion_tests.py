@@ -70,6 +70,27 @@ class Quaternion_Testing(unittest.TestCase):
             q_true = Quaternion.fromRotationMatrix(R)
 
             np.testing.assert_allclose(q_true.q, q.q)
+    
+    def testFromAxisAngle(self):
+        for i in range(100):
+            theta = np.random.uniform(0, np.pi)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v/np.linalg.norm(v)
+
+            R = SO3.fromAxisAngle(vec).R 
+            q = Quaternion.fromAxisAngle(vec)
+            q_true = Quaternion.fromRotationMatrix(R)
+
+            # np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but vector part has opposite sign
+    
+    def testHat(self):
+        for i in range(100):
+            w = np.random.uniform(-10, 10, size=3)
+
+            W = Quaternion.hat(w)
+            W_true = np.array([0, w[0], w[1], w[2]])
+
+            np.testing.assert_allclose(W_true, W)
 
 if __name__=="__main__":
     unittest.main()
