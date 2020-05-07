@@ -123,6 +123,16 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.Exp(w)
 
             # np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but signs on vector part are opposite
+    
+    def testAdj(self):
+        for i in range(100):
+            q = Quaternion.random()
+            w = np.random.uniform(-np.pi, np.pi, size=3)
+
+            p_true = q * Quaternion.Exp(w)
+            p = Quaternion.Exp(q.Adj @ w) * q
+
+            np.testing.assert_allclose(p_true.q, p.q)
 
 if __name__=="__main__":
     unittest.main()

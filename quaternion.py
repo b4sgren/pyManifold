@@ -45,6 +45,10 @@ class Quaternion:
     def R(self): 
         return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
     
+    @property 
+    def Adj(self):
+        return self.R.T
+    
     def __mul__(self, q): #may need to define this for the reverse order
         return self.otimes(q)
     
@@ -144,12 +148,7 @@ class Quaternion:
     @classmethod
     def exp(cls, W):
         w = W[1:]
-        theta = np.linalg.norm(w)
-        v = w / theta 
-
-        qw = np.cos(theta/2)
-        qv = v * np.sin(theta/2)
-        return cls(np.hstack((qw, qv)))
+        return cls.fromAxisAngle(w)
     
     @staticmethod 
     def Exp(w):

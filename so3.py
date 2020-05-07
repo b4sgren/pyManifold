@@ -76,7 +76,7 @@ class SO3:
             A = 1.0 - theta**2 / 6.0 + theta**4 / 120.0
             B = 0.5 - theta**2 / 24.0 + theta**4/720.0
 
-        arr = np.eye(3) + A * skew_w + B * (skew_w @ skew_w) #Do taylor series expansion
+        arr = np.eye(3) + A * skew_w + B * (skew_w @ skew_w) 
 
         return cls(arr)
     
