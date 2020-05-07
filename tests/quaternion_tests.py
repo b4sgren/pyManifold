@@ -4,6 +4,7 @@ import unittest
 import sys 
 sys.path.append('..')
 from quaternion import Quaternion
+from so3 import SO3
 
 from IPython.core.debugger import Pdb 
 
@@ -41,6 +42,14 @@ class Quaternion_Testing(unittest.TestCase):
             I_true = np.array([1.0, 0., 0., 0.])
 
             np.testing.assert_allclose(I_true, I.q)
+    
+    def testRotationFromQuaternion(self):
+        for i in range(100):
+            R_true = SO3.random().R
+            q = Quaternion.fromRotationMatrix(R_true)
+            R = q.R
+
+            np.testing.assert_allclose(R_true, R) #The diagonal is off
 
 if __name__=="__main__":
     unittest.main()

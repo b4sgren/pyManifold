@@ -38,6 +38,10 @@ class Quaternion:
     def q(self):
         return self.arr
     
+    @property 
+    def R(self): #The problem is in here I believe
+        return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * self.skew() + 2 * np.outer(self.qv, self.qv)
+    
     def __mul__(self, q):
         return self.otimes(q)
     
@@ -60,3 +64,21 @@ class Quaternion:
         q2 = np.sqrt(u[0]) * np.sin(2 * np.pi * u[2])
         q3 = np.sqrt(u[0]) * np.cos(2 * np.pi * u[2])
         return Quaternion(np.array([qw, q1, q2, q3]))
+    
+    @classmethod 
+    def fromRotationMatrix(cls, R):
+        d = np.trace(R)
+        if d > 0:
+            s = 2 * np.sqrt(d + 1)
+            q = np.array([s/4, 1/s * (R[1,2] - R[2,1]), 1/s * (R[2,0] - R[0,2]), 1/s * (R[0,1] - R[1,0])])
+        elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
+            s = 2 * np.sqrt(1 + R[0,0] - R[1,1] - R[2,2])
+            q = np.array([1/s * (R[1,2] - R[2,1]), s/4, 1/s * (R[1,0] + R[0,1]), 1/s * (R[2,0] + R[0,2])])
+        elif R[1,1] > R[2,2]:
+            s = 2 * np.sqrt(1 + R[1,1] - R[0,0] - R[2,2])
+            q = np.array([1/s * (R[2,0] - R[0,2]), 1/s * (R[1,0] + R[0,1]), s/4, 1/s * (R[2,1] + R[1,2])])
+        else:
+            s = 2 * np.sqrt(1 + R[2,2] - R[0,0] - R[1,1])
+            q = np.array([1/s * (R[0,1] - R[1,0]), 1/s * (R[2,0] + R[0,2]), 1/s * (R[2,1] + R[1,2]), s/4])
+        
+        return Quaternion(q)
