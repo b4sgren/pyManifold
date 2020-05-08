@@ -121,11 +121,11 @@ class Quaternion:
 
         qw = np.cos(theta/2)
         qv = v * np.sin(theta/2)
-        return cls(np.hstack((qw, qv)))
+        return cls(np.array([qw, *qv]))
     
     @staticmethod
     def hat(w):
-        return np.hstack((0, w))
+        return np.array([0, *w])
     
     @staticmethod 
     def vee(W):
@@ -136,7 +136,7 @@ class Quaternion:
         qw = q.qw 
         qv = q.qv 
         w = 2 * np.arctan(np.linalg.norm(qv)/qw) * qv/np.linalg.norm(qv)
-        return np.hstack((0, w))
+        return np.array([0, *w])
     
     @staticmethod 
     def Log(q):

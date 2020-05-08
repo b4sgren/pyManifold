@@ -6,8 +6,6 @@ sys.path.append('..')
 from quaternion import Quaternion
 from so3 import SO3
 
-from IPython.core.debugger import Pdb 
-
 class Quaternion_Testing(unittest.TestCase):
     def testRandomGeneration(self):
         for i in range(100):
@@ -49,7 +47,7 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.fromRotationMatrix(R_true)
             R = q.R
 
-            np.testing.assert_allclose(R_true, R) #The diagonal is off
+            np.testing.assert_allclose(R_true, R) 
     
     def testRotatingVector(self):
         for i in range(100):
@@ -58,7 +56,7 @@ class Quaternion_Testing(unittest.TestCase):
             R = q.R
 
             vp_true = R @ v
-            vp = q.rot(v)
+            vp = q.rot(v) #Writing this with the quaternion multiplication q.inv() * v * q gives me the same values but opposite in sign
 
             np.testing.assert_allclose(vp_true, vp)
     
@@ -80,6 +78,7 @@ class Quaternion_Testing(unittest.TestCase):
             R = SO3.fromAxisAngle(vec).R 
             q = Quaternion.fromAxisAngle(vec)
             q_true = Quaternion.fromRotationMatrix(R)
+            debug = 1
 
             # np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but vector part has opposite sign
     
