@@ -20,13 +20,8 @@ class SO3:
     def __mul__(self, R2): #I think that I will redefine the rotation on a vector as a separate function
         if isinstance(R2, SO3): 
             return SO3(self.R @ R2.R)
-        elif isinstance(R2, np.ndarray):
-            if not R2.shape[0] == 3:
-                raise ValueError("R2 needs to be a 1D array of length 3")
-            else:
-                return self.R @ R2 
         else:
-            raise ValueError("Type not supported. Make sure R2 is an SO3 object or a numpy array")
+            raise ValueError("Type not supported. Make sure R2 is an SO3 object")
     
     def __sub__(self, R2): 
         if isinstance(R2, SO3):
@@ -39,6 +34,9 @@ class SO3:
     
     def transpose(self):
         return SO3(self.arr.T)
+    
+    def rot(self, v):
+        return self.arr @ v
 
     @property 
     def R(self):

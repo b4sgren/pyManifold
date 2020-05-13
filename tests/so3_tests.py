@@ -172,7 +172,7 @@ class SO3_testing(unittest.TestCase):
             R = SO3(rot1)
             pt = np.random.uniform(-5, 5, size=3)
 
-            rot_pt = R * pt 
+            rot_pt = R.rot(pt)
             rot_pt_true = rot1 @ pt
 
             np.testing.assert_allclose(rot_pt_true, rot_pt)
@@ -197,8 +197,8 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(1.0, detR)
     
-    def testFromQuaternion(self):
-        debug = 1 #How to test
+    # def testFromQuaternion(self):
+        # debug = 1 #How to test
 
 if __name__=="__main__":
     unittest.main()
