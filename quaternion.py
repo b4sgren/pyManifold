@@ -136,7 +136,7 @@ class Quaternion:
         qw = q.qw 
         qv = q.qv 
         w = 2 * np.arctan(np.linalg.norm(qv)/qw) * qv/np.linalg.norm(qv)
-        return np.array([0, *w])
+        return np.array([0, *w]) #I have never seen anything that says this is negative but when I compare with a Rotation matrix I get the negative values of a matrix log
     
     @staticmethod 
     def Log(q):
@@ -152,3 +152,5 @@ class Quaternion:
     def Exp(w):
         W = Quaternion.hat(w)
         return Quaternion.exp(W)
+    
+    #Jacobians
