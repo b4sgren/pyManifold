@@ -79,9 +79,9 @@ class Quaternion_Testing(unittest.TestCase):
             R = SO3.fromAxisAngle(vec).R 
             q = Quaternion.fromAxisAngle(vec)
             q_true = Quaternion.fromRotationMatrix(R)
-            debug = 1
+            q_true = q_true.inv()
 
-            # np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but vector part has opposite sign. Is is supposed to be that way?
+            np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but vector part has opposite sign. Is is supposed to be that way?
     
     def testHat(self):
         for i in range(100):
@@ -112,7 +112,7 @@ class Quaternion_Testing(unittest.TestCase):
             w_true = SO3.vee(temp)
             w = Quaternion.Log(q)
 
-            # np.testing.assert_allclose(w_true, w) #TODO: Values match but signs on vector part are opposite. Are they supposed to be that way?
+            np.testing.assert_allclose(-w_true, w) #TODO: Values match but signs on vector part are opposite. Are they supposed to be that way?
     
     def testExp(self):
         for i in range(100):

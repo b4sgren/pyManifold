@@ -116,12 +116,13 @@ class Quaternion:
     
     @classmethod 
     def fromAxisAngle(cls, vec):
-        theta = np.linalg.norm(vec)
-        v = vec / theta
+        return cls.Exp(vec)
+        # theta = np.linalg.norm(vec)
+        # v = vec / theta
 
-        qw = np.cos(theta/2)
-        qv = v * np.sin(theta/2)
-        return cls(np.array([qw, *qv]))
+        # qw = np.cos(theta/2)
+        # qv = v * np.sin(theta/2)
+        # return cls(np.array([qw, *qv]))
     
     @staticmethod
     def hat(w):
@@ -144,9 +145,17 @@ class Quaternion:
         return Quaternion.vee(W)
     
     @classmethod
-    def exp(cls, W): #Taylor series expansion in fromAxisAngle function
-        w = W[1:]
-        return cls.fromAxisAngle(w)
+    def exp(cls, W): 
+        vec = W[1:]
+        theta = np.linalg.norm(vec)
+        v = vec / theta
+
+        qw = np.cos(theta/2)
+        qv = v * np.sin(theta/2)
+        return cls(np.array([qw, *qv]))
+
+        # w = W[1:]
+        # return cls.fromAxisAngle(w)
     
     @staticmethod 
     def Exp(w):
