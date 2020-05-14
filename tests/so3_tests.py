@@ -221,8 +221,14 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(R2_true.R, R2.R)
     
-    # def testBoxMinus(self):
-        # debug = 1
+    def testBoxMinus(self):
+        R1 = SO3.random()
+        R2 = SO3.random()
+
+        w = R1.boxminus(R2)
+        R_res = R2.boxplus(w)
+
+        np.testing.assert_allclose(R1.R, R_res.R)
     
 if __name__=="__main__":
     unittest.main()

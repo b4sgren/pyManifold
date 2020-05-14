@@ -17,7 +17,7 @@ class SO3:
         else:
             raise ValueError("Input is a 3x3 numpy array. Otherwise use fromRPY or FromAxisAngle")
     
-    def __mul__(self, R2): #I think that I will redefine the rotation on a vector as a separate function
+    def __mul__(self, R2): 
         if isinstance(R2, SO3): 
             return SO3(self.R @ R2.R)
         else:
@@ -47,7 +47,8 @@ class SO3:
     
     def boxminus(self, R2):
         assert isinstance(R2, SO3)
-        return SO3.Log(self.inv() * R2)
+        # return SO3.Log(self.inv() * R2)
+        return SO3.Log(R2.inv() * self)
 
     @property 
     def R(self):
