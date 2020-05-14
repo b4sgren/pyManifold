@@ -35,8 +35,11 @@ class SO3:
     def transpose(self):
         return SO3(self.arr.T)
     
-    def rot(self, v):
+    def rota(self, v):
         return self.arr @ v
+    
+    def rotp(self, v):
+        return self.arr.T @ v
 
     @property 
     def R(self):

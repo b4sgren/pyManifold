@@ -165,6 +165,18 @@ class SO3_testing(unittest.TestCase):
             R3_true = rot1 @ rot2
 
             np.testing.assert_allclose(R3_true, R3.arr)
+    
+    def testRotatingVector(self):
+        for i in range(100): #Active rotation
+            rot1 = Rotation.random().as_matrix()
+
+            R = SO3(rot1)
+            pt = np.random.uniform(-5, 5, size=3)
+
+            rot_pt = R.rota(pt)
+            rot_pt_true = rot1 @ pt
+
+            np.testing.assert_allclose(rot_pt_true, rot_pt)
         
         for i in range(100):
             rot1 = Rotation.random().as_matrix()
@@ -172,8 +184,8 @@ class SO3_testing(unittest.TestCase):
             R = SO3(rot1)
             pt = np.random.uniform(-5, 5, size=3)
 
-            rot_pt = R.rot(pt)
-            rot_pt_true = rot1 @ pt
+            rot_pt = R.rotp(pt)
+            rot_pt_true = rot1.T @ pt
 
             np.testing.assert_allclose(rot_pt_true, rot_pt)
     
