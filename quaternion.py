@@ -117,12 +117,6 @@ class Quaternion:
     @classmethod 
     def fromAxisAngle(cls, vec):
         return cls.Exp(vec)
-        # theta = np.linalg.norm(vec)
-        # v = vec / theta
-
-        # qw = np.cos(theta/2)
-        # qv = v * np.sin(theta/2)
-        # return cls(np.array([qw, *qv]))
     
     @staticmethod
     def hat(w):
@@ -153,9 +147,6 @@ class Quaternion:
         qw = np.cos(theta/2)
         qv = v * np.sin(theta/2)
         return cls(np.array([qw, *qv]))
-
-        # w = W[1:]
-        # return cls.fromAxisAngle(w)
     
     @staticmethod 
     def Exp(w):
