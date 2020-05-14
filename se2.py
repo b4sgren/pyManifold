@@ -58,11 +58,14 @@ class SE2:
     
     @classmethod 
     def fromRandt(cls, R, t):
+        assert R.shape == (2,2)
+        assert t.size == 2
         T = np.block([[R, t[:,None]], [np.zeros(2), 1]])
         return cls(T)
     
     @staticmethod
     def log(T): 
+        assert isinstance(T, SE2)
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
         t = T.t
 
@@ -89,6 +92,7 @@ class SE2:
     
     @classmethod
     def exp(cls, X): #Taylor series expansion
+        assert X.shape == (3,3)
         theta = X[1,0]
 
         if np.abs(theta) > 1e-3:
@@ -110,6 +114,7 @@ class SE2:
     
     @staticmethod
     def vee(X):
+        assert X.shape == (3,3)
         arr = np.zeros(3)
         arr[1:] = X[:2,2]
         arr[0] = X[1,0]
@@ -118,4 +123,5 @@ class SE2:
     
     @staticmethod
     def hat(arr): 
+        assert arr.size == 3
         return np.sum(G * arr[:,None, None], axis=0)
