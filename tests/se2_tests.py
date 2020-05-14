@@ -16,7 +16,7 @@ class SE2_Test(unittest.TestCase):
             st = np.sin(theta)
             R = np.array([[ct, -st], [st, ct]])
 
-            T = SE2(R, t)
+            T = SE2.fromRandt(R, t)
             T_inv = T.inv()
             T_inv_true = np.eye(3)
             T_inv_true[:2, :2] = R.T 
@@ -38,13 +38,13 @@ class SE2_Test(unittest.TestCase):
             R1 = np.array([[ct1, -st1], [st1, ct1]])
             R2 = np.array([[ct2, -st2], [st2, ct2]])
             
-            T1 = SE2(R1, t1)
-            T2 = SE2(R2, t2)
+            T1 = SE2.fromRandt(R1, t1)
+            T2 = SE2.fromRandt(R2, t2)
             T = T1 * T2
             
             R_true = R1 @ R2
             t_true = R1 @ t2 + t1
-            T_true = SE2(R_true, t_true)
+            T_true = SE2.fromRandt(R_true, t_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
         
@@ -52,7 +52,7 @@ class SE2_Test(unittest.TestCase):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)
 
-            T = SE2.fromAngle(theta, t)
+            T = SE2.fromAngleAndt(theta, t)
 
             vec = np.random.uniform(-5, 5, size=2)
 
@@ -72,7 +72,7 @@ class SE2_Test(unittest.TestCase):
             st = np.sin(theta)
             R = np.array([[ct, -st], [st, ct]])
 
-            T = SE2(R, t)
+            T = SE2.fromRandt(R, t)
             logT = SE2.log(T)
             logT_true = spl.logm(T.arr)
             if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
@@ -87,7 +87,7 @@ class SE2_Test(unittest.TestCase):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-1e-3, 1e-3)
 
-            T = SE2.fromAngle(theta, t)
+            T = SE2.fromAngleAndt(theta, t)
             logT = SE2.log(T)
             logT_true = spl.logm(T.arr)
             
@@ -154,7 +154,7 @@ class SE2_Test(unittest.TestCase):
             ct = np.cos(theta)
             st = np.sin(theta)
             R = np.array([[ct, -st], [st, ct]])
-            T = SE2(R, t)
+            T = SE2.fromRandt(R, t)
             adj = T.Adj
 
             adj_true = np.zeros((3,3))
@@ -175,7 +175,7 @@ class SE2_Test(unittest.TestCase):
             ct = np.cos(theta)
             st = np.sin(theta)
             R = np.array([[ct, -st], [st, ct]])
-            T = SE2(R, t)
+            T = SE2.fromRandt(R, t)
             
             adj = T.Adj
 
@@ -189,7 +189,7 @@ class SE2_Test(unittest.TestCase):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)
 
-            T = SE2.fromAngle(theta, t)
+            T = SE2.fromAngleAndt(theta, t)
             
             ct = np.cos(theta)
             st = np.sin(theta)

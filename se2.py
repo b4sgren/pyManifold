@@ -10,18 +10,17 @@ G = np.array([[[0, -1, 0],
                 [0, 0, 1], 
                 [0, 0, 0]]])
 class SE2:
-    def __init__(self, R, t):
-        self.arr = np.eye(3)
-        self.arr[:2,:2] = R 
-        self.arr[:2,2] = t
+    def __init__(self, T):
+        assert T.shape == (3,3)
+        self.arr = T
     
     def inv(self):
-        return SE2(self.arr[:2,:2].T, -self.arr[:2,:2].T @ self.arr[:2,2])
+        return SE2.fromRandt(self.arr[:2,:2].T, -self.arr[:2,:2].T @ self.arr[:2,2])
 
     def __mul__(self, T2): 
         if isinstance(T2, SE2):
             temp = self.arr @ T2.arr
-            return SE2(temp[:2,:2], temp[:2,2])
+            return SE2.fromRandt(temp[:2,:2], temp[:2,2])
         elif isinstance(T2, np.ndarray):
             if not T2.size == 2:
                 raise ValueError("Array is to long. Make sure the array is a 1D array with size 2")
@@ -50,12 +49,17 @@ class SE2:
         return self.arr[:2,2]
     
     @classmethod
-    def fromAngle(cls, theta, t):
+    def fromAngleAndt(cls, theta, t):
         ct = np.cos(theta)
         st = np.sin(theta)
         R = np.array([[ct, -st], [st, ct]])
 
-        return cls(R, t)
+        return cls.fromRandt(R, t)
+    
+    @classmethod 
+    def fromRandt(cls, R, t):
+        T = np.block([[R, t[:,None]], [np.zeros(2), 1]])
+        return cls(T)
     
     @staticmethod
     def log(T): 
@@ -97,7 +101,7 @@ class SE2:
         V = np.array([[A, -B], [B, A]])
         t = V @ X[:2,2]
         
-        return cls.fromAngle(theta, t)
+        return cls.fromAngleAndt(theta, t)
     
     @classmethod 
     def Exp(cls, vec):
