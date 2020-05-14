@@ -25,7 +25,7 @@ class SO3:
     
     def __sub__(self, R2): 
         if isinstance(R2, SO3):
-            return self.R - R2.R #override this to do a box minus type thing
+            return self.R - R2.R 
         else:
             raise ValueError("Type not supported. Make sure R2 is an SO3 object")
 
@@ -40,6 +40,14 @@ class SO3:
     
     def rotp(self, v):
         return self.arr.T @ v
+    
+    def boxplus(self, v):
+        assert(v.size == 3)
+        return self * SO3.Exp(v)
+    
+    def boxminus(self, R2):
+        assert isinstance(R2, SO3)
+        return SO3.Log(self.inv() * R2)
 
     @property 
     def R(self):

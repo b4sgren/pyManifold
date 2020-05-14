@@ -209,8 +209,20 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(1.0, detR)
     
-    # def testFromQuaternion(self):
-        # debug = 1 #How to test
+    def testBoxPlus(self):
+        for i in range(100):
+            R = SO3.random()
+            theta = np.random.uniform(0, np.pi)
+            vec = np.random.uniform(-1, 1, size=3)
+            vec = vec / np.linalg.norm(vec) * theta
 
+            R2 = R.boxplus(vec)
+            R2_true = R * SO3.fromAxisAngle(vec)
+
+            np.testing.assert_allclose(R2_true.R, R2.R)
+    
+    # def testBoxMinus(self):
+        # debug = 1
+    
 if __name__=="__main__":
     unittest.main()
