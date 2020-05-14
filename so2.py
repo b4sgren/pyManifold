@@ -11,11 +11,6 @@ class SO2:
     def __mul__(self, R2):
         assert isinstance(R2, SO2)
         return SO2(self.arr @ R2.arr)
-        # if isinstance(R2, SO2):
-            # arr = self.arr @ R2.arr
-            # return SO2(arr)
-        # else:
-            # raise ValueError("Type not supported. Make sure R2 is an SO2 object of a numpy array")
     
     def inv(self):
         return SO2(self.arr.T)
@@ -27,6 +22,13 @@ class SO2:
     def rotp(self, v):
         assert v.size == 2
         return self.inv().arr @ v
+    
+    def boxplus(self, w):
+        return self * SO2.Exp(w)
+    
+    def boxminus(self, R2):
+        assert isinstance(R2, SO2)
+        return SO2.Log(R2.inv() * self)
     
     @property 
     def R(self):
@@ -73,3 +75,8 @@ class SO2:
     @property 
     def Adj(self):
         return np.eye(2)
+    
+    @classmethod
+    def random(cls):
+        theta = np.random.uniform(-np.pi, np.pi)
+        return cls.fromAngle(theta)

@@ -114,6 +114,26 @@ class SO2Test(unittest.TestCase):
             Rf_true = SO2.Exp(delta) * R 
 
             np.testing.assert_allclose(Rf_true.R, Rf.R)
+    
+    def testBoxPlus(self):
+        for i in range(100):
+            R = SO2.random()
+            w = np.random.uniform(-np.pi, np.pi)
+            R2 = SO2.fromAngle(w)
+
+            R3 = R.boxplus(w)
+            R3_true = R * R2 
+
+            np.testing.assert_allclose(R3_true.R, R3.R)
+    
+    def testBoxMinus(self):
+        R1 = SO2.random()
+        R2 = SO2.random()
+
+        w = R1.boxminus(R2)
+        Rres = R2.boxplus(w)
+
+        np.testing.assert_allclose(R1.R, Rres.R)
 
 if __name__=="__main__":
     unittest.main()
