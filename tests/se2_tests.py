@@ -47,7 +47,8 @@ class SE2_Test(unittest.TestCase):
             T_true = SE2.fromRandt(R_true, t_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
-        
+    
+    def testActionOnVector(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)
@@ -56,12 +57,20 @@ class SE2_Test(unittest.TestCase):
 
             vec = np.random.uniform(-5, 5, size=2)
 
-            pt = T * vec
-            vec = np.hstack((vec, [1]))
+            pt = T.transa(vec)
 
-            pt_true = T.arr @ vec
+            pt_true = T.R @ vec + T.t
 
-            np.testing.assert_allclose(pt_true[:2], pt)
+            np.testing.assert_allclose(pt_true, pt)
+
+        for i in range(100):
+            T = SE2.random()
+            vec = np.random.uniform(-5, 5, size=2)
+
+            pt = T.transp(vec)
+            pt_true = T.R.T @ vec - T.R.T @ T.t
+
+            np.testing.assert_allclose(pt_true, pt)
     
     def testLog(self):
         for i in range(100):

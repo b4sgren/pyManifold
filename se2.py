@@ -15,20 +15,31 @@ class SE2:
         self.arr = T
     
     def inv(self):
-        return SE2.fromRandt(self.arr[:2,:2].T, -self.arr[:2,:2].T @ self.arr[:2,2])
+        return SE2.fromRandt(self.R.T, -self.R.T @ self.t)
 
     def __mul__(self, T2): 
         if isinstance(T2, SE2):
             temp = self.arr @ T2.arr
             return SE2.fromRandt(temp[:2,:2], temp[:2,2])
-        elif isinstance(T2, np.ndarray):
-            if not T2.size == 2:
-                raise ValueError("Array is to long. Make sure the array is a 1D array with size 2")
-            else:
-                return self.R @ T2 + self.t
+        # elif isinstance(T2, np.ndarray):
+            # if not T2.size == 2:
+                # raise ValueError("Array is to long. Make sure the array is a 1D array with size 2")
+            # else:
+                # return self.R @ T2 + self.t
         else:
             raise ValueError("Type not supported. Make sure the type is an SE2 object")
     
+    def transa(self, v):
+        assert v.size == 2
+        v = np.array([*v, 1])
+        vp = self.T @ v 
+        return vp[:2]
+    
+    def transp(self, v):
+        assert v.size == 2
+        v = np.array([*v, 1])
+        vp = self.inv().T @ v 
+        return vp[:2]
 
     @property 
     def Adj(self): 
@@ -47,6 +58,10 @@ class SE2:
     @property 
     def t(self):
         return self.arr[:2,2]
+    
+    @property 
+    def T(self):
+        return self.arr
     
     @classmethod
     def fromAngleAndt(cls, theta, t):
@@ -125,3 +140,9 @@ class SE2:
     def hat(arr): 
         assert arr.size == 3
         return np.sum(G * arr[:,None, None], axis=0)
+    
+    @classmethod
+    def random(cls):
+        theta = np.random.uniform(-np.pi, np.pi)
+        t = np.random.uniform(-5, 5, size=2)
+        return cls.fromAngleAndt(theta, t)
