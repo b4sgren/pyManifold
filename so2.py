@@ -9,16 +9,13 @@ class SO2:
         self.arr = R
             
     def __mul__(self, R2):
-        if isinstance(R2, SO2):
-            arr = self.arr @ R2.arr
-            return SO2(arr)
-        # elif isinstance(R2, np.ndarray):
-            # if not R2.size == 2:
-                # raise ValueError("Array being multiplied needs to be a 1D array of length 2")
-            # else:
-                # return self.arr @ R2
-        else:
-            raise ValueError("Type not supported. Make sure R2 is an SO2 object of a numpy array")
+        assert isinstance(R2, SO2)
+        return SO2(self.arr @ R2.arr)
+        # if isinstance(R2, SO2):
+            # arr = self.arr @ R2.arr
+            # return SO2(arr)
+        # else:
+            # raise ValueError("Type not supported. Make sure R2 is an SO2 object of a numpy array")
     
     def inv(self):
         return SO2(self.arr.T)
