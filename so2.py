@@ -27,6 +27,10 @@ class SO2:
         assert v.size == 2
         return self.arr @ v
     
+    def rotp(self, v):
+        assert v.size == 2
+        return self.inv().arr @ v
+    
     @property 
     def R(self):
         return self.arr 
