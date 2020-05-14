@@ -160,4 +160,4 @@ class SO3:
     def Adj(self): 
         return self.arr
     
-    #Left and right jacobians go here. Read about them first
+    #Left and right jacobians go here. Read about them first. Seem like a lot of them to implement...
