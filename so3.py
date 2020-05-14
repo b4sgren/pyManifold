@@ -12,22 +12,16 @@ G = np.array([[[0, 0, 0],
 
 class SO3:
     def __init__(self, R): 
-        if R.shape[0] ==3 and R.shape[1] == 3:
-            self.arr = R 
-        else:
-            raise ValueError("Input is a 3x3 numpy array. Otherwise use fromRPY or FromAxisAngle")
+        assert (R.shape == (3,3))
+        self.arr = R
     
     def __mul__(self, R2): 
-        if isinstance(R2, SO3): 
-            return SO3(self.R @ R2.R)
-        else:
-            raise ValueError("Type not supported. Make sure R2 is an SO3 object")
+        assert isinstance(R2, SO3)
+        return SO3(self.R @ R2.R)
     
     def __sub__(self, R2): 
-        if isinstance(R2, SO3):
-            return self.R - R2.R 
-        else:
-            raise ValueError("Type not supported. Make sure R2 is an SO3 object")
+        assert isinstance(R2, SO3)
+        return self.R - R2.R
 
     def inv(self):
         return SO3(self.arr.T)
@@ -36,9 +30,11 @@ class SO3:
         return SO3(self.arr.T)
     
     def rota(self, v):
+        assert v.size == 3
         return self.arr @ v
     
     def rotp(self, v):
+        assert v.size == 3
         return self.arr.T @ v
     
     def boxplus(self, v):
@@ -47,7 +43,6 @@ class SO3:
     
     def boxminus(self, R2):
         assert isinstance(R2, SO3)
-        # return SO3.Log(self.inv() * R2)
         return SO3.Log(R2.inv() * self)
 
     @property 
@@ -112,6 +107,8 @@ class SO3:
 
     @staticmethod 
     def log(R):
+        assert isinstance(R, SO3)
+
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
         if np.abs(theta) < 1e-3: # Do taylor series expansion
             temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360) 
@@ -129,6 +126,8 @@ class SO3:
     
     @classmethod 
     def exp(cls, logR):
+        assert logR.shape == (3,3)
+
         w = cls.vee(logR) 
         theta = np.sqrt(w @ w)
         if np.abs(theta) > 1e-3:
@@ -148,11 +147,13 @@ class SO3:
     
     @staticmethod 
     def vee(logR):
+        assert logR.shape == (3,3)
         omega = np.array([logR[2,1], logR[0,2], logR[1,0]])
         return omega
     
     @staticmethod
     def hat(omega):
+        assert omega.size == 3
         return (G @ omega).squeeze()
     
     @property 
