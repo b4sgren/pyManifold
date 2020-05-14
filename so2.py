@@ -2,7 +2,7 @@ import numpy as np
 
 G = np.array([[0, -1], [1, 0]])
 
-#TODO: add jacobians, overload +/- for box plus and box minus
+#TODO: add jacobians
 class SO2:
     def __init__(self, R):
         assert R.shape == (2,2)
