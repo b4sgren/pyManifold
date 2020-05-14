@@ -61,13 +61,14 @@ class SO2Test(unittest.TestCase):
             self.assertAlmostEqual(R_true[1,0], R.arr[1,0])
             self.assertAlmostEqual(R_true[1,1], R.arr[1,1])
         
+    def testRotateVector(self):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
             R = SO2.fromAngle(theta)
 
             pt = np.random.uniform(-5, 5, size=2)
 
-            rot_pt = R * pt
+            rot_pt = R.rota(pt)
 
             x_true = np.cos(theta) * pt[0] - np.sin(theta) * pt[1]
             y_true = np.sin(theta) * pt[0] + np.cos(theta) * pt[1]
