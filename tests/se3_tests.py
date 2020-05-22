@@ -18,16 +18,16 @@ class SE3_Test(unittest.TestCase):
             T_true[:3,:3] = R 
             T_true[:3,3] = t 
 
-            T = SE3(t, R)
+            T = SE3.fromRotationMatrix(t, R)
 
             np.testing.assert_allclose(T_true, T.arr)
         
-    def testLog(self): #This fails occassionally
+    def testLog(self): 
         for i in range(100):
             t = np.random.uniform(-10, 10, size=3)
             R = Rotation.random().as_matrix()
 
-            T = SE3(t, R)
+            T = SE3.fromRotationMatrix(t, R)
             logT = SE3.log(T)
             logT_true = sp.linalg.logm(T.arr)
 
@@ -46,7 +46,7 @@ class SE3_Test(unittest.TestCase):
             vec = vec / np.linalg.norm(vec) * ang
 
             R = Rotation.from_rotvec(vec).as_matrix()
-            T = SE3(t, R)
+            T = SE3.fromRotationMatrix(t, R)
             logT = SE3.log(T)
             logT_true = sp.linalg.logm(T.arr)
             
@@ -64,16 +64,19 @@ class SE3_Test(unittest.TestCase):
             vec = vec / np.linalg.norm(vec) * ang 
 
             R = Rotation.from_rotvec(vec).as_matrix()
-            T = SE3(t, R)
+            T = SE3.fromRotationMatrix(t, R)
             logT = SE3.log(T)
             logT_true = sp.linalg.logm(T.arr)
+            
+            if isinstance(logT_true[0,0], np.complex):
+                logT_true = np.real(logT_true)
 
             if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
-                Pdb().set_trace()
-                debug = 1
                 logT2 = SE3.log(T)
             
             np.testing.assert_allclose(logT_true, logT, atol=1e-4, rtol=1e-4) #Values match. For some reason these need to be kinda big
+            #Failure Case: t = array([4.21542429, 9.63179667, 6.94835173]), vec = array([ 2.0673784 , -1.90185657,  1.40659037]), ang = 3.1415932774993163
+            #sp.linalg.logm gives complex values...
     
     def testExp(self):
         for i in range(100):
@@ -125,7 +128,7 @@ class SE3_Test(unittest.TestCase):
             t = np.random.uniform(-10, 10, size=3)
             R = Rotation.random().as_matrix()
 
-            T = SE3(t, R)
+            T = SE3.fromRotationMatrix(t, R)
             logT_true = SE3.log(T)
             arr = SE3.vee(logT_true)
 
@@ -137,7 +140,7 @@ class SE3_Test(unittest.TestCase):
         for i in range(100): 
             t = np.random.uniform(-10, 10, size=3)
             R = Rotation.random().as_matrix()
-            T = SE3(t, R)
+            T = SE3.fromRotationMatrix(t, R)
 
             u = np.random.uniform(-1.0, 1.0, size=3)
             w = np.random.uniform(-np.pi, np.pi, size=3)
@@ -155,7 +158,7 @@ class SE3_Test(unittest.TestCase):
             t = np.random.uniform(-10, 10, size=3)
             R = Rotation.random().as_matrix()
 
-            T = SE3(t, R)
+            T = SE3.fromRotationMatrix(t, R)
 
             T_inv = T.inv()
             T_inv_true = np.linalg.inv(T.arr)
@@ -169,14 +172,14 @@ class SE3_Test(unittest.TestCase):
             R = Rotation.random().as_matrix()
             R2 = Rotation.random().as_matrix()
 
-            T1 = SE3(t, R)
-            T2 = SE3(t2, R2)
+            T1 = SE3.fromRotationMatrix(t, R)
+            T2 = SE3.fromRotationMatrix(t2, R2)
 
             T3 = T1 * T2
 
             R3 = R @ R2
             t3 = R @ t2 + t
-            T3_true = SE3(t3, R3)
+            T3_true = SE3.fromRotationMatrix(t3, R3)
 
             np.testing.assert_allclose(T3_true.arr, T3.arr)
         
@@ -184,7 +187,7 @@ class SE3_Test(unittest.TestCase):
             t = np.random.uniform(-10, 10, size=3)
             R = Rotation.random().as_matrix()
 
-            T = SE3(t, R)
+            T = SE3.fromRotationMatrix(t, R)
 
             pt = np.random.uniform(-5, 5, size=3)
 
@@ -200,7 +203,7 @@ class SE3_Test(unittest.TestCase):
 
             T = SE3.fromRPY(t, rpy)
             R_true = Rotation.from_euler('ZYX', [rpy[2], rpy[1], rpy[0]]).as_matrix()
-            T_true = SE3(t, R_true)
+            T_true = SE3.fromRotationMatrix(t, R_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
     
@@ -213,7 +216,7 @@ class SE3_Test(unittest.TestCase):
 
             T = SE3.fromAxisAngle(t, vec)
             R_true = Rotation.from_rotvec(vec).as_matrix()
-            T_true = SE3(t, R_true)
+            T_true = SE3.fromRotationMatrix(t, R_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
 

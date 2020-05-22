@@ -14,30 +14,19 @@ G[5,2,3] = 1
 #Jacobians, and overload plus and minus for box plus and box minus
 
 class SE3:
-    def __init__(self, t, *args): 
-        self.arr = np.eye(4)
-        if t.size == 16:
-            self.arr = t 
-        elif t.size == 3:
-            self.arr[:3, 3] = t
-        else:
-            raise ValueError("T must be a 4x4 transformation matrix or a 3 vector for translation")
-
-        if len(args) > 1:
-            raise ValueError("Pass in a 3x3 rotation matrix if t is a translation vector and not a 4x4 transformation matrix")
-        elif len(args) == 1:
-            if args[0].shape[0] == 3 and args[0].shape[1] == 3:
-                self.arr[:3,:3] = args[0]
-            else:
-                raise ValueError("Pass in a 3x3 rotation matrix. If initializing using RPY angles or axis angle use the fromRPY or from AxisAngle methods")
+    def __init__(self, T): 
+        assert T.shape == (4,4)
+        self.arr = T
     
     def inv(self):
-        return SE3(-self.R.T @ self.t, self.R.T)
+        R_inv = self.R.T 
+        t_inv = -R_inv @ self.t
+        return SE3.fromRotationMatrix(t_inv, R_inv)
     
     def __mul__(self, T):
         if isinstance(T, SE3):
             temp = self.arr @ T.arr
-            return SE3(temp[:3,3], temp[:3,:3])
+            return SE3.fromRotationMatrix(temp[:3,3], temp[:3,:3])
         elif isinstance(T, np.ndarray):
             if not T.size == 3:
                 raise ValueError("T is the incorrect shape. T must be a 1D array with length 3")
@@ -55,12 +44,21 @@ class SE3:
     def t(self):
         return self.arr[:3,3]
     
+    @property 
+    def T(self):
+        return self.arr
+    
+    @classmethod 
+    def fromRotationMatrix(cls, t, R):
+        assert t.size == 3
+        assert R.shape == (3,3)
+        T = np.block([[R, t[:,None]], [np.zeros(3), 1]])
+        return cls(T)
+    
     @classmethod 
     def fromRPY(cls, t, angles): 
-        if not angles.size == 3:
-            raise ValueError("To use fromRPY the input must be a numpy array of length 3")
-        if not t.size == 3:
-            raise ValueError("The translation vector must be a numppy array of length 3")
+        assert angles.size == 3
+        assert t.size == 3
 
         phi = angles[0]
         theta = angles[1]
@@ -78,14 +76,12 @@ class SE3:
         sp = np.sin(phi)
         R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
 
-        return cls(t, R1 @ R2 @ R3)
+        return cls.fromRotationMatrix(t, R1 @ R2 @ R3)
     
     @classmethod 
     def fromAxisAngle(cls, t, w): 
-        if not t.size == 3:
-            raise ValueError("The translation vector must be a numpy array of length 3")
-        if not w.size == 3:
-            raise ValueError("The axis angle vector must be a numpy array of length 3. The norm of the vector is the angle of rotation")
+        assert t.size == 3
+        assert w.size == 3
 
         theta = np.linalg.norm(w)
         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
@@ -98,10 +94,12 @@ class SE3:
             B = 0.5 - theta**2 / 24.0 + theta**4 / 720.0
 
         arr = np.eye(3) + A * skew_w + B * (skew_w @ skew_w) 
-        return cls(t, arr)
+        return cls.fromRotationMatrix(t, arr)
 
     @staticmethod
     def log(T):  
+        assert isinstance(T, SE3)
+
         theta = np.arccos((np.trace(T.arr[:3,:3]) - 1)/2.0) 
         if np.abs(theta) < 1e-3:
             temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360) 
@@ -133,6 +131,8 @@ class SE3:
     
     @classmethod
     def exp(cls, logT):
+        assert logT.shape == (4,4)
+
         u = logT[:3,3]
         w = np.array([logT[2,1], logT[0,2], logT[1,0]])
 
@@ -150,7 +150,7 @@ class SE3:
         V = np.eye(3) + B * logT[:3,:3] + C * np.linalg.matrix_power(logT[:3,:3], 2)
 
         t = V @ u
-        return cls(t, R)
+        return cls.fromRotationMatrix(t, R)
     
     @classmethod 
     def Exp(cls, arr): #One call to go from a vector to Transformation matrix
@@ -159,6 +159,7 @@ class SE3:
     
     @staticmethod 
     def vee(logT):
+        assert logT.shape == (4,4)
         u = logT[:3,3]
         w = np.array([logT[2,1], logT[0,2], logT[1,0]])
 
@@ -166,6 +167,7 @@ class SE3:
     
     @staticmethod 
     def hat(arr):
+        assert arr.size == 6
         return np.sum(G * arr[:,None, None], axis=0)
 
     @property
