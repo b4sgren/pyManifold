@@ -169,6 +169,18 @@ class SE3:
         logT = cls.hat(arr)
         return cls.exp(logT)
     
+    @classmethod 
+    def random(cls):
+        x = np.random.uniform(0, 1, size=3)
+        t = np.random.uniform(-10, 10, size=3)
+        psi = 2 * np.pi * x[0]
+        R = np.array([[np.cos(psi), np.sin(psi), 0], [-np.sin(psi), np.cos(psi), 0], [0, 0, 1]])
+        v = np.array([np.cos(2 * np.pi * x[1]) * np.sqrt(x[2]),
+                     np.sin(2 * np.pi * x[1]) * np.sqrt(x[2]),
+                     np.sqrt(1 - x[2])])
+        H = np.eye(3) - 2 * np.outer(v, v)
+        return cls.fromRotationMatrix(t, -H @ R)
+    
     @staticmethod 
     def vee(logT):
         assert logT.shape == (4,4)

@@ -234,6 +234,11 @@ class SE3_Test(unittest.TestCase):
             T_true = SE3.fromRotationMatrix(t, R_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
+    
+    def testRandom(self):
+        for i in range(100):
+            T = SE3.random()
+            np.testing.assert_allclose(1.0, np.linalg.det(T.R))
 
 if __name__=="__main__":
     unittest.main()
