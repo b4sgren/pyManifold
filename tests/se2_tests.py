@@ -208,6 +208,29 @@ class SE2_Test(unittest.TestCase):
             T_true[:2,2] = t
 
             np.testing.assert_allclose(T_true, T.arr)
+    
+    def testBoxPlus(self):
+        for i in range(100):
+            T = SE2.random()
+            u = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+            vec = np.array([theta, *u])
+
+            T3 = T.boxplus(vec)
+            T3_true = T *  SE2.Exp(vec)
+
+            np.testing.assert_allclose(T3_true.T, T3.T)
+    
+    def testBoxMinus(self):
+        for i in range(100):
+            T1 = SE2.random()
+            T2 = SE2.random()
+
+            w = T1.boxminus(T2)
+            w_true = SE2.Log(T2.inv()*T1)
+
+            np.testing.assert_allclose(w_true, w)
+
 
 if __name__=="__main__":
     unittest.main()

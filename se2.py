@@ -18,16 +18,8 @@ class SE2:
         return SE2.fromRandt(self.R.T, -self.R.T @ self.t)
 
     def __mul__(self, T2): 
-        if isinstance(T2, SE2):
-            temp = self.arr @ T2.arr
-            return SE2.fromRandt(temp[:2,:2], temp[:2,2])
-        # elif isinstance(T2, np.ndarray):
-            # if not T2.size == 2:
-                # raise ValueError("Array is to long. Make sure the array is a 1D array with size 2")
-            # else:
-                # return self.R @ T2 + self.t
-        else:
-            raise ValueError("Type not supported. Make sure the type is an SE2 object")
+        assert isinstance(T2, SE2)
+        return SE2(self.T @ T2.T)
     
     def transa(self, v):
         assert v.size == 2
@@ -40,6 +32,14 @@ class SE2:
         v = np.array([*v, 1])
         vp = self.inv().T @ v 
         return vp[:2]
+    
+    def boxplus(self, w):
+        assert w.size == 3
+        return self * SE2.Exp(w)
+    
+    def boxminus(self, T):
+        assert isinstance(T, SE2)
+        return SE2.Log(T.inv() * self)
 
     @property 
     def Adj(self): 
