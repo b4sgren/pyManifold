@@ -24,17 +24,29 @@ class SE3:
         return SE3.fromRotationMatrix(t_inv, R_inv)
     
     def __mul__(self, T):
-        if isinstance(T, SE3):
-            temp = self.arr @ T.arr
-            return SE3.fromRotationMatrix(temp[:3,3], temp[:3,:3])
-        elif isinstance(T, np.ndarray):
-            if not T.size == 3:
-                raise ValueError("T is the incorrect shape. T must be a 1D array with length 3")
-            else:
-                temp = self.arr @ np.hstack((T, [1])) 
-                return temp[:-1]
-        else:
-            raise ValueError("Type not supported. T must be an SE3 object or an numpy array with length 3")
+        assert isinstance(T, SE3)
+        temp = self.arr @ T.arr
+        return SE3(temp)
+        # elif isinstance(T, np.ndarray):
+            # if not T.size == 3:
+                # raise ValueError("T is the incorrect shape. T must be a 1D array with length 3")
+            # else:
+                # temp = self.arr @ np.hstack((T, [1])) 
+                # return temp[:-1]
+        # else:
+            # raise ValueError("Type not supported. T must be an SE3 object or an numpy array with length 3")
+    
+    def transa(self, vec):
+        assert vec.size == 3
+        v = np.array([*vec, 1])
+        vp = self.T @ v 
+        return vp[:3]
+    
+    def transp(self, vec):
+        assert vec.size == 3
+        v = np.array([*vec, 1])
+        vp = self.inv().T @ v 
+        return vp[:3]
     
     @property 
     def R(self):
