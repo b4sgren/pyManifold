@@ -48,6 +48,14 @@ class SE3:
         vp = self.inv().T @ v 
         return vp[:3]
     
+    def boxplus(self, arr):
+        assert arr.size == 6
+        return self * SE3.Exp(arr)
+    
+    def boxminus(self, T):
+        assert isinstance(T, SE3)
+        return SE3.Log(T.inv() * self)
+    
     @property 
     def R(self):
         return self.arr[:3,:3]

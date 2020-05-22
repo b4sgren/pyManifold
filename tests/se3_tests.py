@@ -239,6 +239,28 @@ class SE3_Test(unittest.TestCase):
         for i in range(100):
             T = SE3.random()
             np.testing.assert_allclose(1.0, np.linalg.det(T.R))
+    
+    def testBoxPlus(self):
+        for i in range(100):
+            T = SE3.random()
+            w = np.random.uniform(-np.pi, np.pi, size=3)
+            v = np.random.uniform(-3, 3, size=3)
+            vec = np.array([*w, *v])
+
+            Tres = T.boxplus(vec)
+            Tres_true = T * SE3.Exp(vec)
+
+            np.testing.assert_allclose(Tres_true.T, Tres.T)
+    
+    def testBoxMinus(self):
+        for i in range(100):
+            T1 = SE3.random()
+            T2 = SE3.random()
+
+            w = T1.boxminus(T2)
+            w_true = SE3.Log(T2.inv() * T1)
+
+            np.testing.assert_allclose(w_true, w)
 
 if __name__=="__main__":
     unittest.main()
