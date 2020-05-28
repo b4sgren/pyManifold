@@ -61,12 +61,19 @@ class Quaternion:
     def inv(self):
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
     
-    def rot(self, v):
+    def rota(self, v):
         qw = self.qw 
         qv = self.qv
 
         t = 2 * skew(v) @ qv
         return v + qw * t + skew(t) @ qv
+    
+    def rotp(self, v):
+        qw = self.qw
+        qv = self.qv 
+
+        t = 2 * skew(v) @ qv 
+        return v - qw * t + skew(t) @ qv
     
     @classmethod
     def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)

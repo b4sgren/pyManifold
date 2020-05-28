@@ -57,7 +57,17 @@ class Quaternion_Testing(unittest.TestCase):
             R = q.R
 
             vp_true = R @ v
-            vp = q.rot(v) #Writing this with the quaternion multiplication q.inv() * v * q gives me the same values but opposite in sign
+            vp = q.rota(v) #Writing this with the quaternion multiplication q.inv() * v * q gives me the same values but opposite in sign
+
+            np.testing.assert_allclose(vp_true, vp)
+        
+        for i in range(100):
+            v = np.random.uniform(-10, 10, size=3)
+            q = Quaternion.random()
+            R = q.R 
+
+            vp_true = R.T @ v 
+            vp = q.rotp(v)
 
             np.testing.assert_allclose(vp_true, vp)
     
