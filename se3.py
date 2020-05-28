@@ -54,6 +54,15 @@ class SE3:
         assert isinstance(T, SE3)
         return SE3.Log(T.inv() * self)
     
+    def normalize(self):
+        R = self.R 
+        x = R[:,0] / np.linalg.norm(R[:,0])
+        y = np.cross(R[:,2], x)
+        y /= np.linalg.norm(y)
+        z = np.cross(x, y)
+
+        self.arr[:3, :3] = np.array([[*x], [*y], [*z]]).T
+    
     @property 
     def R(self):
         return self.arr[:3,:3]

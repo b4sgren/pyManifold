@@ -261,6 +261,16 @@ class SE3_Test(unittest.TestCase):
             w_true = SE3.Log(T2.inv() * T1)
 
             np.testing.assert_allclose(w_true, w)
+    
+    def testNormalize(self):
+        for i in range(10):
+            T = SE3.random()
+            for i in range(10):
+                T = T * T 
+            
+            T.normalize()
+
+            np.testing.assert_allclose(1, np.linalg.det(T.R))
 
 if __name__=="__main__":
     unittest.main()
