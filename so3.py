@@ -23,7 +23,11 @@ class SO3:
         assert isinstance(R2, SO3)
         return self.R - R2.R
     
-    # def __str__(self):
+    def __str__(self):
+        return str(self.R)
+    
+    def __repr__(self):
+        return str(self.R)
 
     def inv(self):
         return SO3(self.arr.T)
