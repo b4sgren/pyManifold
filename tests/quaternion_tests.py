@@ -135,6 +135,17 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(-w_true, w) #TODO: Values match but signs on vector part are opposite. Are they supposed to be that way?
     
+    def testLogTaylor(self):
+        for i in range(100):
+            theta = np.random.uniform(0, 1e-3)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v / np.linalg.norm(v)
+
+            q = Quaternion.fromAxisAngle(vec)
+            w = Quaternion.Log(q)
+
+            np.testing.assert_allclose(vec, w)
+    
     def testExp(self):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
