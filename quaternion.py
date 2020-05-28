@@ -75,6 +75,12 @@ class Quaternion:
         t = 2 * skew(v) @ qv 
         return v - qw * t + skew(t) @ qv
     
+    def normalize(self):
+        self.arr = self.q / self.norm()
+    
+    def norm(self):
+        return np.linalg.norm(self.q)
+    
     @classmethod
     def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)
         u = np.random.uniform(0.0, 1.0, size=3)

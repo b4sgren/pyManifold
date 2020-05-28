@@ -144,6 +144,14 @@ class Quaternion_Testing(unittest.TestCase):
             p = Quaternion.Exp(q.Adj @ w) * q
 
             np.testing.assert_allclose(p_true.q, p.q)
+    
+    def testNorm(self):
+        for i in range(100):
+            q = Quaternion.random()
+
+            q.normalize()
+
+            np.testing.assert_allclose(1, q.norm())
 
 if __name__=="__main__":
     unittest.main()
