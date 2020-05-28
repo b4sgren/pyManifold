@@ -21,6 +21,12 @@ class SE2:
         assert isinstance(T2, SE2)
         return SE2(self.T @ T2.T)
     
+    def __str__(self):
+        return str(self.T)
+    
+    def __repr(self):
+        return str(self.T)
+    
     def transa(self, v):
         assert v.size == 2
         v = np.array([*v, 1])

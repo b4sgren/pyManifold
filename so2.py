@@ -12,6 +12,12 @@ class SO2:
         assert isinstance(R2, SO2)
         return SO2(self.arr @ R2.arr)
     
+    def __str__(self):
+        return str(self.R)
+    
+    def __repr__(self):
+        return str(self.R)
+    
     def inv(self):
         return SO2(self.arr.T)
     
