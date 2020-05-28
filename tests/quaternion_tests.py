@@ -148,7 +148,6 @@ class Quaternion_Testing(unittest.TestCase):
     def testNorm(self):
         for i in range(100):
             q = Quaternion.random()
-
             q.normalize()
 
             np.testing.assert_allclose(1, q.norm())
