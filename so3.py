@@ -22,6 +22,8 @@ class SO3:
     def __sub__(self, R2): 
         assert isinstance(R2, SO3)
         return self.R - R2.R
+    
+    # def __str__(self):
 
     def inv(self):
         return SO3(self.arr.T)

@@ -50,6 +50,12 @@ class Quaternion:
     def __mul__(self, q): #may need to define this for the reverse order
         return self.otimes(q)
     
+    def __str__(self):
+        return str(self.q)
+    
+    def __repr__(self):
+        return f'[{self.qw} + {self.qx}i + {self.qy}j + {self.qz}k]'
+    
     def otimes(self, q):
         Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See QUat for Err State KF
         return Quaternion(Q @ q.q)
