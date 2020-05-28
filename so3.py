@@ -44,6 +44,18 @@ class SO3:
     def boxminus(self, R2):
         assert isinstance(R2, SO3)
         return SO3.Log(R2.inv() * self)
+    
+    def normalize(self):
+        x = self.R[:,0]
+        x = x / np.linalg.norm(x)
+        y = np.cross(self.R[:,2], x)
+        y = y / np.linalg.norm(y)
+        z = np.cross(x, y)
+
+        self.arr = np.array([[*x], [*y], [*z]]).T
+    
+    def det(self):
+        return np.linalg.det(self.R)
 
     @property 
     def R(self):

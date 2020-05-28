@@ -230,5 +230,15 @@ class SO3_testing(unittest.TestCase):
 
         np.testing.assert_allclose(R1.R, R_res.R)
     
+    def testNormalize(self):
+        for i in range(10):
+            R = SO3.random()
+            for i in range(10):
+                R = R * R 
+            
+            R.normalize()
+
+            np.testing.assert_allclose(1, R.det())
+    
 if __name__=="__main__":
     unittest.main()
