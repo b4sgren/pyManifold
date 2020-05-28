@@ -146,8 +146,10 @@ class Quaternion_Testing(unittest.TestCase):
             np.testing.assert_allclose(p_true.q, p.q)
     
     def testNorm(self):
-        for i in range(100):
+        for i in range(10):
             q = Quaternion.random()
+            for i in range(10):
+                q = q * q
             q.normalize()
 
             np.testing.assert_allclose(1, q.norm())
