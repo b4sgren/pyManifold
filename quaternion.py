@@ -158,13 +158,18 @@ class Quaternion:
         return Quaternion.vee(W)
     
     @classmethod
-    def exp(cls, W): 
+    def exp(cls, W): #TODO: Taylor Series Expansion
         vec = W[1:]
         theta = np.linalg.norm(vec)
         v = vec / theta
 
-        qw = np.cos(theta/2)
-        qv = v * np.sin(theta/2)
+        if np.abs(theta) > 1e-3:
+            qw = np.cos(theta/2)
+            qv = v * np.sin(theta/2)
+        else:
+            qw = 1 - theta**2/8 + theta**4/46080
+            temp = 1/2 - theta**2/48 + theta**4/3840
+            qv = vec * temp
         return cls(np.array([qw, *qv]))
     
     @staticmethod 

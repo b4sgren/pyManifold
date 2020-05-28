@@ -92,6 +92,19 @@ class Quaternion_Testing(unittest.TestCase):
             q_true = q_true.inv()
 
             np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but vector part has opposite sign. Is is supposed to be that way?
+        
+    def testFromAxisAngleTaylor(self):
+        for i in range(100): #Taylor series
+            theta = np.random.uniform(0, 1e-3)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v / np.linalg.norm(v)
+
+            R = SO3.fromAxisAngle(vec).R 
+            q = Quaternion.fromAxisAngle(vec)
+            q_true = Quaternion.fromRotationMatrix(R)
+            q_true = q_true.inv()
+
+            np.testing.assert_allclose(q_true.q, q.q)
     
     def testHat(self):
         for i in range(100):
