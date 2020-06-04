@@ -177,6 +177,29 @@ class Quaternion_Testing(unittest.TestCase):
             q.normalize()
 
             np.testing.assert_allclose(1, q.norm())
+    
+    def testBoxPlus(self): #Runs but requires the opposite omega and multiplication order is switched
+        for i in range(100):
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
+            w = np.random.uniform(-1., 1., size=3)
+
+            q2 = q.boxplus(w)
+            R2 = R.boxplus(-w)
+
+            np.testing.assert_allclose(R2.R, q2.R)
+    
+    def testBoxMinus(self): #Runs and works but returns the negative of SO3 and multiplication order is switched
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
+            R1 = SO3.fromQuaternion(q1.q)
+            R2 = SO3.fromQuaternion(q2.q)
+
+            w1 = q1.boxminus(q2)
+            w2 = R1.boxminus(R2)
+
+            np.testing.assert_allclose(w1, -w2)
 
 if __name__=="__main__":
     unittest.main()
