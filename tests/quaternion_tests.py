@@ -135,49 +135,49 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(w_true, w)
     
-    # def testLog(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+    def testLog(self):
+        for i in range(100):
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
 
-    #         w_true = SO3.Log(R)
-    #         w = Quaternion.Log(q)
+            w_true = SO3.Log(R)
+            w = Quaternion.Log(q)
 
-    #         np.testing.assert_allclose(w_true, w) 
+            np.testing.assert_allclose(w_true, w) 
     
-    # def testLogTaylor(self):
-    #     for i in range(100):
-    #         theta = np.random.uniform(0, 1e-3)
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vec = theta * v / np.linalg.norm(v)
+    def testLogTaylor(self):
+        for i in range(100):
+            theta = np.random.uniform(0, 1e-3)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v / np.linalg.norm(v)
 
-    #         q = Quaternion.fromAxisAngle(vec)
-    #         w = Quaternion.Log(q)
+            q = Quaternion.fromAxisAngle(vec)
+            w = Quaternion.Log(q)
 
-    #         np.testing.assert_allclose(vec, w)
+            np.testing.assert_allclose(vec, w)
     
-    # def testExp(self):
-    #     for i in range(100):
-    #         theta = np.random.uniform(-np.pi, np.pi)
-    #         v = np.random.uniform(-1.0, 1.0, size=3)
-    #         w = theta * v / np.linalg.norm(v)
+    def testExp(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            v = np.random.uniform(-1.0, 1.0, size=3)
+            w = theta * v / np.linalg.norm(v)
 
-    #         R = SO3.Exp(w)
-    #         q_true = Quaternion.fromRotationMatrix(R.R)
-    #         q_true = q_true.inv() #Is this inv correct?
-    #         q = Quaternion.Exp(w)
+            R = SO3.Exp(w)
+            q_true = Quaternion.fromRotationMatrix(R.R)
+            q = Quaternion.Exp(w)
 
-    #         np.testing.assert_allclose(q_true.q, q.q)
+            np.testing.assert_allclose(q_true.q, q.q)
     
-    # def testAdj(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         w = np.random.uniform(-np.pi, np.pi, size=3)
+    def testAdj(self):
+        for i in range(100):
+            q = Quaternion.random()
+            w = np.random.uniform(-np.pi, np.pi, size=3)
 
-    #         p_true = q * Quaternion.Exp(w)
-    #         p = Quaternion.Exp(q.Adj @ w) * q
+            #Because of flipped order
+            p_true = Quaternion.Exp(w) * q
+            p = q * Quaternion.Exp(q.Adj @ w)
 
-    #         np.testing.assert_allclose(p_true.q, p.q)
+            np.testing.assert_allclose(p_true.q, p.q)
     
     # def testNorm(self):
     #     for i in range(10):
