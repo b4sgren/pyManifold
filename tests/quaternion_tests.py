@@ -91,7 +91,7 @@ class Quaternion_Testing(unittest.TestCase):
             q_true = Quaternion.fromRotationMatrix(R)
             q_true = q_true.inv()
 
-            np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but vector part has opposite sign. Is is supposed to be that way?
+            np.testing.assert_allclose(q_true.q, q.q) 
         
     def testFromAxisAngleTaylor(self):
         for i in range(100): #Taylor series
@@ -133,7 +133,7 @@ class Quaternion_Testing(unittest.TestCase):
             w_true = SO3.Log(R)
             w = Quaternion.Log(q)
 
-            np.testing.assert_allclose(-w_true, w) #TODO: Values match but signs on vector part are opposite. Are they supposed to be that way?
+            np.testing.assert_allclose(w_true, w) 
     
     def testLogTaylor(self):
         for i in range(100):
@@ -157,7 +157,7 @@ class Quaternion_Testing(unittest.TestCase):
             q_true = q_true.inv()
             q = Quaternion.Exp(w)
 
-            np.testing.assert_allclose(q_true.q, q.q) #TODO: Values match but signs on vector part are opposite. Are they supposed to be that way?
+            np.testing.assert_allclose(q_true.q, q.q)
     
     def testAdj(self):
         for i in range(100):
@@ -178,18 +178,18 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(1, q.norm())
     
-    def testBoxPlus(self): #Runs but requires the opposite omega and multiplication order is switched
-        for i in range(100):
-            q = Quaternion.random()
-            R = SO3.fromQuaternion(q.q)
-            w = np.random.uniform(-1., 1., size=3)
+    # def testBoxPlus(self): #Runs but requires the opposite omega and multiplication order is switched
+    #     for i in range(100):
+    #         q = Quaternion.random()
+    #         R = SO3.fromQuaternion(q.q)
+    #         w = np.random.uniform(-1., 1., size=3)
 
-            q2 = q.boxplus(w)
-            R2 = R.boxplus(-w)
+    #         q2 = q.boxplus(w)
+    #         R2 = R.boxplus(w)
 
-            np.testing.assert_allclose(R2.R, q2.R)
+    #         np.testing.assert_allclose(R2.R, q2.R)
     
-    def testBoxMinus(self): #Runs and works but returns the negative of SO3 and multiplication order is switched
+    def testBoxMinus(self): 
         for i in range(100):
             q1 = Quaternion.random()
             q2 = Quaternion.random()
@@ -199,7 +199,7 @@ class Quaternion_Testing(unittest.TestCase):
             w1 = q1.boxminus(q2)
             w2 = R1.boxminus(R2)
 
-            np.testing.assert_allclose(w1, -w2)
+            np.testing.assert_allclose(w1, w2)
 
 if __name__=="__main__":
     unittest.main()
