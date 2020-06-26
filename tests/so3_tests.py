@@ -5,6 +5,7 @@ import unittest
 import sys
 sys.path.append("..")
 from so3 import SO3
+from quaternion import Quaternion
 
 from IPython.core.debugger import Pdb
 
@@ -247,11 +248,9 @@ class SO3_testing(unittest.TestCase):
             vec = np.random.uniform(-10.0, 10.0, size=3)
             vec = vec/np.linalg.norm(vec) 
 
-            q = np.zeros(4)
-            q[0] = np.cos(theta/2)
-            q[1:] = vec * np.sin(theta/2)
+            q = Quaternion.fromAxisAngle(vec * theta)
 
-            R = SO3.fromQuaternion(q)
+            R = SO3.fromQuaternion(q.q)
             R2 = SO3.fromAxisAngle(vec * theta)
 
             np.testing.assert_allclose(R.R, R2.R)
