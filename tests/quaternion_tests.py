@@ -199,17 +199,17 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(R2.R, q2.R)
     
-    # def testBoxMinus(self): 
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         q2 = Quaternion.random()
-    #         R1 = SO3.fromQuaternion(q1.q)
-    #         R2 = SO3.fromQuaternion(q2.q)
+    def testBoxMinus(self): 
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
+            R1 = SO3.fromQuaternion(q1.q)
+            R2 = SO3.fromQuaternion(q2.q)
 
-    #         w1 = q1.boxminus(q2)
-    #         w2 = R1.boxminus(R2)
+            w1 = q1.boxminus(q2)
+            w2 = R1.boxminus(R2)
 
-    #         np.testing.assert_allclose(w1, w2)
+            np.testing.assert_allclose(w1, w2)
 
 if __name__=="__main__":
     unittest.main()
