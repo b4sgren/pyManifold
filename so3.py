@@ -109,7 +109,7 @@ class SO3:
         qv = q[1:]
         qv_skew = np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
 
-        R = (2 * qw**2 - 1) * np.eye(3) - 2 * qw * qv_skew + 2 * np.outer(qv, qv)
+        R = (2 * qw**2 - 1) * np.eye(3) + 2 * qw * qv_skew + 2 * np.outer(qv, qv)
         return cls(R) 
     
     @classmethod 

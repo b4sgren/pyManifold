@@ -241,5 +241,20 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(1, R.det())
     
+    def testFromQuaternion(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            vec = np.random.uniform(-10.0, 10.0, size=3)
+            vec = vec/np.linalg.norm(vec) 
+
+            q = np.zeros(4)
+            q[0] = np.cos(theta/2)
+            q[1:] = vec * np.sin(theta/2)
+
+            R = SO3.fromQuaternion(q)
+            R2 = SO3.fromAxisAngle(vec * theta)
+
+            np.testing.assert_allclose(R.R, R2.R)
+    
 if __name__=="__main__":
     unittest.main()
