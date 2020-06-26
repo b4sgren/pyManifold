@@ -62,26 +62,26 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(q.R, q2.R) #Producing the negative vector
     
-    # def testRotatingVector(self):
-    #     for i in range(100):
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         q = Quaternion.random()
-    #         R = q.R
+    def testRotatingVector(self):
+        for i in range(100):
+            v = np.random.uniform(-10, 10, size=3)
+            q = Quaternion.random()
+            R = q.R
 
-    #         vp_true = R @ v
-    #         vp = q.rota(v) 
+            vp_true = R @ v
+            vp = q.rota(v) 
 
-    #         np.testing.assert_allclose(vp_true, vp)
+            np.testing.assert_allclose(vp_true, vp)
         
-    #     for i in range(100):
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         q = Quaternion.random()
-    #         R = q.R 
+        for i in range(100):
+            v = np.random.uniform(-10, 10, size=3)
+            q = Quaternion.random()
+            R = q.R 
 
-    #         vp_true = R.T @ v 
-    #         vp = q.rotp(v)
+            vp_true = R.T @ v 
+            vp = q.rotp(v)
 
-    #         np.testing.assert_allclose(vp_true, vp)
+            np.testing.assert_allclose(vp_true, vp)
     
     # def testFromRPY(self):
     #     for i in range(100):

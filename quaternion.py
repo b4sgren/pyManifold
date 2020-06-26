@@ -72,14 +72,14 @@ class Quaternion:
         qv = self.qv
 
         t = 2 * skew(v) @ qv
-        return v + qw * t + skew(t) @ qv
+        return v - qw * t + skew(t) @ qv
     
     def rotp(self, v):
         qw = self.qw
         qv = self.qv 
 
         t = 2 * skew(v) @ qv 
-        return v - qw * t + skew(t) @ qv
+        return v + qw * t + skew(t) @ qv
     
     def normalize(self):
         self.arr = self.q / self.norm()
