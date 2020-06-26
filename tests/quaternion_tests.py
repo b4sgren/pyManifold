@@ -60,7 +60,7 @@ class Quaternion_Testing(unittest.TestCase):
             R = q.R 
             q2 = Quaternion.fromRotationMatrix(R)
 
-            np.testing.assert_allclose(q.R, q2.R) #Producing the negative vector
+            np.testing.assert_allclose(q.R, q2.R)
     
     def testRotatingVector(self):
         for i in range(100):
@@ -83,59 +83,57 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(vp_true, vp)
     
-    # def testFromRPY(self):
-    #     for i in range(100):
-    #         rpy = np.random.uniform(-np.pi, np.pi, size=3)
-    #         R = SO3.fromRPY(rpy).R 
-    #         q = Quaternion.fromRPY(rpy)
-    #         q_true = Quaternion.fromRotationMatrix(R)
+    def testFromRPY(self):
+        for i in range(100):
+            rpy = np.random.uniform(-np.pi, np.pi, size=3)
+            R = SO3.fromRPY(rpy).R 
+            q = Quaternion.fromRPY(rpy)
+            q_true = Quaternion.fromRotationMatrix(R)
 
-    #         np.testing.assert_allclose(q_true.q, q.q)
+            np.testing.assert_allclose(q_true.q, q.q)
     
-    # def testFromAxisAngle(self):
-    #     for i in range(100):
-    #         theta = np.random.uniform(0, np.pi)
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vec = theta * v/np.linalg.norm(v)
+    def testFromAxisAngle(self):
+        for i in range(100):
+            theta = np.random.uniform(0, np.pi)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v/np.linalg.norm(v)
 
-    #         R = SO3.fromAxisAngle(vec).R 
-    #         q = Quaternion.fromAxisAngle(vec)
-    #         q_true = Quaternion.fromRotationMatrix(R)
-    #         q_true = q_true.inv() #Is this inv correct? not in testfromRPY
+            R = SO3.fromAxisAngle(vec).R 
+            q = Quaternion.fromAxisAngle(vec)
+            q_true = Quaternion.fromRotationMatrix(R)
 
-    #         np.testing.assert_allclose(q_true.q, q.q) 
+            np.testing.assert_allclose(q_true.q, q.q) 
         
-    # def testFromAxisAngleTaylor(self):
-    #     for i in range(100): #Taylor series
-    #         theta = np.random.uniform(0, 1e-3)
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vec = theta * v / np.linalg.norm(v)
+    def testFromAxisAngleTaylor(self):
+        for i in range(100): #Taylor series
+            theta = np.random.uniform(0, 1e-3)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v / np.linalg.norm(v)
 
-    #         R = SO3.fromAxisAngle(vec).R 
-    #         q = Quaternion.fromAxisAngle(vec)
-    #         q_true = Quaternion.fromRotationMatrix(R)
-    #         q_true = q_true.inv() #Is this inv correct? not in testfromRPY
+            R = SO3.fromAxisAngle(vec).R 
+            q = Quaternion.fromAxisAngle(vec)
+            q_true = Quaternion.fromRotationMatrix(R)
 
-    #         np.testing.assert_allclose(q_true.q, q.q)
+            np.testing.assert_allclose(q_true.q, q.q)
     
-    # def testHat(self):
-    #     for i in range(100):
-    #         w = np.random.uniform(-10, 10, size=3)
+    def testHat(self):
+        for i in range(100):
+            w = np.random.uniform(-10, 10, size=3)
 
-    #         W = Quaternion.hat(w)
-    #         W_true = np.array([0, w[0], w[1], w[2]])
+            W = Quaternion.hat(w)
+            W_true = np.array([0, w[0], w[1], w[2]])
 
-    #         np.testing.assert_allclose(W_true, W)
+            np.testing.assert_allclose(W_true, W)
     
-    # def testVee(self):
-    #     for i in range(100):
-    #         W = np.random.uniform(-10, 10, size=4)
-    #         W[0] = 0
+    def testVee(self):
+        for i in range(100):
+            W = np.random.uniform(-10, 10, size=4)
+            W[0] = 0
 
-    #         w_true = W[1:]
-    #         w = Quaternion.vee(W)
+            w_true = W[1:]
+            w = Quaternion.vee(W)
 
-    #         np.testing.assert_allclose(w_true, w)
+            np.testing.assert_allclose(w_true, w)
     
     # def testLog(self):
     #     for i in range(100):

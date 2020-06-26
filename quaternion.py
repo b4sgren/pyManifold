@@ -137,9 +137,9 @@ class Quaternion:
         spsi = np.sin(psi/2)
 
         qw = cpsi * ct * cp + spsi * st * sp  #The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
-        qx = -cpsi * ct * sp + spsi * st * cp 
-        qy = -cpsi * st * cp - spsi * ct * sp 
-        qz = -spsi * ct * cp + cpsi * st * sp 
+        qx = cpsi * ct * sp - spsi * st * cp 
+        qy = cpsi * st * cp + spsi * ct * sp 
+        qz = spsi * ct * cp - cpsi * st * sp 
         return cls(np.array([qw, qx, qy, qz]))
     
     @classmethod 
