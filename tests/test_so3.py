@@ -70,8 +70,8 @@ class SO3_testing(unittest.TestCase):
         
         for i in range(100): #Around pi
             vec = np.random.uniform(-1.0, 1.0, size=3)
-            ang = np.random.uniform(-1e-3, 1e-3)
-            vec = vec / np.linalg.norm(vec) * (np.pi + ang)
+            ang = np.random.uniform(-0, 1e-3)
+            vec = vec / np.linalg.norm(vec) * (np.pi - ang)
 
             R = SO3.fromAxisAngle(vec)
 

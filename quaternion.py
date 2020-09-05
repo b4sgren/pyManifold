@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 
 def skew(qv):
     return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
@@ -14,87 +14,87 @@ class Quaternion:
                 raise ValueError("Input must be a numpy array of length 4")
         else:
             raise ValueError("Input must be a numpy array of length 4")
-    
+
     @property
     def qw(self):
         return self.arr[0]
-    
+
     @property
     def qx(self):
         return self.arr[1]
-    
-    @property 
+
+    @property
     def qy(self):
         return self.arr[2]
-    
-    @property 
+
+    @property
     def qz(self):
         return self.arr[3]
-    
+
     @property
     def qv(self):
         return self.arr[1:]
-    
-    @property 
+
+    @property
     def q(self):
         return self.arr
-    
-    @property 
-    def R(self): 
+
+    @property
+    def R(self):
         return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
-    
-    @property 
+
+    @property
     def Adj(self):
         return self.R.T
-    
+
     def __mul__(self, q): #may need to define this for the reverse order
         return self.otimes(q)
-    
+
     def __str__(self):
         return str(self.q)
-    
+
     def __repr__(self):
         return f'[{self.qw} + {self.qx}i + {self.qy}j + {self.qz}k]'
-    
+
     def otimes(self, q):
         Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See QUat for Err State KF
         return Quaternion(Q @ q.q)
-    
+
     def skew(self):
         qv = self.qv
         return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
-    
+
     def inv(self):
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
-    
+
     def rota(self, v):
-        qw = self.qw 
+        qw = self.qw
         qv = self.qv
 
         t = 2 * skew(v) @ qv
         return v - qw * t + skew(t) @ qv
-    
+
     def rotp(self, v):
         qw = self.qw
-        qv = self.qv 
+        qv = self.qv
 
-        t = 2 * skew(v) @ qv 
+        t = 2 * skew(v) @ qv
         return v + qw * t + skew(t) @ qv
-    
+
     def normalize(self):
         self.arr = self.q / self.norm()
-    
+
     def norm(self):
         return np.linalg.norm(self.q)
-    
+
     def boxplus(self, w):
         assert w.size == 3
         return self * Quaternion.Exp(w)
-    
+
     def boxminus(self, q):
         assert isinstance(q, Quaternion)
         return Quaternion.Log(q.inv() * self)
-    
+
     @classmethod
     def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)
         u = np.random.uniform(0.0, 1.0, size=3)
@@ -103,8 +103,8 @@ class Quaternion:
         q2 = np.sqrt(u[0]) * np.sin(2 * np.pi * u[2])
         q3 = np.sqrt(u[0]) * np.cos(2 * np.pi * u[2])
         return Quaternion(np.array([qw, q1, q2, q3]))
-    
-    @classmethod 
+
+    @classmethod
     def fromRotationMatrix(cls, R):
         d = np.trace(R)
         if d > 0:
@@ -120,10 +120,10 @@ class Quaternion:
             s = 2 * np.sqrt(1 + R[2,2] - R[0,0] - R[1,1])
             q = np.array([1/s * (R[0,1] - R[1,0]), 1/s * (R[2,0] + R[0,2]), 1/s * (R[2,1] + R[1,2]), s/4])
         q[1:] *= -1
-        
+
         return Quaternion(q)
-    
-    @classmethod 
+
+    @classmethod
     def fromRPY(cls, rpy):
         phi = rpy[0]
         theta = rpy[1]
@@ -137,27 +137,31 @@ class Quaternion:
         spsi = np.sin(psi/2)
 
         qw = cpsi * ct * cp + spsi * st * sp  #The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
-        qx = cpsi * ct * sp - spsi * st * cp 
-        qy = cpsi * st * cp + spsi * ct * sp 
-        qz = spsi * ct * cp - cpsi * st * sp 
+        qx = cpsi * ct * sp - spsi * st * cp
+        qy = cpsi * st * cp + spsi * ct * sp
+        qz = spsi * ct * cp - cpsi * st * sp
         return cls(np.array([qw, qx, qy, qz]))
-    
-    @classmethod 
+
+    @classmethod
     def fromAxisAngle(cls, vec):
         return cls.Exp(vec)
-    
+
+    @staticmethod
+    def Identity():
+        return Quaternion(np.array([1.0, 0.0, 0.0, 0.0]))
+
     @staticmethod
     def hat(w):
         return np.array([0, *w])
-    
-    @staticmethod 
+
+    @staticmethod
     def vee(W):
         return W[1:]
-    
-    @staticmethod 
+
+    @staticmethod
     def log(q): #TODO: Taylor series expansion
-        qw = q.qw 
-        qv = q.qv 
+        qw = q.qw
+        qv = q.qv
         theta = np.linalg.norm(qv)
 
         if np.abs(theta) > 1e-3:
@@ -166,12 +170,12 @@ class Quaternion:
             temp = 1/qw - theta**2 / (3 * qw**3) + theta**4/(5 * qw**5)
             w = 2 * temp * qv
         return np.array([0, *w]) #I have never seen anything that says this is negative but when I compare with a Rotation matrix I get the negative values of a matrix log
-    
-    @staticmethod 
+
+    @staticmethod
     def Log(q):
         W = Quaternion.log(q)
         return Quaternion.vee(W)
-    
+
     @classmethod
     def exp(cls, W): #TODO: Taylor Series Expansion
         vec = W[1:]
@@ -186,10 +190,10 @@ class Quaternion:
             temp = 1/2 - theta**2/48 + theta**4/3840
             qv = vec * temp
         return cls(np.array([qw, *qv]))
-    
-    @staticmethod 
+
+    @staticmethod
     def Exp(w):
         W = Quaternion.hat(w)
         return Quaternion.exp(W)
-    
+
     #Jacobians
