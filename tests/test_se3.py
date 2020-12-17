@@ -45,6 +45,15 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(T3_true.q_arr, T3.q_arr)
             np.testing.assert_allclose(T3_true.t, T3.t)
 
+    def test_inverse(self):
+        for T in self.transforms:
+            T_inv = T.inv()
+
+            I = T_inv * T
+
+            np.testing.assert_allclose(I.q_arr, np.array([1, 0, 0, 0]))
+            np.testing.assert_allclose(I.t, np.zeros(3))
+
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):
 #         for i in range(100):

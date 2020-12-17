@@ -65,6 +65,11 @@ class SE3:
         t = self.t + self.q.rota(T.t)
         return SE3(q,t)
 
+    def inv(self):
+        q_inv = self.q.inv()
+        t_inv = -q_inv.rota(self.t)
+        return SE3(q_inv, t_inv)
+
 
 # class SE3:
 #     def __init__(self, T):
