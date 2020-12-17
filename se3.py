@@ -56,8 +56,11 @@ class SE3:
         arr = np.concatenate(self.t,self.q)
         return arr
 
-    def __mul__(self, q):
-        debug = 1
+    def __mul__(self, T):
+        q = self.q_ * T.q_
+        t = self.t + self.q_.rota(T.t)
+        return SE3(q,t)
+
 
 # class SE3:
 #     def __init__(self, T):
