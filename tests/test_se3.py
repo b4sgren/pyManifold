@@ -54,6 +54,17 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(I.q_arr, np.array([1, 0, 0, 0]))
             np.testing.assert_allclose(I.t, np.zeros(3))
 
+    def test_from_rot_and_trans(self):
+        rots = [SO3.random().R for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (R,t) in zip(rots, trans):
+            T = SE3.fromRAndt(R,t)
+
+            q_true = Quaternion.fromRotationMatrix(R)
+
+            np.testing.assert_allclose(q_true.q, T.q_arr)
+            np.testing.assert_allclose(t, T.t)
+
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):
 #         for i in range(100):
