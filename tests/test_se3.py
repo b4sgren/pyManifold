@@ -5,6 +5,7 @@ from scipy.spatial.transform import Rotation
 import sys
 sys.path.append('..')
 from se3 import SE3
+from so3 import SO3
 
 from IPython.core.debugger import Pdb
 
@@ -16,6 +17,13 @@ class SE3_Test(unittest.TestCase):
         for T in self.transforms:
             is_valid = T.isValidTransform()
             self.assertTrue(is_valid)
+
+    def test_rotation_from_quaternion(self):
+        for T in self.transforms:
+            R = T.R
+            R_true = SO3.fromQuaternion(T.q).R
+
+            np.testing.assert_allclose(R_true, R)
 
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):

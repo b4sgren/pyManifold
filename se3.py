@@ -1,5 +1,7 @@
 import numpy as np
 
+def skew(qv):
+    return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
 #Jacobians, and overload plus and minus for box plus and box minus
 
 class SE3:
@@ -23,6 +25,38 @@ class SE3:
         q3 = np.sqrt(u[0]) * np.cos(2 * np.pi * u[2])
         t = np.random.uniform(-10.0, 10.0, size=3)
         return cls(np.array([qw, q1, q2, q3]), t)
+
+    @property
+    def qw(self):
+        return self.q_[0]
+
+    @property
+    def qv(self):
+        return self.q_[1:]
+
+    @property
+    def qx(self):
+        return self.q_[1]
+
+    @property
+    def qy(self):
+        return self.q_[2]
+
+    @property
+    def qz(self):
+        return self.q_[3]
+
+    @property
+    def q(self):
+        return self.q_
+
+    @property
+    def t(self):
+        return self.t_
+
+    @property
+    def R(self):
+        return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
 # class SE3:
 #     def __init__(self, T):
