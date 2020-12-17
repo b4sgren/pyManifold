@@ -87,6 +87,11 @@ class SE3:
         q = Quaternion.fromRPY(rpy)
         return cls(q,t)
 
+    @classmethod
+    def fromAxisAngleAndt(cls, v, t):
+        q = Quaternion.fromAxisAngle(v)
+        return cls(q,t)
+
 # class SE3:
 #     def __init__(self, T):
 #         assert T.shape == (4,4)

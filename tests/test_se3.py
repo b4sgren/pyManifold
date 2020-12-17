@@ -98,6 +98,20 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(q.q, T.q_arr)
             np.testing.assert_allclose(t, T.t)
 
+    def test_from_axis_angle(self):
+        angle = [np.random.uniform(-np.pi, np.pi) for i in range(100)]
+        axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (v, phi, t) in zip(axis, angle, trans):
+            v = v / np.linalg.norm(v) * phi
+            T = SE3.fromAxisAngleAndt(v,t)
+
+            q = Quaternion.fromAxisAngle(v)
+
+            np.testing.assert_allclose(q.q, T.q_arr)
+            np.testing.assert_allclose(t, T.t)
+
+
 
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):
