@@ -6,6 +6,7 @@ from quaternion import Quaternion
 # Revise so that the quaternion is the quaternion object
 class SE3:
     def __init__(self, q, t):
+        assert isinstance(q, Quaternion)
         self.q_ = q
         self.t_ = t
 
@@ -90,6 +91,12 @@ class SE3:
     @classmethod
     def fromAxisAngleAndt(cls, v, t):
         q = Quaternion.fromAxisAngle(v)
+        return cls(q,t)
+
+    @classmethod
+    def from7vec(cls, arr):
+        t = arr[:3]
+        q = Quaternion(arr[3:])
         return cls(q,t)
 
 # class SE3:

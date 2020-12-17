@@ -99,7 +99,7 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(t, T.t)
 
     def test_from_axis_angle(self):
-        angle = [np.random.uniform(-np.pi, np.pi) for i in range(100)]
+        angle = [np.random.uniform(0.0, np.pi) for i in range(100)]
         axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         for (v, phi, t) in zip(axis, angle, trans):
@@ -111,6 +111,26 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(q.q, T.q_arr)
             np.testing.assert_allclose(t, T.t)
 
+    def test_from_axis_angle_taylor_series(self):
+        angle = [np.random.uniform(0.0, 1e-3) for i in range(100)]
+        axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (v, phi, t) in zip(axis, angle, trans):
+            v = v / np.linalg.norm(v) * phi
+            T = SE3.fromAxisAngleAndt(v,t)
+
+            q = Quaternion.fromAxisAngle(v)
+
+            np.testing.assert_allclose(q.q, T.q_arr)
+            np.testing.assert_allclose(t, T.t)
+
+    def test_from_7_vec(self):
+        for T in self.transforms:
+            arr = np.array([*T.t, *T.q_arr])
+            T2 = SE3.from7vec(arr)
+
+            np.testing.assert_allclose(T.q_arr, T2.q_arr)
+            np.testing.assert_allclose(T.t, T2.t)
 
 
 # class SE3_Test(unittest.TestCase):
