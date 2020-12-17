@@ -1,54 +1,47 @@
 import numpy as np
+from quaternion import Quaternion
 
-def skew(qv):
-    return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
 #Jacobians, and overload plus and minus for box plus and box minus
 
+# Revise so that the quaternion is the quaternion object
 class SE3:
     def __init__(self, q, t):
-        assert q.shape == (4,)
-        assert t.shape == (3,)
-
         self.q_ = q
         self.t_ = t
 
     def isValidTransform(self):
-        q_norm = np.linalg.norm(self.q_)
+        q_norm = self.q_.norm()
         return (np.abs(q_norm - 1.0) <= 1e-8)
 
     @classmethod
-    def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)
-        u = np.random.uniform(0.0, 1.0, size=3)
-        qw = np.sin(2 * np.pi * u[1]) * np.sqrt(1 - u[0])
-        q1 = np.cos(2 * np.pi * u[1]) * np.sqrt(1 - u[0])
-        q2 = np.sqrt(u[0]) * np.sin(2 * np.pi * u[2])
-        q3 = np.sqrt(u[0]) * np.cos(2 * np.pi * u[2])
+    def random(cls):
+        q = Quaternion.random()
         t = np.random.uniform(-10.0, 10.0, size=3)
-        return cls(np.array([qw, q1, q2, q3]), t)
+        return cls(q,t)
 
     @property
     def qw(self):
-        return self.q_[0]
+        return self.q_.qw
 
     @property
     def qv(self):
-        return self.q_[1:]
+        return self.q_.qv
 
     @property
     def qx(self):
-        return self.q_[1]
+        return self.q_.qx
 
     @property
     def qy(self):
-        return self.q_[2]
+        return self.q_.qy
 
     @property
     def qz(self):
-        return self.q_[3]
+        return self.q_.qz
 
     @property
     def q(self):
-        return self.q_
+        return self.q_.q
 
     @property
     def t(self):
@@ -56,7 +49,15 @@ class SE3:
 
     @property
     def R(self):
-        return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
+        return self.q_.R
+
+    @property
+    def T(self):
+        arr = np.concatenate(self.t,self.q)
+        return arr
+
+    def __mul__(self, q):
+        debug = 1
 
 # class SE3:
 #     def __init__(self, T):

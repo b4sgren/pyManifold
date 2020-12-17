@@ -25,6 +25,25 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(R_true, R)
 
+    # def test_composition(self):
+    #     transforms2 = [SE3.random() for i in range(100)]
+    #     for (T1, T2) in zip(self.transforms, transforms2):
+    #         t1 = T1.t
+    #         t2 = T2.t
+
+    #         T3 = T1 * T2
+
+    #         q3_true = np.array([
+    #             T1.qw * T2.qw - T1.qx * T2.qx - T1.qy * T2.qy - T1.qz * T2.qz,
+    #             T1.qw * T2.qx + T1.qx * T2.qw + T1.qy * T2.qz - T1.qz * T2.qy,
+    #             T1.qw * T2.qy - T1.qx * T2.qz + T1.qy * T2.qw + T1.qz * T2.qx,
+    #             T1.qw * T2.qz + T1.qx * T2.qy - T1.qy * T2.qx + T1.qz * T2.qw])
+    #         t3_true = T1.t + T1.R @ T2.t
+    #         T3_true = SE3(q3_true, t3_true)
+
+    #         np.testing.assert_allclose(T3_true.q, T3.q)
+    #         np.testing.assert_allclose(T3_true.t, T3.t)
+
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):
 #         for i in range(100):

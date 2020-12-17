@@ -62,7 +62,7 @@ class Quaternion:
 
     def skew(self):
         qv = self.qv
-        return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
+        return skew(qv)
 
     def inv(self):
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
