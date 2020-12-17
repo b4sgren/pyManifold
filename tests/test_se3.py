@@ -22,7 +22,7 @@ class SE3_Test(unittest.TestCase):
     def test_rotation_from_quaternion(self):
         for T in self.transforms:
             R = T.R
-            R_true = SO3.fromQuaternion(T.q).R
+            R_true = SO3.fromQuaternion(T.q_arr).R
 
             np.testing.assert_allclose(R_true, R)
 
@@ -42,7 +42,7 @@ class SE3_Test(unittest.TestCase):
             t3_true = T1.t + T1.R @ T2.t
             T3_true = SE3(Quaternion(q3_true), t3_true)
 
-            np.testing.assert_allclose(T3_true.q, T3.q)
+            np.testing.assert_allclose(T3_true.q_arr, T3.q_arr)
             np.testing.assert_allclose(T3_true.t, T3.t)
 
 # class SE3_Test(unittest.TestCase):
