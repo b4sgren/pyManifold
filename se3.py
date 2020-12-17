@@ -41,7 +41,7 @@ class SE3:
 
     @property
     def q(self):
-        return self.q_.q
+        return self.q_
 
     @property
     def t(self):
@@ -53,12 +53,12 @@ class SE3:
 
     @property
     def T(self):
-        arr = np.concatenate(self.t,self.q)
+        arr = np.concatenate(self.t,self.q.q)
         return arr
 
     def __mul__(self, T):
-        q = self.q_ * T.q_
-        t = self.t + self.q_.rota(T.t)
+        q = self.q * T.q
+        t = self.t + self.q.rota(T.t)
         return SE3(q,t)
 
 
