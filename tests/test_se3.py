@@ -68,12 +68,21 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(q_true.q, T.q_arr)
             np.testing.assert_allclose(t, T.t)
 
-    def test_transforming_a_point(self):
+    def test_active_transforming_a_point(self):
         pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
         for (T,pt) in zip(self.transforms, pts):
             pt_p = T.transa(pt)
 
             pt_p_true = T.t + T.R @ pt
+
+            np.testing.assert_allclose(pt_p_true, pt_p)
+
+    def test_passive_transforming_a_point(self):
+        pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
+        for(T,pt) in zip(self.transforms, pts):
+            pt_p = T.transp(pt)
+
+            pt_p_true = -T.R.T @ T.t + T.R.T @ pt
 
             np.testing.assert_allclose(pt_p_true, pt_p)
 

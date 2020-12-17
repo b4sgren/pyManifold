@@ -73,6 +73,10 @@ class SE3:
     def transa(self, v):
         return self.t + self.q.rota(v)
 
+    def transp(self, v):
+        T_inv = self.inv()
+        return T_inv.transa(v)
+
     @classmethod
     def fromRAndt(cls, R, t):
         q = Quaternion.fromRotationMatrix(R)
