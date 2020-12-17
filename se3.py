@@ -1,230 +1,241 @@
 import numpy as np
 
-G = np.zeros((6,4,4))
-G[0,1,2] = -1
-G[0,2,1] = 1
-G[1,0,2] = 1
-G[1,2,0] = -1
-G[2,0,1] = -1
-G[2,1,0] = 1
-G[3,0,3] = 1
-G[4,1,3] = 1
-G[5,2,3] = 1
-
 #Jacobians, and overload plus and minus for box plus and box minus
 
 class SE3:
-    def __init__(self, T):
-        assert T.shape == (4,4)
-        self.arr = T
+    def __init__(self, q, t):
+        assert q.shape == (4,)
+        assert t.shape == (3,)
 
-    def inv(self):
-        R_inv = self.R.T
-        t_inv = -R_inv @ self.t
-        return SE3.fromRotationMatrix(t_inv, R_inv)
+        self.q_ = q
+        self.t_ = t
 
-    def __mul__(self, T):
-        assert isinstance(T, SE3)
-        temp = self.arr @ T.arr
-        return SE3(temp)
-
-    def __str__(self):
-        return str(self.T)
-
-    def __repr__(self):
-        return str(self.T)
-
-    def transa(self, vec):
-        assert vec.size == 3
-        v = np.array([*vec, 1])
-        vp = self.T @ v
-        return vp[:3]
-
-    def transp(self, vec):
-        assert vec.size == 3
-        v = np.array([*vec, 1])
-        vp = self.inv().T @ v
-        return vp[:3]
-
-    def boxplus(self, arr):
-        assert arr.size == 6
-        return self * SE3.Exp(arr)
-
-    def boxminus(self, T):
-        assert isinstance(T, SE3)
-        return SE3.Log(T.inv() * self)
-
-    def normalize(self):
-        R = self.R
-        x = R[:,0] / np.linalg.norm(R[:,0])
-        y = np.cross(R[:,2], x)
-        y /= np.linalg.norm(y)
-        z = np.cross(x, y)
-
-        self.arr[:3, :3] = np.array([[*x], [*y], [*z]]).T
-
-    @property
-    def R(self):
-        return self.arr[:3,:3]
-
-    @property
-    def t(self):
-        return self.arr[:3,3]
-
-    @property
-    def T(self):
-        return self.arr
+    def isValidTransform(self):
+        q_norm = np.linalg.norm(self.q_)
+        return (np.abs(q_norm - 1.0) <= 1e-8)
 
     @classmethod
-    def fromRotationMatrix(cls, t, R):
-        assert t.size == 3
-        assert R.shape == (3,3)
-        T = np.block([[R, t[:,None]], [np.zeros(3), 1]])
-        return cls(T)
+    def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)
+        u = np.random.uniform(0.0, 1.0, size=3)
+        qw = np.sin(2 * np.pi * u[1]) * np.sqrt(1 - u[0])
+        q1 = np.cos(2 * np.pi * u[1]) * np.sqrt(1 - u[0])
+        q2 = np.sqrt(u[0]) * np.sin(2 * np.pi * u[2])
+        q3 = np.sqrt(u[0]) * np.cos(2 * np.pi * u[2])
+        t = np.random.uniform(-10.0, 10.0, size=3)
+        return cls(np.array([qw, q1, q2, q3]), t)
 
-    @classmethod
-    def fromRPY(cls, t, angles):
-        assert angles.size == 3
-        assert t.size == 3
+# class SE3:
+#     def __init__(self, T):
+#         assert T.shape == (4,4)
+#         self.arr = T
 
-        phi = angles[0]
-        theta = angles[1]
-        psi = angles[2]
+#     def inv(self):
+#         R_inv = self.R.T
+#         t_inv = -R_inv @ self.t
+#         return SE3.fromRotationMatrix(t_inv, R_inv)
 
-        cps = np.cos(psi)
-        sps = np.sin(psi)
-        R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
+#     def __mul__(self, T):
+#         assert isinstance(T, SE3)
+#         temp = self.arr @ T.arr
+#         return SE3(temp)
 
-        ct = np.cos(theta)
-        st = np.sin(theta)
-        R2 = np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
+#     def __str__(self):
+#         return str(self.T)
 
-        cp = np.cos(phi)
-        sp = np.sin(phi)
-        R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
+#     def __repr__(self):
+#         return str(self.T)
 
-        return cls.fromRotationMatrix(t, R1 @ R2 @ R3)
+#     def transa(self, vec):
+#         assert vec.size == 3
+#         v = np.array([*vec, 1])
+#         vp = self.T @ v
+#         return vp[:3]
 
-    @classmethod
-    def fromAxisAngle(cls, t, w):
-        assert t.size == 3
-        assert w.size == 3
+#     def transp(self, vec):
+#         assert vec.size == 3
+#         v = np.array([*vec, 1])
+#         vp = self.inv().T @ v
+#         return vp[:3]
 
-        theta = np.linalg.norm(w)
-        skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
+#     def boxplus(self, arr):
+#         assert arr.size == 6
+#         return self * SE3.Exp(arr)
 
-        if theta > 1e-3:
-            A = np.sin(theta)/ theta
-            B = (1 - np.cos(theta)) / (theta**2)
-        else:
-            A = 1 - theta**2 / 6.0 + theta**4 / 120.0
-            B = 0.5 - theta**2 / 24.0 + theta**4 / 720.0
+#     def boxminus(self, T):
+#         assert isinstance(T, SE3)
+#         return SE3.Log(T.inv() * self)
 
-        arr = np.eye(3) + A * skew_w + B * (skew_w @ skew_w)
-        return cls.fromRotationMatrix(t, arr)
+#     def normalize(self):
+#         R = self.R
+#         x = R[:,0] / np.linalg.norm(R[:,0])
+#         y = np.cross(R[:,2], x)
+#         y /= np.linalg.norm(y)
+#         z = np.cross(x, y)
 
-    @staticmethod
-    def log(T):
-        assert isinstance(T, SE3)
+#         self.arr[:3, :3] = np.array([[*x], [*y], [*z]]).T
 
-        theta = np.arccos((np.trace(T.R) - 1)/2.0)
-        if np.abs(theta) < 1e-3:
-            temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360)
-            logR =  temp * (T.R - T.R.T)
-        elif np.abs(np.abs(theta) - np.pi) < 1e-3:
-            temp = - np.pi/(theta - np.pi) - 1 - np.pi/6 * (theta - np.pi) - (theta - np.pi)**2/6 - 7*np.pi/360 * (theta - np.pi)**3 - 7/360.0 * (theta - np.pi)**4
-            logR =  temp/2.0 * (T.R - T.R.T)
-        else:
-            logR = theta / (2.0 * np.sin(theta)) * (T.R - T.R.T)
+#     @property
+#     def R(self):
+#         return self.arr[:3,:3]
 
-        if np.abs(theta) > 1e-3:
-            temp = np.sin(theta) / (theta * (1 - np.cos(theta)))
-        else:
-            temp = 2/theta**2 - 1/6.0 - theta**2/360.0 - theta**4/15120.0
+#     @property
+#     def t(self):
+#         return self.arr[:3,3]
 
-        V_inv = np.eye(3) - 0.5 * logR + (1/theta**2 - temp/2) * (logR @ logR)
-        u = V_inv @ T.t
+#     @property
+#     def T(self):
+#         return self.arr
 
-        logT = np.zeros((4,4))
-        logT[:3,:3] = logR
-        logT[:3,3] = u
+#     @classmethod
+#     def fromRotationMatrix(cls, t, R):
+#         assert t.size == 3
+#         assert R.shape == (3,3)
+#         T = np.block([[R, t[:,None]], [np.zeros(3), 1]])
+#         return cls(T)
 
-        return logT
+#     @classmethod
+#     def fromRPY(cls, t, angles):
+#         assert angles.size == 3
+#         assert t.size == 3
 
-    @classmethod #One call to go from Transformation matrix to vector
-    def Log(cls, T):
-        logT = cls.log(T)
-        return cls.vee(logT)
+#         phi = angles[0]
+#         theta = angles[1]
+#         psi = angles[2]
 
-    @classmethod
-    def exp(cls, logT):
-        assert logT.shape == (4,4)
+#         cps = np.cos(psi)
+#         sps = np.sin(psi)
+#         R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
 
-        u = logT[:3,3]
-        w = np.array([logT[2,1], logT[0,2], logT[1,0]])
+#         ct = np.cos(theta)
+#         st = np.sin(theta)
+#         R2 = np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
 
-        theta = np.sqrt(w @ w)
-        if np.abs(theta) > 1e-3:
-            A = np.sin(theta) / theta
-            B = (1 - np.cos(theta)) / (theta**2)
-            C = (1 - A) / (theta**2)
-        else: #Taylor series expansion
-            A = 1.0 - theta**2/6.0 + theta**4/120.0
-            B = 0.5 - theta**2 / 24.0 + theta**4 / 720.0
-            C = 1/6.0 - theta**2/120.0 + theta**4 / 5040.0
+#         cp = np.cos(phi)
+#         sp = np.sin(phi)
+#         R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
 
-        R = np.eye(3) + A * logT[:3,:3] + B * np.linalg.matrix_power(logT[:3,:3], 2)
-        V = np.eye(3) + B * logT[:3,:3] + C * np.linalg.matrix_power(logT[:3,:3], 2)
+#         return cls.fromRotationMatrix(t, R1 @ R2 @ R3)
 
-        t = V @ u
-        return cls.fromRotationMatrix(t, R)
+#     @classmethod
+#     def fromAxisAngle(cls, t, w):
+#         assert t.size == 3
+#         assert w.size == 3
 
-    @classmethod
-    def Exp(cls, arr): #One call to go from a vector to Transformation matrix
-        logT = cls.hat(arr)
-        return cls.exp(logT)
+#         theta = np.linalg.norm(w)
+#         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
-    @classmethod
-    def random(cls):
-        x = np.random.uniform(0, 1, size=3)
-        t = np.random.uniform(-10, 10, size=3)
-        psi = 2 * np.pi * x[0]
-        R = np.array([[np.cos(psi), np.sin(psi), 0], [-np.sin(psi), np.cos(psi), 0], [0, 0, 1]])
-        v = np.array([np.cos(2 * np.pi * x[1]) * np.sqrt(x[2]),
-                     np.sin(2 * np.pi * x[1]) * np.sqrt(x[2]),
-                     np.sqrt(1 - x[2])])
-        H = np.eye(3) - 2 * np.outer(v, v)
-        return cls.fromRotationMatrix(t, -H @ R)
+#         if theta > 1e-3:
+#             A = np.sin(theta)/ theta
+#             B = (1 - np.cos(theta)) / (theta**2)
+#         else:
+#             A = 1 - theta**2 / 6.0 + theta**4 / 120.0
+#             B = 0.5 - theta**2 / 24.0 + theta**4 / 720.0
 
-    @staticmethod
-    def Identity():
-        return SE3(np.eye(4))
+#         arr = np.eye(3) + A * skew_w + B * (skew_w @ skew_w)
+#         return cls.fromRotationMatrix(t, arr)
 
-    @staticmethod
-    def vee(logT):
-        assert logT.shape == (4,4)
-        u = logT[:3,3]
-        w = np.array([logT[2,1], logT[0,2], logT[1,0]])
+#     @staticmethod
+#     def log(T):
+#         assert isinstance(T, SE3)
 
-        return np.concatenate((w, u))
+#         theta = np.arccos((np.trace(T.R) - 1)/2.0)
+#         if np.abs(theta) < 1e-3:
+#             temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360)
+#             logR =  temp * (T.R - T.R.T)
+#         elif np.abs(np.abs(theta) - np.pi) < 1e-3:
+#             temp = - np.pi/(theta - np.pi) - 1 - np.pi/6 * (theta - np.pi) - (theta - np.pi)**2/6 - 7*np.pi/360 * (theta - np.pi)**3 - 7/360.0 * (theta - np.pi)**4
+#             logR =  temp/2.0 * (T.R - T.R.T)
+#         else:
+#             logR = theta / (2.0 * np.sin(theta)) * (T.R - T.R.T)
 
-    @staticmethod
-    def hat(arr):
-        assert arr.size == 6
-        return np.sum(G * arr[:,None, None], axis=0)
+#         if np.abs(theta) > 1e-3:
+#             temp = np.sin(theta) / (theta * (1 - np.cos(theta)))
+#         else:
+#             temp = 2/theta**2 - 1/6.0 - theta**2/360.0 - theta**4/15120.0
 
-    @property
-    def Adj(self):
-        R = self.R
-        t = self.t
+#         V_inv = np.eye(3) - 0.5 * logR + (1/theta**2 - temp/2) * (logR @ logR)
+#         u = V_inv @ T.t
 
-        adj = np.zeros((6,6))
-        adj[:3,:3] = R
-        adj[-3:,-3:] = R
+#         logT = np.zeros((4,4))
+#         logT[:3,:3] = logR
+#         logT[:3,3] = u
 
-        tx = np.array([[0, -t[2], t[1]], [t[2], 0, -t[0]], [-t[1], t[0], 0]])
-        adj[3:,:3] = tx @ R
+#         return logT
 
-        return adj
+#     @classmethod #One call to go from Transformation matrix to vector
+#     def Log(cls, T):
+#         logT = cls.log(T)
+#         return cls.vee(logT)
 
-    #Left and right jacobian stuff goes here
+#     @classmethod
+#     def exp(cls, logT):
+#         assert logT.shape == (4,4)
+
+#         u = logT[:3,3]
+#         w = np.array([logT[2,1], logT[0,2], logT[1,0]])
+
+#         theta = np.sqrt(w @ w)
+#         if np.abs(theta) > 1e-3:
+#             A = np.sin(theta) / theta
+#             B = (1 - np.cos(theta)) / (theta**2)
+#             C = (1 - A) / (theta**2)
+#         else: #Taylor series expansion
+#             A = 1.0 - theta**2/6.0 + theta**4/120.0
+#             B = 0.5 - theta**2 / 24.0 + theta**4 / 720.0
+#             C = 1/6.0 - theta**2/120.0 + theta**4 / 5040.0
+
+#         R = np.eye(3) + A * logT[:3,:3] + B * np.linalg.matrix_power(logT[:3,:3], 2)
+#         V = np.eye(3) + B * logT[:3,:3] + C * np.linalg.matrix_power(logT[:3,:3], 2)
+
+#         t = V @ u
+#         return cls.fromRotationMatrix(t, R)
+
+#     @classmethod
+#     def Exp(cls, arr): #One call to go from a vector to Transformation matrix
+#         logT = cls.hat(arr)
+#         return cls.exp(logT)
+
+#     @classmethod
+#     def random(cls):
+#         x = np.random.uniform(0, 1, size=3)
+#         t = np.random.uniform(-10, 10, size=3)
+#         psi = 2 * np.pi * x[0]
+#         R = np.array([[np.cos(psi), np.sin(psi), 0], [-np.sin(psi), np.cos(psi), 0], [0, 0, 1]])
+#         v = np.array([np.cos(2 * np.pi * x[1]) * np.sqrt(x[2]),
+#                      np.sin(2 * np.pi * x[1]) * np.sqrt(x[2]),
+#                      np.sqrt(1 - x[2])])
+#         H = np.eye(3) - 2 * np.outer(v, v)
+#         return cls.fromRotationMatrix(t, -H @ R)
+
+#     @staticmethod
+#     def Identity():
+#         return SE3(np.eye(4))
+
+#     @staticmethod
+#     def vee(logT):
+#         assert logT.shape == (4,4)
+#         u = logT[:3,3]
+#         w = np.array([logT[2,1], logT[0,2], logT[1,0]])
+
+#         return np.concatenate((w, u))
+
+#     @staticmethod
+#     def hat(arr):
+#         assert arr.size == 6
+#         return np.sum(G * arr[:,None, None], axis=0)
+
+#     @property
+#     def Adj(self):
+#         R = self.R
+#         t = self.t
+
+#         adj = np.zeros((6,6))
+#         adj[:3,:3] = R
+#         adj[-3:,-3:] = R
+
+#         tx = np.array([[0, -t[2], t[1]], [t[2], 0, -t[0]], [-t[1], t[0], 0]])
+#         adj[3:,:3] = tx @ R
+
+#         return adj
+
+#     #Left and right jacobian stuff goes here
