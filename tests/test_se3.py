@@ -86,6 +86,19 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(pt_p_true, pt_p)
 
+    def test_from_RPY_and_trans(self):
+        rpy = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (eul, t) in zip(rpy, trans):
+            T = SE3.fromRPYandt(eul, t)
+
+            R = SO3.fromRPY(eul).R
+            q = Quaternion.fromRotationMatrix(R)
+
+            np.testing.assert_allclose(q.q, T.q_arr)
+            np.testing.assert_allclose(t, T.t)
+
+
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):
 #         for i in range(100):

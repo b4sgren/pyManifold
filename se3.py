@@ -82,6 +82,11 @@ class SE3:
         q = Quaternion.fromRotationMatrix(R)
         return cls(q,t)
 
+    @classmethod
+    def fromRPYandt(cls, rpy, t):
+        q = Quaternion.fromRPY(rpy)
+        return cls(q,t)
+
 # class SE3:
 #     def __init__(self, T):
 #         assert T.shape == (4,4)
