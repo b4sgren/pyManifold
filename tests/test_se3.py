@@ -39,6 +39,9 @@ class SE3_Test(unittest.TestCase):
                 T1.qw * T2.qx + T1.qx * T2.qw + T1.qy * T2.qz - T1.qz * T2.qy,
                 T1.qw * T2.qy - T1.qx * T2.qz + T1.qy * T2.qw + T1.qz * T2.qx,
                 T1.qw * T2.qz + T1.qx * T2.qy - T1.qy * T2.qx + T1.qz * T2.qw])
+            if q3_true[0] < 0:
+                q3_true *= -1
+
             t3_true = T1.t + T1.R @ T2.t
             T3_true = SE3(Quaternion(q3_true), t3_true)
 
@@ -64,6 +67,15 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(q_true.q, T.q_arr)
             np.testing.assert_allclose(t, T.t)
+
+    def test_transforming_a_point(self):
+        pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
+        for (T,pt) in zip(self.transforms, pts):
+            pt_p = T.transa(pt)
+
+            pt_p_true = T.t + T.R @ pt
+
+            np.testing.assert_allclose(pt_p_true, pt_p)
 
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):

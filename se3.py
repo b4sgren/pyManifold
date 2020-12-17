@@ -70,6 +70,9 @@ class SE3:
         t_inv = -q_inv.rota(self.t)
         return SE3(q_inv, t_inv)
 
+    def transa(self, v):
+        return self.t + self.q.rota(v)
+
     @classmethod
     def fromRAndt(cls, R, t):
         q = Quaternion.fromRotationMatrix(R)
