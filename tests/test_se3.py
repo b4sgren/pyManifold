@@ -133,12 +133,20 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(T.t, T2.t)
 
     def test_hat(self):
-        self.algebras = [np.random.uniform(-3.0, 3.0, size=6) for i in range(100)]
-        for vec in self.algebras:
+        algebras = [np.random.uniform(-3.0, 3.0, size=6) for i in range(100)]
+        for vec in algebras:
             logT = SE3.hat(vec)
             logT_true = np.array([vec[0], vec[1], vec[2], 0, vec[3], vec[4], vec[5]])
 
             np.testing.assert_allclose(logT_true, logT)
+
+    def test_vee(self):
+        vec = [np.random.uniform(-3.0, 3.0, size=7) for i in range(100)]
+        for v in vec:
+            res = SE3.vee(v)
+            res_true = np.array([v[0], v[1], v[2], v[4], v[5], v[6]])
+
+            np.testing.assert_allclose(res_true, res)
 
 
 # class SE3_Test(unittest.TestCase):

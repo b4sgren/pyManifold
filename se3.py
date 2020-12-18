@@ -103,6 +103,10 @@ class SE3:
     def hat(vec):
         return np.array([*vec[:3], 0, *vec[3:]])
 
+    @staticmethod
+    def vee(vec):
+        return np.array([*vec[:3], *vec[4:]])
+
 
 # class SE3:
 #     def __init__(self, T):
