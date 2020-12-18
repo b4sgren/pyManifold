@@ -20,6 +20,27 @@ class SE3:
         t = np.random.uniform(-10.0, 10.0, size=3)
         return cls(q,t)
 
+    @classmethod
+    def fromRAndt(cls, R, t):
+        q = Quaternion.fromRotationMatrix(R)
+        return cls(q,t)
+
+    @classmethod
+    def fromRPYandt(cls, rpy, t):
+        q = Quaternion.fromRPY(rpy)
+        return cls(q,t)
+
+    @classmethod
+    def fromAxisAngleAndt(cls, v, t):
+        q = Quaternion.fromAxisAngle(v)
+        return cls(q,t)
+
+    @classmethod
+    def from7vec(cls, arr):
+        t = arr[:3]
+        q = Quaternion(arr[3:])
+        return cls(q,t)
+
     @property
     def qw(self):
         return self.q_.qw
@@ -78,26 +99,10 @@ class SE3:
         T_inv = self.inv()
         return T_inv.transa(v)
 
-    @classmethod
-    def fromRAndt(cls, R, t):
-        q = Quaternion.fromRotationMatrix(R)
-        return cls(q,t)
+    @staticmethod
+    def hat(vec):
+        return np.array([*vec[:3], 0, *vec[3:]])
 
-    @classmethod
-    def fromRPYandt(cls, rpy, t):
-        q = Quaternion.fromRPY(rpy)
-        return cls(q,t)
-
-    @classmethod
-    def fromAxisAngleAndt(cls, v, t):
-        q = Quaternion.fromAxisAngle(v)
-        return cls(q,t)
-
-    @classmethod
-    def from7vec(cls, arr):
-        t = arr[:3]
-        q = Quaternion(arr[3:])
-        return cls(q,t)
 
 # class SE3:
 #     def __init__(self, T):
