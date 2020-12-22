@@ -248,5 +248,13 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(T2_true.T, T2.T)
 
+    def test_boxminus(self):
+        transforms2 = [SE3.random() for i in range(100)]
+        for (T1, T2) in zip(self.transforms, transforms2):
+            diffT = T1.boxminus(T2)
+            T = T2.boxplus(diffT)
+
+            np.testing.assert_allclose(T.T, T1.T)
+
 if __name__=="__main__":
     unittest.main()

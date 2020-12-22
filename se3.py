@@ -116,6 +116,9 @@ class SE3:
     def boxplus(self, v):
         return self * SE3.Exp(v)
 
+    def boxminus(self, T):
+        return SE3.Log(T.inv() * self)
+
     @staticmethod
     def Identity():
         q = Quaternion.Identity()
