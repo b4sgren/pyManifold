@@ -76,14 +76,14 @@ class SE3:
 
     @property
     def T(self):
-        arr = np.concatenate(self.t,self.q.q)
+        arr = np.array([*self.t,*self.q_arr])
         return arr
 
     @property
     def Adj(self):
         R = self.R
         tx = skew(self.t)
-        return np.block([[R, np.zeros((3,3))], [tx@R, R]])
+        return np.block([[R, tx @ R], [np.zeros((3,3)), R]])
 
     def __mul__(self, T):
         q = self.q * T.q

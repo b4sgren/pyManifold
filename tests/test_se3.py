@@ -217,16 +217,16 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(R_true, T.R)
             np.testing.assert_allclose(t_true, T.t, rtol=1e-4, atol=1e-4)
 
-    # def test_adjoint(self):
-    #     v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-    #     for (v,w, T) in zip(v_list, w_list, self.transforms):
-    #         vec = np.array([*v, *w])
+    def test_adjoint(self):
+        v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
+        for (v,w, T) in zip(v_list, w_list, self.transforms):
+            vec = np.array([*v, *w])
 
-    #         T1 = T * SE3.exp(vec)
-    #         T2 = SE3.exp(T.Adj) * T
+            T1 = T * SE3.Exp(vec)
+            T2 = SE3.Exp(T.Adj @ vec) * T
 
-    #         np.testing.assert_allclose(T1.T, T2.T)
+            np.testing.assert_allclose(T1.T, T2.T)
 
 if __name__=="__main__":
     unittest.main()
