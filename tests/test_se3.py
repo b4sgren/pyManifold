@@ -228,5 +228,13 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(T1.T, T2.T)
 
+    def test_normalize(self):
+        T = SE3.Identity()
+        T2 = self.transforms[30]
+        for i in range(1000):
+            T = T * T2
+        T.normalize()
+        self.assertTrue(T.isValidTransform())
+
 if __name__=="__main__":
     unittest.main()

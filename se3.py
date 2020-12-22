@@ -102,6 +102,14 @@ class SE3:
         T_inv = self.inv()
         return T_inv.transa(v)
 
+    def normalize(self):
+        self.q.normalize()
+
+    @staticmethod
+    def Identity():
+        q = Quaternion.Identity()
+        return SE3(q, np.zeros(3))
+
     @staticmethod
     def log(T):
         logq = Quaternion.log(T.q)
