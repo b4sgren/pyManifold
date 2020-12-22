@@ -90,6 +90,14 @@ class SE3:
         t = self.t + self.q.rota(T.t)
         return SE3(q,t)
 
+    def __str__(self):
+        return str(self.T)
+
+    def __repr__(self):
+        q_str = self.q.__repr__()
+        t_str = str(self.t)
+        return t_str + " " + q_str
+
     def inv(self):
         q_inv = self.q.inv()
         t_inv = -q_inv.rota(self.t)
