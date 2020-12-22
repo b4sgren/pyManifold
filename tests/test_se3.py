@@ -178,6 +178,44 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-3, rtol=1e-3)
 
+    def test_exponential_map(self):
+        v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
+        for (v,w) in zip(v_list, w_list):
+            vec = np.array([*v, *w])
+            T = SE3.Exp(vec)
+
+            logT = np.array([[0, -w[2], w[1], v[0]],
+                             [w[2], 0, -w[0], v[1]],
+                             [-w[1], w[0], 0, v[2]],
+                             [0, 0, 0, 0]])
+            T_true = sp.linalg.expm(logT)
+            R_true = T_true[:3,:3]
+            t_true = T_true[:3,3]
+
+            np.testing.assert_allclose(R_true, T.R)
+            np.testing.assert_allclose(t_true, T.t)
+
+    def test_exponential_map_taylor_series(self):
+        axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        angles = [np.random.uniform(0, 1e-8) for i in range(100)]
+        for (a,v,psi) in zip(axis, v_list, angles):
+            w = a / np.linalg.norm(a) * psi
+            vec = np.array([*v, *w])
+
+            T = SE3.Exp(vec)
+
+            logT = np.array([[0, -w[2], w[1], v[0]],
+                             [w[2], 0, -w[0], v[1]],
+                             [-w[1], w[0], 0, v[2]],
+                             [0, 0, 0, 0]])
+            T_true = sp.linalg.expm(logT)
+            R_true = T_true[:3,:3]
+            t_true = T_true[:3,3]
+
+            np.testing.assert_allclose(R_true, T.R)
+            np.testing.assert_allclose(t_true, T.t)
 
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):

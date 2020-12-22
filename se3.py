@@ -114,6 +114,32 @@ class SE3:
         return np.array([*logt, *logq])
 
     @staticmethod
+    def Log(T):
+        logT = SE3.log(T)
+        return SE3.vee(logT)
+
+    @classmethod
+    def exp(cls, logT):
+        v = logT[:3]
+        w = logT[4:]
+        theta = np.linalg.norm(w)
+
+        q = Quaternion.Exp(w)
+
+        wx = skew(w)
+        if theta > 1e-8:
+            V = np.eye(3) + (1 - np.cos(theta))/theta**2 * wx + (theta - np.sin(theta)) / theta**3 * (wx @ wx)
+            t = V @ v
+        else:
+            t = v
+        return cls(q,t)
+
+    @staticmethod
+    def Exp(vec):
+        logT = SE3.hat(vec)
+        return SE3.exp(logT)
+
+    @staticmethod
     def hat(vec):
         return np.array([*vec[:3], 0, *vec[3:]])
 
