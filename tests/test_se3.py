@@ -148,6 +148,36 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(res_true, res)
 
+    def test_logarithmic_map(self):
+        for T in self.transforms:
+            logT = SE3.log(T)
+
+            R = T.R
+            t = T.t
+            T2 = np.block([[R, t[:,None]], [np.zeros((1,3)), 1]])
+            temp = sp.linalg.logm(T2)
+            logT_true = np.array([temp[0,3], temp[1,3], temp[2,3], 0, temp[2,1], temp[0,2], temp[1,0]])
+
+            np.testing.assert_allclose(logT_true, logT)
+
+    def test_logarithmic_map_taylor_series(self):
+        angle = [np.random.uniform(0.0, 1e-8) for i in range(100)]
+        axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (v, phi, t) in zip(axis, angle, trans):
+            v = v / np.linalg.norm(v) * phi
+            T = SE3.fromAxisAngleAndt(v,t)
+
+            logT = SE3.log(T)
+
+            R = T.R
+            t = T.t
+            T2 = np.block([[R, t[:,None]], [np.zeros((1,3)), 1]])
+            temp = sp.linalg.logm(T2)
+            logT_true = np.array([temp[0,3], temp[1,3], temp[2,3], 0, temp[2,1], temp[0,2], temp[1,0]])
+
+            np.testing.assert_allclose(logT_true, logT, atol=1e-3, rtol=1e-3)
+
 
 # class SE3_Test(unittest.TestCase):
 #     def testConstructor(self):

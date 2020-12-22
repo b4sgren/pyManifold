@@ -159,17 +159,17 @@ class Quaternion:
         return W[1:]
 
     @staticmethod
-    def log(q): #TODO: Taylor series expansion
+    def log(q):
         qw = q.qw
         qv = q.qv
         theta = np.linalg.norm(qv)
 
-        if np.abs(theta) > 1e-3:
+        if np.abs(theta) > 1e-8:
             w = 2 * np.arctan(theta/qw) * qv/theta
         else:
             temp = 1/qw - theta**2 / (3 * qw**3) + theta**4/(5 * qw**5)
             w = 2 * temp * qv
-        return np.array([0, *w]) #I have never seen anything that says this is negative but when I compare with a Rotation matrix I get the negative values of a matrix log
+        return np.array([0, *w])
 
     @staticmethod
     def Log(q):
@@ -182,7 +182,7 @@ class Quaternion:
         theta = np.linalg.norm(vec)
         v = vec / theta
 
-        if np.abs(theta) > 1e-3:
+        if np.abs(theta) > 1e-8:
             qw = np.cos(theta/2)
             qv = v * np.sin(theta/2)
         else:
