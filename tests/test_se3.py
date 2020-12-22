@@ -236,5 +236,17 @@ class SE3_Test(unittest.TestCase):
         T.normalize()
         self.assertTrue(T.isValidTransform())
 
+    def test_boxplus(self):
+        v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
+        for (T, v, w) in zip(self.transforms, v_list, w_list):
+            vec = np.array([*v, *w])
+            T2 = T.boxplus(vec)
+
+            temp = SE3.Exp(vec)
+            T2_true = T * temp
+
+            np.testing.assert_allclose(T2_true.T, T2.T)
+
 if __name__=="__main__":
     unittest.main()

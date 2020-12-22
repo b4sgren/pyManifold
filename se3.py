@@ -113,6 +113,9 @@ class SE3:
     def normalize(self):
         self.q.normalize()
 
+    def boxplus(self, v):
+        return self * SE3.Exp(v)
+
     @staticmethod
     def Identity():
         q = Quaternion.Identity()
