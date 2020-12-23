@@ -18,8 +18,12 @@ class SO2:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self):
-        return SO2(self.arr.T)
+    def inv(self, Jr=None):
+        if Jr:
+            J = -1
+            return SO2(self.arr.T), J
+        else:
+            return SO2(self.arr.T)
 
     def rota(self, v):
         assert v.size == 2

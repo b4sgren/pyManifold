@@ -156,5 +156,11 @@ class SO2Test(unittest.TestCase):
 
             np.testing.assert_allclose(R.R, R1.R)
 
+    def test_right_jacobian_of_inversion(self):
+        R = SO2.random()
+        R_inv, Jr = R.inv(Jr=True)
+
+        self.assertEqual(-1, Jr)
+
 if __name__=="__main__":
     unittest.main()
