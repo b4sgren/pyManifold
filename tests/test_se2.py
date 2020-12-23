@@ -209,27 +209,49 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(T_true, T.arr)
 
-    def testBoxPlus(self):
+    def testBoxPlusR(self):
         for i in range(100):
             T = SE2.random()
             u = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)
             vec = np.array([theta, *u])
 
-            T3 = T.boxplus(vec)
-            T3_true = T *  SE2.Exp(vec)
+            T3 = T.boxplusr(vec)
+            T3_true = T * SE2.Exp(vec)
 
             np.testing.assert_allclose(T3_true.T, T3.T)
 
-    def testBoxMinus(self):
+    def testBoxMinusR(self):
         for i in range(100):
             T1 = SE2.random()
             T2 = SE2.random()
 
-            w = T1.boxminus(T2)
-            w_true = SE2.Log(T2.inv()*T1)
+            w = T1.boxminusr(T2)
+            T = T2.boxplusr(w)
 
-            np.testing.assert_allclose(w_true, w)
+            np.testing.assert_allclose(T1.T, T.T)
+
+    def test_boxplusl(self):
+        for i in range(100):
+            T = SE2.random()
+            u = np.random.uniform(-10., 10., size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+            vec = np.array([theta, *u])
+
+            T2 = T.boxplusl(vec)
+            T2_true = SE2.Exp(vec) * T
+
+            np.testing.assert_allclose(T2_true.T, T2.T)
+
+    def test_boxminusl(self):
+        for i in range(100):
+            T1 = SE2.random()
+            T2 = SE2.random()
+
+            w = T1.boxminusl(T2)
+            T = T2.boxplusl(w)
+
+            np.testing.assert_allclose(T.T, T1.T)
 
 
 if __name__=="__main__":

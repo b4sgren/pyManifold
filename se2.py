@@ -39,13 +39,21 @@ class SE2:
         vp = self.inv().T @ v
         return vp[:2]
 
-    def boxplus(self, w):
+    def boxplusr(self, w):
         assert w.size == 3
         return self * SE2.Exp(w)
 
-    def boxminus(self, T):
+    def boxminusr(self, T):
         assert isinstance(T, SE2)
         return SE2.Log(T.inv() * self)
+
+    def boxplusl(self, w):
+        assert w.size == 3
+        return SE2.Exp(w) * self
+
+    def boxminusl(self, T):
+        assert isinstance(T, SE2)
+        return SE2.Log(self * T.inv())
 
     @property
     def Adj(self):
