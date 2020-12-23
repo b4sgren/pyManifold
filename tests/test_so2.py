@@ -111,7 +111,7 @@ class SO2Test(unittest.TestCase):
             Adj_R = R.Adj
 
             Rf = R * SO2.Exp(delta)
-            Rf_true = SO2.Exp(delta) * R
+            Rf_true = SO2.Exp(Adj_R * delta) * R
 
             np.testing.assert_allclose(Rf_true.R, Rf.R)
 
@@ -161,6 +161,19 @@ class SO2Test(unittest.TestCase):
         R_inv, Jr = R.inv(Jr=True)
 
         self.assertEqual(-1, Jr)
+
+    def test_left_jacobian_of_inversion(self):
+        R = SO2.random()
+        R_inv, Jl = R.inv(Jl=True)
+        _, Jr = R.inv(Jr=True)
+
+        Adj_R = R.Adj
+        Adj_Rinv = R_inv.Adj
+
+        Jl_true = Adj_Rinv * Jr * (1.0 / Adj_R)
+
+        self.assertEqual(-1, Jl)
+        self.assertEqual(Jl_true, Jl)
 
 if __name__=="__main__":
     unittest.main()

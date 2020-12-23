@@ -18,8 +18,8 @@ class SO2:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self, Jr=None):
-        if Jr:
+    def inv(self, Jr=None, Jl=None):
+        if Jr or Jl:
             J = -1
             return SO2(self.arr.T), J
         else:
@@ -94,8 +94,8 @@ class SO2:
         return theta * G
 
     @property
-    def Adj(self):
-        return np.eye(2)
+    def Adj(self): # sola says this is just 1 and not the identity
+        return 1.0
 
     @classmethod
     def random(cls):
