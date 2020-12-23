@@ -113,11 +113,17 @@ class SE3:
     def normalize(self):
         self.q.normalize()
 
-    def boxplus(self, v):
+    def boxplusr(self, v):
         return self * SE3.Exp(v)
 
-    def boxminus(self, T):
+    def boxminusr(self, T):
         return SE3.Log(T.inv() * self)
+
+    def boxplusl(self, v):
+        return SE3.Exp(v) * self
+
+    def boxminusl(self, T):
+        return SE3.Log(self * T.inv())
 
     @staticmethod
     def Identity():
