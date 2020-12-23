@@ -110,7 +110,7 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(R_true, R.arr, atol=1e-7)
 
 
-    def testVee(self): #Is the result an axis-angle representation? aka a rotation vector?
+    def testVee(self):
         for i in range(100):
             omega_true = np.random.uniform(-np.pi, np.pi, size=3)
             logR = np.array([[0, -omega_true[2], omega_true[1]],
@@ -211,26 +211,48 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(1.0, detR)
 
-    def testBoxPlus(self):
+    def testBoxPlusR(self):
         for i in range(100):
             R = SO3.random()
             theta = np.random.uniform(0, np.pi)
             vec = np.random.uniform(-1, 1, size=3)
             vec = vec / np.linalg.norm(vec) * theta
 
-            R2 = R.boxplus(vec)
+            R2 = R.boxplusr(vec)
             R2_true = R * SO3.fromAxisAngle(vec)
 
             np.testing.assert_allclose(R2_true.R, R2.R)
 
-    def testBoxMinus(self):
+    def testBoxMinusR(self):
         R1 = SO3.random()
         R2 = SO3.random()
 
-        w = R1.boxminus(R2)
-        R_res = R2.boxplus(w)
+        w = R1.boxminusr(R2)
+        R_res = R2.boxplusr(w)
 
         np.testing.assert_allclose(R1.R, R_res.R)
+
+    def test_boxplusl(self):
+        for i in range(100):
+            R = SO3.random()
+            theta = np.random.uniform(0, np.pi)
+            vec = np.random.uniform(-1, 1, size=3)
+            vec = vec / np.linalg.norm(vec) * theta
+
+            R2 = R.boxplusl(vec)
+            R2_true = SO3.fromAxisAngle(vec) * R
+
+            np.testing.assert_allclose(R2_true.R, R2.R)
+
+    def test_boxminusl(self):
+        for i in range(100):
+            R1 = SO3.random()
+            R2 = SO3.random()
+
+            v = R1.boxminusl(R2)
+            R = R2.boxplusl(v)
+
+            np.testing.assert_allclose(R1.R, R.R)
 
     def testNormalize(self):
         for i in range(10):

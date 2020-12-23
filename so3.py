@@ -43,13 +43,21 @@ class SO3:
         assert v.size == 3
         return self.arr.T @ v
 
-    def boxplus(self, v):
+    def boxplusr(self, v):
         assert(v.size == 3)
         return self * SO3.Exp(v)
 
-    def boxminus(self, R2):
+    def boxminusr(self, R2):
         assert isinstance(R2, SO3)
         return SO3.Log(R2.inv() * self)
+
+    def boxplusl(self, v):
+        assert(v.size == 3)
+        return SO3.Exp(v) * self
+
+    def boxminusl(self, R2):
+        assert isinstance(R2, SO3)
+        return SO3.Log(self * R2.inv())
 
     def normalize(self):
         x = self.R[:,0]
