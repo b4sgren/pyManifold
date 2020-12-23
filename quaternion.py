@@ -64,7 +64,7 @@ class Quaternion:
         qv = self.qv
         return skew(qv)
 
-    def inv(self, Jr=None, Jl=None):
+    def inv(self, Jr=False, Jl=False):
         if Jr:
             return Quaternion(np.array([self.qw, *(-self.qv)])), -self.Adj
         elif Jl:

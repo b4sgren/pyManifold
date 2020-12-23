@@ -14,7 +14,7 @@ class SE2:
         assert T.shape == (3,3)
         self.arr = T
 
-    def inv(self, Jr=None, Jl=None):
+    def inv(self, Jr=False, Jl=False):
         if Jr:
             return SE2.fromRandt(self.R.T, -self.R.T @ self.t), -self.Adj
         if Jl:

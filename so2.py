@@ -18,7 +18,7 @@ class SO2:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self, Jr=None, Jl=None):
+    def inv(self, Jr=False, Jl=False):
         if Jr or Jl:
             J = -1
             return SO2(self.arr.T), J

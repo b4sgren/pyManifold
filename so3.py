@@ -29,7 +29,7 @@ class SO3:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self, Jr=None, Jl=None):
+    def inv(self, Jr=False, Jl=False):
         if Jr:
             return SO3(self.arr.T), -self.Adj
         elif Jl:
