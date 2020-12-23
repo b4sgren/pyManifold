@@ -94,7 +94,7 @@ class SE2:
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
         t = T.t
 
-        if np.abs(theta) > 1e-3:
+        if np.abs(theta) > 1e-8:
             A = np.sin(theta)/theta
             B = (1 - np.cos(theta))/theta
         else:
@@ -120,7 +120,7 @@ class SE2:
         assert X.shape == (3,3)
         theta = X[1,0]
 
-        if np.abs(theta) > 1e-3:
+        if np.abs(theta) > 1e-8:
             A = np.sin(theta)/theta
             B = (1 - np.cos(theta))/theta
         else:

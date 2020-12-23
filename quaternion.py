@@ -177,7 +177,7 @@ class Quaternion:
         return Quaternion.vee(W)
 
     @classmethod
-    def exp(cls, W): #TODO: Taylor Series Expansion
+    def exp(cls, W):
         vec = W[1:]
         theta = np.linalg.norm(vec)
         v = vec / theta

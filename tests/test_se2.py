@@ -1,9 +1,9 @@
 import unittest
 import scipy.linalg as spl
-import sys 
+import sys
 sys.path.append("..")
-import numpy as np 
-from se2 import SE2 
+import numpy as np
+from se2 import SE2
 
 from IPython.core.debugger import Pdb
 
@@ -19,11 +19,11 @@ class SE2_Test(unittest.TestCase):
             T = SE2.fromRandt(R, t)
             T_inv = T.inv()
             T_inv_true = np.eye(3)
-            T_inv_true[:2, :2] = R.T 
-            T_inv_true[:2, 2] = -R.T @ t 
+            T_inv_true[:2, :2] = R.T
+            T_inv_true[:2, 2] = -R.T @ t
 
             np.testing.assert_allclose(T_inv_true, T_inv.arr)
-    
+
     def testGroupOperator(self):
         for i in range(100):
             t1 = np.random.uniform(-10, 10, size=2)
@@ -37,17 +37,17 @@ class SE2_Test(unittest.TestCase):
             st2 = np.sin(theta2)
             R1 = np.array([[ct1, -st1], [st1, ct1]])
             R2 = np.array([[ct2, -st2], [st2, ct2]])
-            
+
             T1 = SE2.fromRandt(R1, t1)
             T2 = SE2.fromRandt(R2, t2)
             T = T1 * T2
-            
+
             R_true = R1 @ R2
             t_true = R1 @ t2 + t1
             T_true = SE2.fromRandt(R_true, t_true)
 
             np.testing.assert_allclose(T_true.arr, T.arr)
-    
+
     def testActionOnVector(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=2)
@@ -71,7 +71,7 @@ class SE2_Test(unittest.TestCase):
             pt_true = T.R.T @ vec - T.R.T @ T.t
 
             np.testing.assert_allclose(pt_true, pt)
-    
+
     def testLog(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=2)
@@ -90,17 +90,17 @@ class SE2_Test(unittest.TestCase):
                 temp = SE2.log(T)
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-7)
-        
+
     def testTaylorLog(self):
         for i in range(100): #Test taylor series
             t = np.random.uniform(-10, 10, size=2)
-            theta = np.random.uniform(-1e-3, 1e-3)
+            theta = np.random.uniform(-1e-8, 1e-8)
 
             T = SE2.fromAngleAndt(theta, t)
             logT = SE2.log(T)
             logT_true = spl.logm(T.arr)
-            
-            if np.linalg.norm(logT_true - logT, ord='fro') > 1e-3:
+
+            if np.linalg.norm(logT_true - logT, ord='fro') > 1e-8:
                 Pdb().set_trace()
                 debug = 1
                 temp = SE2.log(T)
@@ -115,24 +115,24 @@ class SE2_Test(unittest.TestCase):
             logT = np.array([[0, -theta, v[0]],
                             [theta, 0, v[1]],
                             [0, 0, 0]])
-            
+
             T = SE2.exp(logT)
 
             T_true = spl.expm(logT)
 
             np.testing.assert_allclose(T_true, T.arr)
-    
+
     def testTaylorExp(self):
         for i in range(100):
             v = np.random.uniform(-10, 10, size=2)
-            theta = np.random.uniform(-1e-3, 1e-3)
+            theta = np.random.uniform(-1e-8, 1e-8)
             arr = np.array([theta, v[0], v[1]])
 
             T = SE2.Exp(arr)
             T_true = spl.expm(SE2.hat(arr))
 
             np.testing.assert_allclose(T_true, T.arr)
-    
+
     def testVee(self):
         for i in range(100):
             u = np.random.uniform(-10, 10, size=2)
@@ -143,7 +143,7 @@ class SE2_Test(unittest.TestCase):
             arr = SE2.vee(X)
 
             np.testing.assert_allclose(arr_true, arr)
-    
+
     def testHat(self):
         for i in range(100):
             u = np.random.uniform(-10, 10, size=2)
@@ -154,8 +154,8 @@ class SE2_Test(unittest.TestCase):
             X = SE2.hat(arr)
 
             np.testing.assert_allclose(X_true, X)
-    
-    def testAdjoint(self): 
+
+    def testAdjoint(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)
@@ -167,13 +167,13 @@ class SE2_Test(unittest.TestCase):
             adj = T.Adj
 
             adj_true = np.zeros((3,3))
-            adj_true[1:, 1:] = R 
+            adj_true[1:, 1:] = R
             adj_true[1, 0] = t[1]
             adj_true[2, 0] = -t[0]
             adj_true[0,0] = 1
 
             np.testing.assert_allclose(adj_true, adj)
-    
+
         for i in range(100):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)
@@ -185,30 +185,30 @@ class SE2_Test(unittest.TestCase):
             st = np.sin(theta)
             R = np.array([[ct, -st], [st, ct]])
             T = SE2.fromRandt(R, t)
-            
+
             adj = T.Adj
 
             T2_true = T * SE2.Exp(delta)
             T2 = SE2.Exp(adj @ delta) * T
 
             np.testing.assert_allclose(T2_true.arr, T2.arr)
-    
+
     def testFromAngle(self):
         for i in range(100):
             t = np.random.uniform(-10, 10, size=2)
             theta = np.random.uniform(-np.pi, np.pi)
 
             T = SE2.fromAngleAndt(theta, t)
-            
+
             ct = np.cos(theta)
             st = np.sin(theta)
             R = np.array([[ct, -st], [st, ct]])
             T_true = np.eye(3)
-            T_true[:2,:2] = R 
+            T_true[:2,:2] = R
             T_true[:2,2] = t
 
             np.testing.assert_allclose(T_true, T.arr)
-    
+
     def testBoxPlus(self):
         for i in range(100):
             T = SE2.random()
@@ -220,7 +220,7 @@ class SE2_Test(unittest.TestCase):
             T3_true = T *  SE2.Exp(vec)
 
             np.testing.assert_allclose(T3_true.T, T3.T)
-    
+
     def testBoxMinus(self):
         for i in range(100):
             T1 = SE2.random()
