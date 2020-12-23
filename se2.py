@@ -14,9 +14,12 @@ class SE2:
         assert T.shape == (3,3)
         self.arr = T
 
-    def inv(self, Jr=None):
+    def inv(self, Jr=None, Jl=None):
         if Jr:
-            return SE2.fromRandt(self.R.T, -self.R.T @ self.t), self.Adj
+            return SE2.fromRandt(self.R.T, -self.R.T @ self.t), -self.Adj
+        if Jl:
+            T_inv = SE2.fromRandt(self.R.T, -self.R.T @ self.t)
+            return T_inv, -T_inv.Adj
         else:
             return SE2.fromRandt(self.R.T, -self.R.T @ self.t)
 
@@ -61,11 +64,6 @@ class SE2:
     @property
     def Adj(self):
         J = np.array([[0, -1], [1, 0]])
-        # adj = np.zeros((3,3))
-        # adj[0,0] = 1
-        # adj[1:,0] = J @ self.t
-        # adj[1:,1:] = self.R
-
         adj = np.block([[self.R, (-J @ self.t)[:,None]],
                         [np.zeros((1,2)), 1]])
 
