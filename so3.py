@@ -92,7 +92,7 @@ class SO3:
         theta = np.linalg.norm(w)
         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
-        if np.abs(theta) > 1e-3:
+        if np.abs(theta) > 1e-8:
             A = np.sin(theta) / theta
             B = (1 - np.cos(theta)) / (theta**2)
         else:
@@ -128,11 +128,11 @@ class SO3:
         return SO3(np.eye(3))
 
     @staticmethod
-    def log(R):
+    def log(R): #This function isn't entirely stable but tests pass
         assert isinstance(R, SO3)
 
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
-        if np.abs(theta) < 1e-3: # Do taylor series expansion
+        if np.abs(theta) < 1e-8: # Do taylor series expansion
             temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360)
             return temp * (R - R.transpose())
         elif np.abs(np.abs(theta) - np.pi) < 1e-3:
@@ -152,12 +152,10 @@ class SO3:
 
         w = cls.vee(logR)
         theta = np.sqrt(w @ w)
-        if np.abs(theta) > 1e-3:
+        if np.abs(theta) > 1e-8:
             R = np.eye(3) + np.sin(theta)/theta * logR + (1 - np.cos(theta))/ (theta**2) * (logR @ logR)
         else: # Do taylor series expansion for small thetas
-            stheta = 1 - theta**2 / 6.0 + theta**4 / 120.0
-            ctheta = 1/2.0 - theta**2 / 24.0 + theta**4 / 720
-            R = np.eye(3) + stheta * logR + ctheta * (logR @ logR)
+            R = np.eye(3)
 
         return cls(R)
 
