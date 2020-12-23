@@ -1,21 +1,24 @@
 import numpy as np
 
-G = np.array([[[0, -1, 0],
-                [1, 0, 0],
-                [0, 0, 0]],
-               [[0, 0, 1],
+G = np.array([[[0, 0, 1],
                 [0, 0, 0],
                 [0, 0, 0]],
                [[0, 0, 0],
                 [0, 0, 1],
+                [0, 0, 0]],
+                [[0, -1, 0],
+                [1, 0, 0],
                 [0, 0, 0]]])
 class SE2:
     def __init__(self, T):
         assert T.shape == (3,3)
         self.arr = T
 
-    def inv(self):
-        return SE2.fromRandt(self.R.T, -self.R.T @ self.t)
+    def inv(self, Jr=None):
+        if Jr:
+            return SE2.fromRandt(self.R.T, -self.R.T @ self.t), self.Adj
+        else:
+            return SE2.fromRandt(self.R.T, -self.R.T @ self.t)
 
     def __mul__(self, T2):
         assert isinstance(T2, SE2)
@@ -57,11 +60,14 @@ class SE2:
 
     @property
     def Adj(self):
-        J = np.array([[0, 1], [-1, 0]])
-        adj = np.zeros((3,3))
-        adj[0,0] = 1
-        adj[1:,0] = J @ self.t
-        adj[1:,1:] = self.R
+        J = np.array([[0, -1], [1, 0]])
+        # adj = np.zeros((3,3))
+        # adj[0,0] = 1
+        # adj[1:,0] = J @ self.t
+        # adj[1:,1:] = self.R
+
+        adj = np.block([[self.R, (-J @ self.t)[:,None]],
+                        [np.zeros((1,2)), 1]])
 
         return adj
 
@@ -149,8 +155,8 @@ class SE2:
     def vee(X):
         assert X.shape == (3,3)
         arr = np.zeros(3)
-        arr[1:] = X[:2,2]
-        arr[0] = X[1,0]
+        arr[:2] = X[:2,2]
+        arr[2] = X[1,0]
 
         return arr
 

@@ -40,7 +40,7 @@ class Quaternion:
         return self.arr
 
     @property
-    def R(self): # I think that this should be the transpose of what it is ... only place self.R is used in this class is the adjoint so the fix shouldn't be to hard. More corrections in unit tests
+    def R(self):
         return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property
