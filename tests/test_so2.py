@@ -175,5 +175,27 @@ class SO2Test(unittest.TestCase):
         self.assertEqual(-1, Jl)
         self.assertEqual(Jl_true, Jl)
 
+    def test_right_jacobian_of_composition(self):
+        R1 = SO2.random()
+        R2 = SO2.random()
+
+        R3, Jr1 = R1.compose(R2, Jr=True)
+        Jr1_true = 1.0/R2.Adj
+
+        np.testing.assert_allclose(Jr1_true, Jr1)
+
+    def test_left_jacobian_of_composition(self):
+        R1 = SO2.random()
+        R2 = SO2.random()
+
+        R3, Jr = R1.compose(R2, Jr=True)
+        _, Jl = R1.compose(R2, Jl=True)
+
+        Adj_R1 = R1.Adj
+        Adj_R3 = R3.Adj
+        Jl_true = Adj_R3 * Jr * 1.0/Adj_R1
+
+        np.testing.assert_allclose(Jl_true, Jl)
+
 if __name__=="__main__":
     unittest.main()

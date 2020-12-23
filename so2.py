@@ -47,6 +47,15 @@ class SO2:
         assert isinstance(R, SO2)
         return SO2.Log(self * R.inv())
 
+    def compose(self, R, Jr=False, Jl=False):
+        res = self * R
+        if Jr:
+            return res, R.inv().Adj
+        if Jl:
+            return res, 1.0
+        else:
+            return res
+
     @property
     def R(self):
         return self.arr
