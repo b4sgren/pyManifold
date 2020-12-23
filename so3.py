@@ -29,8 +29,14 @@ class SO3:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self):
-        return SO3(self.arr.T)
+    def inv(self, Jr=None, Jl=None):
+        if Jr:
+            return SO3(self.arr.T), -self.Adj
+        elif Jl:
+            R_inv = SO3(self.arr.T)
+            return R_inv, -R_inv.Adj
+        else:
+            return SO3(self.arr.T)
 
     def transpose(self):
         return SO3(self.arr.T)

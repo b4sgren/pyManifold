@@ -277,5 +277,24 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(R.R, R2.R)
 
+    def test_right_jacobian_of_inversion(self):
+        R = SO3.random()
+        R_inv, Jr = R.inv(Jr=True)
+        Adj_R = R.Adj
+
+        np.testing.assert_allclose(-Adj_R, Jr)
+
+    def test_left_jacobian_of_inversion(self):
+        for i in range(100):
+            R = SO3.random()
+            R_inv, Jl = R.inv(Jl=True)
+            _, Jr = R.inv(Jr=True)
+
+            Jl_true = R_inv.Adj @ Jr @ np.linalg.inv(R.Adj)
+
+            np.testing.assert_allclose(-R_inv.Adj, Jl)
+            np.testing.assert_allclose(Jl_true, Jl)
+
+
 if __name__=="__main__":
     unittest.main()
