@@ -98,10 +98,16 @@ class SE3:
         t_str = str(self.t)
         return t_str + " " + q_str
 
-    def inv(self):
+    def inv(self, Jr=False, Jl=False):
         q_inv = self.q.inv()
         t_inv = -q_inv.rota(self.t)
-        return SE3(q_inv, t_inv)
+        if Jr:
+            return SE3(q_inv, t_inv), -self.Adj
+        elif Jl:
+            T_inv = SE3(q_inv, t_inv)
+            return T_inv, -T_inv.Adj
+        else:
+            return SE3(q_inv, t_inv)
 
     def transa(self, v):
         return self.t + self.q.rota(v)

@@ -275,5 +275,23 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(T.T, T1.T)
 
+    def test_right_jacobian_of_inversion(self):
+        T = SE3.random()
+        T_inv, Jr = T.inv(Jr=True)
+
+        np.testing.assert_allclose(-T.Adj, Jr)
+
+    def test_left_jacobian_of_inversion(self):
+        T = SE3.random()
+        T_inv, Jr = T.inv(Jr=True)
+        _, Jl = T.inv(Jl=True)
+
+        Adj_T = T.Adj
+        Adj_Tinv = T_inv.Adj
+
+        Jl_true = Adj_Tinv @ Jr @ np.linalg.inv(Adj_T)
+
+        np.testing.assert_allclose(Jl_true, Jl)
+
 if __name__=="__main__":
     unittest.main()
