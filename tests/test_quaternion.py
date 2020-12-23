@@ -173,9 +173,11 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             w = np.random.uniform(-np.pi, np.pi, size=3)
 
-            #Because of flipped order
             p_true = Quaternion.Exp(w) * q
             p = q * Quaternion.Exp(q.Adj @ w)
+            # These two also work for when the adjoint is transposed
+            # p_true = q * Quaternion.Exp(w)
+            # p = Quaternion.Exp(q.Adj @ w) * q
 
             np.testing.assert_allclose(p_true.q, p.q)
 
@@ -231,6 +233,25 @@ class Quaternion_Testing(unittest.TestCase):
             q = q2.boxplusl(w)
 
             np.testing.assert_allclose(q1.q, q.q)
+
+    def test_right_jacobian_of_inversion(self):
+        q = Quaternion.random()
+        q_inv, Jr = q.inv(Jr=True)
+        Jr_true = -q.R.T
+
+        np.testing.assert_allclose(Jr_true, Jr)
+
+    def test_left_jacobian_of_inversion(self):
+        q = Quaternion.random()
+        q_inv, Jr = q.inv(Jr=True)
+        _, Jl = q.inv(Jl=True)
+
+        Adj_q = q.Adj
+        Adj_qinv = q_inv.Adj
+        Jl_true = Adj_qinv @ Jr @ np.linalg.inv(Adj_q)
+
+        np.testing.assert_allclose(Jl_true, Jl)
+
 
 if __name__=="__main__":
     unittest.main()
