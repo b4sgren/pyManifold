@@ -87,13 +87,21 @@ class Quaternion:
     def norm(self):
         return np.linalg.norm(self.q)
 
-    def boxplus(self, w):
+    def boxplusr(self, w):
         assert w.size == 3
         return self * Quaternion.Exp(w)
 
-    def boxminus(self, q):
+    def boxminusr(self, q):
         assert isinstance(q, Quaternion)
         return Quaternion.Log(q.inv() * self)
+
+    def boxplusl(self, w):
+        assert w.size == 3
+        return Quaternion.Exp(w) * self
+
+    def boxminusl(self, q):
+        assert isinstance(q, Quaternion)
+        return Quaternion.Log(self * q.inv())
 
     @classmethod
     def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)
