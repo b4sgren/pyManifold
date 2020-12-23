@@ -29,12 +29,19 @@ class SO2:
         assert v.size == 2
         return self.inv().arr @ v
 
-    def boxplus(self, w):
+    def boxplusr(self, w):
         return self * SO2.Exp(w)
 
-    def boxminus(self, R2):
+    def boxminusr(self, R2):
         assert isinstance(R2, SO2)
         return SO2.Log(R2.inv() * self)
+
+    def boxplusl(self, w):
+        return SO2.Exp(w) * self
+
+    def boxminusl(self, R):
+        assert isinstance(R, SO2)
+        return SO2.Log(self * R.inv())
 
     @property
     def R(self):

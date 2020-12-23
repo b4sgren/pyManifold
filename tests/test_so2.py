@@ -1,5 +1,5 @@
 import unittest
-import sys 
+import sys
 sys.path.append('..')
 from so2 import SO2
 import numpy as np
@@ -42,7 +42,7 @@ class SO2Test(unittest.TestCase):
             R = SO2.fromAngle(theta_true)
             theta = SO2.vee(SO2.log(R))
             self.assertAlmostEqual(theta, theta_true)
-    
+
     def testMul(self):
         for i in range(100):
             theta1 = np.random.uniform(-np.pi, np.pi)
@@ -52,7 +52,7 @@ class SO2Test(unittest.TestCase):
             R = R1 * R2
             theta_true = theta1 + theta2
             if theta_true > np.pi:
-                theta_true -= 2 * np.pi 
+                theta_true -= 2 * np.pi
             if theta_true < -np.pi:
                 theta_true += 2 * np.pi
             R_true = np.array([[np.cos(theta_true), -np.sin(theta_true)], [np.sin(theta_true), np.cos(theta_true)]])
@@ -60,7 +60,7 @@ class SO2Test(unittest.TestCase):
             self.assertAlmostEqual(R_true[0,1], R.arr[0,1])
             self.assertAlmostEqual(R_true[1,0], R.arr[1,0])
             self.assertAlmostEqual(R_true[1,1], R.arr[1,1])
-        
+
     def testRotateVector(self):
         for i in range(100): #Active rotation
             theta = np.random.uniform(-np.pi, np.pi)
@@ -76,7 +76,7 @@ class SO2Test(unittest.TestCase):
             rot_pt_true = np.array([x_true, y_true])
 
             np.testing.assert_allclose(rot_pt_true, rot_pt)
-        
+
         for i in range(100): #Passive rotation
             theta = np.random.uniform(-np.pi, np.pi)
             R = SO2.fromAngle(theta)
@@ -95,13 +95,13 @@ class SO2Test(unittest.TestCase):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
             R = SO2.fromAngle(theta)
-            mat = R.arr 
+            mat = R.arr
 
             R_inv_true = np.linalg.inv(mat)
             R_inv = R.inv()
 
             np.testing.assert_allclose(R_inv_true, R_inv.arr)
-    
+
     def testAdjoint(self):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
@@ -111,29 +111,50 @@ class SO2Test(unittest.TestCase):
             Adj_R = R.Adj
 
             Rf = R * SO2.Exp(delta)
-            Rf_true = SO2.Exp(delta) * R 
+            Rf_true = SO2.Exp(delta) * R
 
             np.testing.assert_allclose(Rf_true.R, Rf.R)
-    
-    def testBoxPlus(self):
+
+    def testBoxPlusR(self):
         for i in range(100):
             R = SO2.random()
             w = np.random.uniform(-np.pi, np.pi)
             R2 = SO2.fromAngle(w)
 
-            R3 = R.boxplus(w)
-            R3_true = R * R2 
+            R3 = R.boxplusr(w)
+            R3_true = R * R2
 
             np.testing.assert_allclose(R3_true.R, R3.R)
-    
-    def testBoxMinus(self):
+
+    def testBoxMinusR(self):
         R1 = SO2.random()
         R2 = SO2.random()
 
-        w = R1.boxminus(R2)
-        Rres = R2.boxplus(w)
+        w = R1.boxminusr(R2)
+        Rres = R2.boxplusr(w)
 
         np.testing.assert_allclose(R1.R, Rres.R)
+
+    def test_boxplusl(self):
+        for i in range(100):
+            R = SO2.random()
+            w = np.random.uniform(-np.pi, np.pi)
+            R2 = SO2.fromAngle(w)
+
+            R3 = R.boxplusl(w)
+            R3_true = R2 * R
+
+            np.testing.assert_allclose(R3_true.R, R3.R)
+
+    def test_boxminusl(self):
+        for i in range(100):
+            R1 = SO2.random()
+            R2 = SO2.random()
+
+            w = R1.boxminusl(R2)
+            R = R2.boxplusl(w)
+
+            np.testing.assert_allclose(R.R, R1.R)
 
 if __name__=="__main__":
     unittest.main()
