@@ -68,14 +68,24 @@ class SO2:
         return cls(R)
 
     @classmethod
-    def exp(cls, theta_x):
+    def exp(cls, theta_x, Jr=False, Jl=False):
         assert theta_x.shape == (2,2)
         theta = theta_x[1,0]
+        if Jr:
+            return cls.fromAngle(theta), 1.0
+        if Jl:
+            return cls.fromAngle(theta), 1.0
         return cls.fromAngle(theta)
 
     @classmethod
-    def Exp(cls, theta):
+    def Exp(cls, theta, Jr=False, Jl=False):
         logR = cls.hat(theta)
+        if Jr:
+            R, J = cls.exp(logR, Jr)
+            return R, J
+        if Jl:
+            R, J = cls.exp(logR, Jl)
+            return R, J
         return cls.exp(logR)
 
     @staticmethod

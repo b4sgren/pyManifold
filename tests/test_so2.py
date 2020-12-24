@@ -197,5 +197,21 @@ class SO2Test(unittest.TestCase):
 
         np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobian_of_exponential(self):
+        tau = np.random.uniform(-np.pi, np.pi)
+        R, Jr = SO2.Exp(tau, Jr=True)
+
+        self.assertEqual(1.0, Jr)
+
+    def test_left_jacobian_of_exponential(self):
+        tau = np.random.uniform(-np.pi, np.pi)
+        R, Jr = SO2.Exp(tau, Jr=True)
+        _, Jl = SO2.Exp(tau, Jl=True)
+
+        Ad_R = Jl * (1.0 / Jr)
+
+        self.assertEqual(1.0, Jl)
+        self.assertEqual(Ad_R, R.Adj)
+
 if __name__=="__main__":
     unittest.main()
