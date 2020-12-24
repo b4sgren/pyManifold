@@ -131,6 +131,14 @@ class SE3:
     def boxminusl(self, T):
         return SE3.Log(self * T.inv())
 
+    def compose(self, T, Jr=False, Jl=False):
+        res = self * T
+        if Jr:
+            return res, T.inv().Adj
+        if Jl:
+            return res, np.eye(6)
+        return res
+
     @staticmethod
     def Identity():
         q = Quaternion.Identity()
