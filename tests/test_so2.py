@@ -213,5 +213,19 @@ class SO2Test(unittest.TestCase):
         self.assertEqual(1.0, Jl)
         self.assertEqual(Ad_R, R.Adj)
 
+    def test_right_jacobian_of_logarithm(self):
+        R = SO2.random()
+        logR, Jr_inv = SO2.Log(R, Jr=True)
+        _, Jr = SO2.Exp(logR, Jr=True)
+
+        self.assertEqual(1/Jr, Jr_inv)
+
+    def test_left_jacobian_of_logarithm(self):
+        R = SO2.random()
+        logR, Jl_inv = SO2.Log(R, Jl=True)
+        _, Jl = SO2.Exp(logR, Jl=True)
+
+        self.assertEqual(1/Jl, Jl_inv)
+
 if __name__=="__main__":
     unittest.main()

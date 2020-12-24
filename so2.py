@@ -93,13 +93,23 @@ class SO2:
         return SO2(np.eye(2))
 
     @staticmethod
-    def log(R):
+    def log(R, Jr=False, Jl=False):
         assert isinstance(R, SO2)
         theta = np.arctan2(R.arr[1,0], R.arr[0,0])
+        if Jr:
+            return G * theta, 1.0
+        if Jl:
+            return G * theta, 1.0
         return G * theta
 
     @classmethod
-    def Log(cls, R):
+    def Log(cls, R, Jr=False, Jl=False):
+        if Jr:
+            logR, J = cls.log(R, Jr)
+            return logR, J
+        if Jl:
+            logR, J = cls.log(R,Jl)
+            return logR, J
         logR = cls.log(R)
         return cls.vee(logR)
 
