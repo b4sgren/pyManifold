@@ -255,6 +255,27 @@ class SE2_Test(unittest.TestCase):
 
         np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobian_of_composition(self):
+        T1 = SE2.random()
+        T2 = SE2.random()
+
+        T3, Jr = T1.compose(T2, Jr=True)
+        Jr_true = np.linalg.inv(T2.Adj)
+
+        np.testing.assert_allclose(Jr_true, Jr)
+
+    def test_left_jacobian_of_composition(self):
+        for i in range(100):
+            T1 = SE2.random()
+            T2 = SE2.random()
+
+            T3, Jr = T1.compose(T2, Jr=True)
+            _, Jl = T1.compose(T2, Jl=True)
+
+            Jl_true = T3.Adj @ Jr @ T1.inv().Adj
+
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+
 
 if __name__=="__main__":
     unittest.main()

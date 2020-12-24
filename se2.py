@@ -61,6 +61,14 @@ class SE2:
         assert isinstance(T, SE2)
         return SE2.Log(self * T.inv())
 
+    def compose(self, T, Jr=False, Jl=False):
+        res = self * T
+        if Jr:
+            return res, T.inv().Adj
+        if Jl:
+            return res, np.eye(3)
+        return res
+
     @property
     def Adj(self):
         J = np.array([[0, -1], [1, 0]])
