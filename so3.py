@@ -10,6 +10,9 @@ G = np.array([[[0, 0, 0],
                 [1, 0, 0],
                 [0, 0, 0]]])
 
+def skew(qv):
+    return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
+
 class SO3:
     def __init__(self, R):
         assert (R.shape == (3,3))
@@ -170,7 +173,7 @@ class SO3:
         return cls.vee(logR)
 
     @classmethod
-    def exp(cls, logR):
+    def exp(cls, logR, Jr=False, Jl=False):
         assert logR.shape == (3,3)
 
         w = cls.vee(logR)
@@ -180,11 +183,30 @@ class SO3:
         else: # Do taylor series expansion for small thetas
             R = np.eye(3)
 
+        if Jr: # Possibly add taylor series logic
+            wx = skew(w)
+            a = (1 - np.cos(theta)) / theta**2
+            b = (theta - np.sin(theta)) / theta**3
+            J = np.eye(3) - a * wx + b * (wx @ wx)
+            return cls(R), J
+        if Jl:
+            wx = skew(w)
+            a = (1 - np.cos(theta)) / theta**2
+            b = (theta - np.sin(theta)) / theta**3
+            J = np.eye(3) + a * wx + b * (wx @ wx)
+            return cls(R), J
+
         return cls(R)
 
     @classmethod
-    def Exp(cls, w): # one call to go straight from vector to SO3 object
+    def Exp(cls, w, Jr=False, Jl=False):
         logR = cls.hat(w)
+        if Jr:
+            R, J = cls.exp(logR, Jr=True)
+            return R, J
+        if Jl:
+            R, J = cls.exp(logR, Jl=True)
+            return R, J
         R = cls.exp(logR)
         return R
 

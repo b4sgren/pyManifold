@@ -316,6 +316,17 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
+    def test_jacobians_of_exponential(self):
+        tau = np.random.uniform(-np.pi, np.pi, size=3)
+        R, Jr = SO3.Exp(tau, Jr=True)
+        _, Jl = SO3.Exp(tau, Jl=True)
+
+        Adj_R = R.Adj
+        res = Jl @ np.linalg.inv(Jr)
+
+        np.testing.assert_allclose(Adj_R, res)
+
+
 
 if __name__=="__main__":
     unittest.main()
