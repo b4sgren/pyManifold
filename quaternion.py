@@ -56,7 +56,7 @@ class Quaternion:
     def __repr__(self):
         return f'[{self.qw} + {self.qx}i + {self.qy}j + {self.qz}k]'
 
-    def otimes(self, q):
+    def otimes(self, q): # Does this do the wrong thing? R1*R2 = q2 * q1 if I'm not mistaken for quaternions
         Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See QUat for Err State KF
         return Quaternion(Q @ q.q)
 
@@ -107,6 +107,13 @@ class Quaternion:
     def boxminusl(self, q):
         assert isinstance(q, Quaternion)
         return Quaternion.Log(self * q.inv())
+
+    def compose(self, q, Jr=False, Jl=False):
+        res = self * q
+        if Jr:
+            return res, q.inv().Adj
+        if Jl:
+            return res, np.eye(3)
 
     @classmethod
     def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)

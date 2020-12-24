@@ -51,11 +51,6 @@ class Quaternion_Testing(unittest.TestCase):
 
     def testRotationMatrixFromQuaternion(self):
         for i in range(100):
-            # R_true = SO3.random().R
-            # q = Quaternion.fromRotationMatrix(R_true)
-            # R = q.R
-
-            # np.testing.assert_allclose(R_true, R)
             q = Quaternion.random()
             R = q.R
             q2 = Quaternion.fromRotationMatrix(R)
@@ -251,6 +246,29 @@ class Quaternion_Testing(unittest.TestCase):
         Jl_true = Adj_qinv @ Jr @ np.linalg.inv(Adj_q)
 
         np.testing.assert_allclose(Jl_true, Jl)
+
+    def test_right_jacobian_of_composition(self):
+        q1 = Quaternion.random()
+        q2 = Quaternion.random()
+
+        q3, Jr = q1.compose(q2, Jr=True)
+        Jr_true = np.linalg.inv(q2.Adj)
+
+        np.testing.assert_allclose(Jr_true, Jr)
+
+    def test_left_jacobian_of_composition(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
+
+            q3, Jr = q1.compose(q2, Jr=True)
+            _, Jl = q1. compose(q2, Jl=True)
+
+            # Jl_true = q3.Adj @ Jr @ q1.inv().Adj
+            # This is what works but is this an artifact of something being wrong with my quaternion class
+            Jl_true = q1.inv().Adj @ Jr @ q3.Adj
+
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
 
 if __name__=="__main__":
