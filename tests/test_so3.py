@@ -295,6 +295,27 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(-R_inv.Adj, Jl)
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobian_of_composition(self):
+        R1 = SO3.random()
+        R2 = SO3.random()
+
+        R3, Jr = R1.compose(R2, Jr=True)
+        Jr_true = np.linalg.inv(R2.Adj)
+
+        np.testing.assert_allclose(Jr_true, Jr)
+
+    def test_left_jacobian_of_composition(self):
+        for i in range(100):
+            R1 = SO3.random()
+            R2 = SO3.random()
+
+            R3, Jr = R1.compose(R2, Jr=True)
+            _, Jl = R1.compose(R2, Jl=True)
+
+            Jl_true = R3.Adj @ Jr @ np.linalg.inv(R1.Adj)
+
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+
 
 if __name__=="__main__":
     unittest.main()

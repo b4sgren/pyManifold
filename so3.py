@@ -77,6 +77,15 @@ class SO3:
     def det(self):
         return np.linalg.det(self.R)
 
+    def compose(self, R, Jr=False, Jl=False):
+        res = self * R
+        if Jr:
+            J = R.inv().Adj
+            return res, J
+        if Jl:
+            return res, np.eye(3)
+        return res
+
     @property
     def R(self):
         return self.arr

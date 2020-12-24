@@ -48,13 +48,13 @@ class SO2:
         return SO2.Log(self * R.inv())
 
     def compose(self, R, Jr=False, Jl=False):
+        # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
         res = self * R
         if Jr:
             return res, R.inv().Adj
-        if Jl:
+        elif Jl:
             return res, 1.0
-        else:
-            return res
+        return res
 
     @property
     def R(self):
