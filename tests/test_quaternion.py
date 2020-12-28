@@ -270,6 +270,34 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
+    def test_jacobians_of_exponential(self):
+        for i in range(100):
+            tau = np.random.uniform(-np.pi, np.pi, size=3)
+            q, Jr = Quaternion.Exp(tau, Jr=True)
+            _, Jl = Quaternion.Exp(tau, Jl=True)
+
+            # Not sure if the .T is an artifact of the reverse multiplication order or not. Check my implementation
+            Adj_q_true = q.Adj.T
+            Adj_q = Jl @ np.linalg.inv(Jr)
+
+            np.testing.assert_allclose(Adj_q_true, Adj_q)
+
+    def test_right_jacobian_of_logarithm(self):
+        for i in range(100):
+            q = Quaternion.random()
+            logq, Jr_inv = Quaternion.Log(q, Jr=True)
+            _, Jr = Quaternion.Exp(logq, Jr=True)
+
+            np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+
+    def test_left_jacobian_or_logarithm(self):
+        for i in range(100):
+            q = Quaternion.random()
+            logq, Jl_inv = Quaternion.Log(q, Jl=True)
+            _, Jl = Quaternion.Exp(logq, Jl=True)
+
+            np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+
 
 if __name__=="__main__":
     unittest.main()

@@ -179,7 +179,7 @@ class Quaternion:
         return W[1:]
 
     @staticmethod
-    def log(q):
+    def log(q, Jr=False, Jl=False):
         qw = q.qw
         qv = q.qv
         theta = np.linalg.norm(qv)
@@ -189,15 +189,35 @@ class Quaternion:
         else:
             temp = 1/qw - theta**2 / (3 * qw**3) + theta**4/(5 * qw**5)
             w = 2 * temp * qv
-        return np.array([0, *w])
+        logq = np.array([0, *w])
+
+        if Jr:
+            wx = skew(w)
+            phi = np.linalg.norm(w)
+            J = np.eye(3) + 0.5 * wx + (1/phi**2 - (1 + np.cos(phi))/(2 * phi * np.sin(phi))) * (wx @ wx)
+            return logq, J
+        elif Jl:
+            wx = skew(w)
+            phi = np.linalg.norm(w)
+            J = np.eye(3) - 0.5 * wx + (1/phi**2 - (1 + np.cos(phi))/(2 * phi * np.sin(phi))) * (wx @ wx)
+            return logq, J
+        else:
+            return logq
 
     @staticmethod
-    def Log(q):
-        W = Quaternion.log(q)
-        return Quaternion.vee(W)
+    def Log(q, Jr=False, Jl=False):
+        if Jr:
+            W, J = Quaternion.log(q, Jr=Jr)
+            return Quaternion.vee(W), J
+        elif Jl:
+            W, J = Quaternion.log(q, Jl=Jl)
+            return Quaternion.vee(W), J
+        else:
+            W = Quaternion.log(q)
+            return Quaternion.vee(W)
 
     @classmethod
-    def exp(cls, W):
+    def exp(cls, W, Jr=False, Jl=False):
         vec = W[1:]
         theta = np.linalg.norm(vec)
         v = vec / theta
@@ -209,11 +229,27 @@ class Quaternion:
             qw = 1 - theta**2/8 + theta**4/46080
             temp = 1/2 - theta**2/48 + theta**4/3840
             qv = vec * temp
-        return cls(np.array([qw, *qv]))
+        q = cls(np.array([qw, *qv]))
+
+        if Jr:
+            thetax = skew(vec)
+            J = np.eye(3) - (1 - np.cos(theta))/theta**2 * thetax + (theta - np.sin(theta))/theta**3 * (thetax @ thetax)
+            return q, J
+        elif Jl:
+            thetax = skew(vec)
+            J = np.eye(3) + (1 - np.cos(theta))/theta**2 * thetax + (theta - np.sin(theta))/theta**3 * (thetax @ thetax)
+            return q, J
+        else:
+            return q
 
     @staticmethod
-    def Exp(w):
+    def Exp(w, Jr=False, Jl=False):
         W = Quaternion.hat(w)
-        return Quaternion.exp(W)
+        if Jr:
+            return Quaternion.exp(W, Jr=Jr)
+        elif Jl:
+            return Quaternion.exp(W, Jl=Jl)
+        else:
+            return Quaternion.exp(W)
 
     #Jacobians

@@ -328,18 +328,20 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(Adj_R, res)
 
     def test_right_jacobian_of_logarithm(self):
-        R = SO3.random()
-        logR, Jr_inv = SO3.Log(R, Jr=True)
-        _, Jr = SO3.Exp(logR, Jr=True)
+        for i in range(100):
+            R = SO3.random()
+            logR, Jr_inv = SO3.Log(R, Jr=True)
+            _, Jr = SO3.Exp(logR, Jr=True)
 
-        np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
     def test_left_jacobian_of_logarithm(self):
-        R = SO3.random()
-        logR, Jl_inv = SO3.Log(R, Jl=True)
-        _, Jl = SO3.Exp(logR, Jl=True)
+        for i in range(100):
+            R = SO3.random()
+            logR, Jl_inv = SO3.Log(R, Jl=True)
+            _, Jl = SO3.Exp(logR, Jl=True)
 
-        np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
 
 
