@@ -154,23 +154,41 @@ class SO3:
         return SO3(np.eye(3))
 
     @staticmethod
-    def log(R): #This function isn't entirely stable but tests pass
+    def log(R, Jr=False, Jl=False): #This function isn't entirely stable but tests pass
         assert isinstance(R, SO3)
 
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
         if np.abs(theta) < 1e-8: # Do taylor series expansion
             temp = 1/2.0 * (1 + theta**2 / 6.0 + 7 * theta**4 / 360)
-            return temp * (R - R.transpose())
+            logR = temp * (R - R.transpose())
         elif np.abs(np.abs(theta) - np.pi) < 1e-3:
             temp = - np.pi/(theta - np.pi) - 1 - np.pi/6 * (theta - np.pi) - (theta - np.pi)**2/6 - 7*np.pi/360 * (theta - np.pi)**3 - 7/360.0 * (theta - np.pi)**4
-            return temp/2.0 * (R - R.transpose())
+            logR = temp/2.0 * (R - R.transpose())
         else:
-            return theta / (2.0 * np.sin(theta)) * (R - R.transpose())
+            logR = theta / (2.0 * np.sin(theta)) * (R - R.transpose())
+
+        if Jr: # TODO: Add Taylor series expansion?
+            thetax = skew(SO3.vee(logR))
+            J = np.eye(3) + 0.5 * thetax + (1/theta**2 - (1 + np.cos(theta))/(2 * theta * np.sin(theta))) * (thetax @ thetax)
+            return logR, J
+        elif Jl:
+            thetax = skew(SO3.vee(logR))
+            J = np.eye(3) - 0.5 * thetax + (1/theta**2 - (1 + np.cos(theta))/(2 * theta * np.sin(theta))) * (thetax @ thetax)
+            return logR, J
+        else:
+            return logR
 
     @classmethod
-    def Log(cls, R): #easy call to go straight to a vector
-        logR = cls.log(R)
-        return cls.vee(logR)
+    def Log(cls, R, Jr=False, Jl=False): #easy call to go straight to a vector
+        if Jr:
+            logR, J = cls.log(R, Jr=Jr)
+            return cls.vee(logR), J
+        elif Jl:
+            logR, J = cls.log(R, Jl=Jl)
+            return cls.vee(logR), J
+        else:
+            logR = cls.log(R)
+            return cls.vee(logR)
 
     @classmethod
     def exp(cls, logR, Jr=False, Jl=False):

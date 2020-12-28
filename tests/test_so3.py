@@ -317,14 +317,29 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
     def test_jacobians_of_exponential(self):
-        tau = np.random.uniform(-np.pi, np.pi, size=3)
-        R, Jr = SO3.Exp(tau, Jr=True)
-        _, Jl = SO3.Exp(tau, Jl=True)
+        for i in range(100):
+            tau = np.random.uniform(-np.pi, np.pi, size=3)
+            R, Jr = SO3.Exp(tau, Jr=True)
+            _, Jl = SO3.Exp(tau, Jl=True)
 
-        Adj_R = R.Adj
-        res = Jl @ np.linalg.inv(Jr)
+            Adj_R = R.Adj
+            res = Jl @ np.linalg.inv(Jr)
 
-        np.testing.assert_allclose(Adj_R, res)
+            np.testing.assert_allclose(Adj_R, res)
+
+    def test_right_jacobian_of_logarithm(self):
+        R = SO3.random()
+        logR, Jr_inv = SO3.Log(R, Jr=True)
+        _, Jr = SO3.Exp(logR, Jr=True)
+
+        np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+
+    def test_left_jacobian_of_logarithm(self):
+        R = SO3.random()
+        logR, Jl_inv = SO3.Log(R, Jl=True)
+        _, Jl = SO3.Exp(logR, Jl=True)
+
+        np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
 
 
