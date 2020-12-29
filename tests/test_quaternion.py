@@ -274,13 +274,14 @@ class Quaternion_Testing(unittest.TestCase):
         for i in range(100):
             tau = np.random.uniform(-np.pi, np.pi, size=3)
             q, Jr = Quaternion.Exp(tau, Jr=True)
-            _, Jl = Quaternion.Exp(tau, Jl=True)
+            _, Jl = Quaternion.Exp(-tau, Jl=True)
 
             # Not sure if the .T is an artifact of the reverse multiplication order or not. Check my implementation
-            Adj_q_true = q.Adj.T
-            Adj_q = Jl @ np.linalg.inv(Jr)
+            # Adj_q_true = q.Adj.T
+            # Adj_q = Jl @ np.linalg.inv(Jr)
+            # np.testing.assert_allclose(Adj_q_true, Adj_q)
 
-            np.testing.assert_allclose(Adj_q_true, Adj_q)
+            np.testing.assert_allclose(Jl, Jr)
 
     def test_right_jacobian_of_logarithm(self):
         for i in range(100):

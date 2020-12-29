@@ -276,6 +276,16 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
+    def test_jacobians_of_exponential(self):
+        t = np.random.uniform(-10.0, 10.0, size=2)
+        theta = np.random.uniform(-np.pi, np.pi)
+        tau = np.array([*t, theta])
+
+        T, Jr = SE2.Exp(tau, Jr=True)
+        _, Jl = SE2.Exp(-tau, Jl=True)
+
+        np.testing.assert_allclose(Jr, Jl)
+
 
 if __name__=="__main__":
     unittest.main()

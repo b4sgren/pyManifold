@@ -136,7 +136,7 @@ class SE2:
         return cls.vee(logT)
 
     @classmethod
-    def exp(cls, X): #Taylor series expansion
+    def exp(cls, X, Jr=False, Jl=False): #Taylor series expansion
         assert X.shape == (3,3)
         theta = X[1,0]
 
@@ -149,13 +149,36 @@ class SE2:
 
         V = np.array([[A, -B], [B, A]])
         t = V @ X[:2,2]
+        T = cls.fromAngleAndt(theta, t)
 
-        return cls.fromAngleAndt(theta, t)
+        if Jr:
+            p = X[:2, -1]
+            u1 = (theta * p[0] - p[1] + p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
+            u2 = (p[0] + theta * p[1] - p[0] * np.cos(theta) - p[1] * np.sin(theta))/(theta**2)
+            J = np.array([[A, B, u1],
+                          [-B, A, u2],
+                          [0, 0, 1]])
+            return T, J
+        elif Jl:
+            p = X[:2, -1]
+            u1 = (theta * p[0] + p[1] - p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
+            u2 = (-p[0] + theta * p[1] + p[0] * np.cos(theta) - p[1] * np.sin(theta))/(theta**2)
+            J = np.array([[A, -B, u1],
+                          [B, A, u2],
+                          [0, 0, 1]])
+            return T, J
+        else:
+            return T
 
     @classmethod
-    def Exp(cls, vec):
+    def Exp(cls, vec, Jr=False, Jl=False):
         logR = cls.hat(vec)
-        return cls.exp(logR)
+        if Jr:
+            return cls.exp(logR, Jr=Jr)
+        elif Jl:
+            return cls.exp(logR, Jl=Jl)
+        else:
+            return cls.exp(logR)
 
     @staticmethod
     def vee(X):
