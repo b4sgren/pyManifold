@@ -109,7 +109,7 @@ class SE2:
         return SE2(np.eye(3))
 
     @staticmethod
-    def log(T):
+    def log(T, Jr=False, Jl=False):
         assert isinstance(T, SE2)
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
         t = T.t
@@ -128,12 +128,33 @@ class SE2:
         logT[0,1] = -theta
         logT[1,0] = theta
 
-        return logT
+        if Jr:
+            p = logT[:2,2]
+            u1 = (theta * p[0] - p[1] + p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
+            u2 = (p[0] + theta * p[1] - p[0] * np.cos(theta) - p[1] * np.sin(theta))/(theta**2)
+            den = A**2 + B**2
+
+            w1 = (-B * (-B/A*u1 - u2))/den - u1/A
+            w2 = A/den * (-B/A*u1 - u2)
+            J = np.array([[A/den, -B/den, w1],
+                          [B/den, A/den, w2],
+                          [0, 0, 1]])
+            return logT, J
+        elif Jl:
+            debug = 1
+        else:
+            return logT
 
     @classmethod
-    def Log(cls, T):
-        logT = cls.log(T)
-        return cls.vee(logT)
+    def Log(cls, T, Jr=False, Jl=False):
+        if Jr:
+            logT, J = cls.log(T, Jr=Jr)
+            return cls.vee(logT), J
+        elif Jl:
+            logT, J = cls.log(T, Jl=Jl)
+            return cls.vee(logT), J
+        else:
+            return cls.vee(cls.log(T))
 
     @classmethod
     def exp(cls, X, Jr=False, Jl=False): #Taylor series expansion
