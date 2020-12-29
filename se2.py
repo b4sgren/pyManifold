@@ -141,7 +141,16 @@ class SE2:
                           [0, 0, 1]])
             return logT, J
         elif Jl:
-            debug = 1
+            p = logT[:2,2]
+            u1 = (theta * p[0] + p[1] - p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
+            u2 = (-p[0] + theta * p[1] + p[0] * np.cos(theta) - p[1] * np.sin(theta))/(theta**2)
+            den = A**2 + B**2
+            w1 = B/den*(B/A*u1 -u2) - u1/A
+            w2 = (B*u1 - A*u2)/den
+            J = np.array([[A/den, B/den, w1],
+                          [-B/den, A/den, w2],
+                          [0, 0, 1]])
+            return logT, J
         else:
             return logT
 

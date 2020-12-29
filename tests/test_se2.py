@@ -293,6 +293,13 @@ class SE2_Test(unittest.TestCase):
 
         np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
+    def test_left_jacobian_or_logarithm(self):
+        T = SE2.random()
+        tau, Jl_inv = SE2.Log(T, Jl=True)
+        _, Jl = SE2.Exp(tau, Jl=True)
+
+        np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+
 
 if __name__=="__main__":
     unittest.main()
