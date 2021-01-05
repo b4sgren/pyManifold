@@ -145,26 +145,52 @@ class SE3:
         return SE3(q, np.zeros(3))
 
     @staticmethod
-    def log(T):
-        logq = Quaternion.log(T.q)
+    def log(T, Jr=False, Jl=False):
+        if Jr:
+            logq, Jq_inv = Quaternion.log(T.q, Jr=Jr)
+        elif Jl:
+            logq, Jq_inv = Quaternion.log(T.q, Jl=Jl)
+        else:
+            logq = Quaternion.log(T.q)
+
         w = logq[1:]
         theta = np.linalg.norm(w)
 
+        wx = skew(w)
         if theta > 1e-3:
-            wx = skew(w)
             A = np.sin(theta) / theta
             B = (1.0 - np.cos(theta)) / (theta**2)
             V_inv = np.eye(3) - 0.5 * wx + 1/(theta**2) * (1 - A/(2*B)) * (wx @ wx)
             logt = V_inv @ T.t
         else:
             logt = T.t
+        logT = np.array([*logt, *logq])
 
-        return np.array([*logt, *logq])
+        vx = skew(logt)
+        if Jr:
+            wx = -wx
+            vx = -vx
+        if Jl or Jr:
+            ct, st = np.cos(theta), np.sin(theta)
+            wx2 = wx @ wx
+            Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
+            J = np.block([[Jq_inv, -Jq_inv @ Q @ Jq_inv],
+                          [np.zeros((3,3)), Jq_inv]])
+            return logT, J
+        else:
+            return logT
 
     @staticmethod
-    def Log(T):
-        logT = SE3.log(T)
-        return SE3.vee(logT)
+    def Log(T, Jr=False, Jl=False):
+        if Jr:
+            logT, J = SE3.log(T, Jr=Jr)
+            return SE3.vee(logT), J
+        elif Jl:
+            logT, J = SE3.log(T, Jl=Jl)
+            return SE3.vee(logT), J
+        else:
+            logT = SE3.log(T)
+            return SE3.vee(logT)
 
     @classmethod
     def exp(cls, logT, Jr=False, Jl=False):
@@ -187,15 +213,10 @@ class SE3:
             t = v
 
         vx = skew(v)
-        if Jr: # Consider taylor series expansion
+        if Jr:
             vx = -vx
             wx = -wx
-            ct, st = np.cos(theta), np.sin(theta)
-            wx2 = wx @ wx
-            Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
-            J = np.block([[Jq, Q], [np.zeros((3,3)), Jq]])
-            return cls(q,t), J
-        elif Jl:
+        if Jl or Jr: # Consider doing a taylor series on Q (should simplify quite a bit)
             ct, st = np.cos(theta), np.sin(theta)
             wx2 = wx @ wx
             Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
