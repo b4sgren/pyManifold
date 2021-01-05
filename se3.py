@@ -167,12 +167,17 @@ class SE3:
         return SE3.vee(logT)
 
     @classmethod
-    def exp(cls, logT):
+    def exp(cls, logT, Jr=False, Jl=False):
         v = logT[:3]
         w = logT[4:]
         theta = np.linalg.norm(w)
 
-        q = Quaternion.Exp(w)
+        if Jr:
+            q, Jq = Quaternion.Exp(w, Jr=Jr)
+        elif Jl:
+            q, Jq = Quaternion.Exp(w, Jl=Jl)
+        else:
+            q = Quaternion.Exp(w)
 
         wx = skew(w)
         if theta > 1e-8:
@@ -180,12 +185,34 @@ class SE3:
             t = V @ v
         else:
             t = v
-        return cls(q,t)
+
+        vx = skew(v)
+        if Jr: # Consider taylor series expansion
+            vx = -vx
+            wx = -wx
+            ct, st = np.cos(theta), np.sin(theta)
+            wx2 = wx @ wx
+            Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
+            J = np.block([[Jq, Q], [np.zeros((3,3)), Jq]])
+            return cls(q,t), J
+        elif Jl:
+            ct, st = np.cos(theta), np.sin(theta)
+            wx2 = wx @ wx
+            Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
+            J = np.block([[Jq, Q], [np.zeros((3,3)), Jq]])
+            return cls(q,t), J
+        else:
+            return cls(q,t)
 
     @staticmethod
-    def Exp(vec):
+    def Exp(vec, Jr=False, Jl=False):
         logT = SE3.hat(vec)
-        return SE3.exp(logT)
+        if Jr:
+            return SE3.exp(logT, Jr=Jr)
+        elif Jl:
+            return SE3.exp(logT, Jl=Jl)
+        else:
+            return SE3.exp(logT)
 
     @staticmethod
     def hat(vec):
