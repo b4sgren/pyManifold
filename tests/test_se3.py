@@ -333,5 +333,13 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
+    def test_right_jacobian_of_logarithm(self):
+        for i in range(100):
+            T = SE3.random()
+            logT, Jr_inv = SE3.Log(T, Jr=True)
+            _, Jr = SE3.Exp(logT, Jr=True)
+
+            np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+
 if __name__=="__main__":
     unittest.main()
