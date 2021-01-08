@@ -25,9 +25,16 @@ class SO2:
         else:
             return SO2(self.arr.T)
 
-    def rota(self, v):
+    def rota(self, v, Jr=False, Jl=False):
         assert v.size == 2
-        return self.arr @ v
+        if Jr:
+            J = self.R @ G @ v
+            return self.R @ v, J
+        elif Jl:
+            J = G @ self.R @ v
+            return self.R @ v, J
+        else:
+            return self.R @ v
 
     def rotp(self, v):
         assert v.size == 2
