@@ -89,6 +89,7 @@ class SO3:
         return np.linalg.det(self.R)
 
     def compose(self, R, Jr=False, Jl=False):
+        # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
         res = self * R
         if Jr:
             J = R.inv().Adj
@@ -250,5 +251,3 @@ class SO3:
     @property
     def Adj(self):
         return self.arr
-
-    #Left and right jacobians go here. Read about them first. Seem like a lot of them to implement...

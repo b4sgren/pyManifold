@@ -71,6 +71,7 @@ class SE2:
         return SE2.Log(self * T.inv())
 
     def compose(self, T, Jr=False, Jl=False):
+        # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
         res = self * T
         if Jr:
             return res, T.inv().Adj

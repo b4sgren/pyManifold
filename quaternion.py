@@ -47,7 +47,7 @@ class Quaternion:
     def Adj(self): # This produces R(q).T (R(q) = R.T) or
         return self.R
 
-    def __mul__(self, q): #may need to define this for the reverse order
+    def __mul__(self, q):
         return self.otimes(q)
 
     def __str__(self):
@@ -57,7 +57,7 @@ class Quaternion:
         return f'[{self.qw} + {self.qx}i + {self.qy}j + {self.qz}k]'
 
     def otimes(self, q): # Does this do the wrong thing? R1*R2 = q2 * q1 if I'm not mistaken for quaternions
-        Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See QUat for Err State KF
+        Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See Quat for Err State KF
         return Quaternion(Q @ q.q)
 
     def skew(self):
@@ -117,6 +117,7 @@ class Quaternion:
         return Quaternion.Log(self * q.inv())
 
     def compose(self, q, Jr=False, Jl=False):
+        # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
         res = self * q
         if Jr:
             return res, q.inv().Adj
@@ -259,5 +260,3 @@ class Quaternion:
             return Quaternion.exp(W, Jl=Jl)
         else:
             return Quaternion.exp(W)
-
-    #Jacobians
