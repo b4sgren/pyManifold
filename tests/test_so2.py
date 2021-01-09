@@ -197,6 +197,25 @@ class SO2Test(unittest.TestCase):
 
         np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobian_of_composition_second_element(self):
+        R1 = SO2.random()
+        R2 = SO2.random()
+
+        R3, Jr2 = R1.compose(R2, Jr2=True)
+        Jr2_true = 1.0
+
+        np.testing.assert_allclose(Jr2_true, Jr2)
+
+    def test_left_jacobian_of_composition_second_element(self):
+        R1 = SO2.random()
+        R2 = SO2.random()
+
+        R3, Jl2 = R1.compose(R2, Jl2=True)
+        _, Jr2 = R1.compose(R2, Jr2=True)
+        Jl2_true = R3.Adj * Jr2 * 1.0 / R2.Adj
+
+        np.testing.assert_allclose(Jl2_true, Jl2)
+
     def test_right_jacobian_of_exponential(self):
         tau = np.random.uniform(-np.pi, np.pi)
         R, Jr = SO2.Exp(tau, Jr=True)

@@ -54,12 +54,12 @@ class SO2:
         assert isinstance(R, SO2)
         return SO2.Log(self * R.inv())
 
-    def compose(self, R, Jr=False, Jl=False):
+    def compose(self, R, Jr=False, Jl=False, Jr2=False, Jl2=False):
         # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
         res = self * R
-        if Jr:
+        if Jr or Jr2:
             return res, R.inv().Adj
-        elif Jl:
+        elif Jl or Jl2:
             return res, 1.0
         return res
 
