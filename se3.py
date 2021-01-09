@@ -109,8 +109,16 @@ class SE3:
         else:
             return SE3(q_inv, t_inv)
 
-    def transa(self, v):
-        return self.t + self.q.rota(v)
+    def transa(self, v, Jr=False, Jl=False):
+        vp = self.t + self.q.rota(v)
+        if Jr:
+            J = np.block([self.R, -self.R @ skew(v)])
+            return vp, J
+        elif Jl:
+            J = np.block([np.eye(3), -skew(self.t) - self.R @ skew(v) @ self.R.T])
+            return vp, J
+        else:
+            return vp
 
     def transp(self, v):
         T_inv = self.inv()

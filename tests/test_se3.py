@@ -341,5 +341,30 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
+    def test_right_jacobian_or_transformation(self):
+        for i in range(100):
+            T = SE3.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jr = T.transa(v, Jr=True)
+            vx = np.array([[0, -v[2], v[1]],
+                           [v[2], 0, -v[0]],
+                           [-v[1], v[0], 0]])
+            Jr_true = np.block([T.R, -T.R @ vx])
+
+            np.testing.assert_allclose(Jr_true, Jr)
+
+    def test_left_jacobian_or_transformation(self):
+        for i in range(100):
+            T = SE3.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jl = T.transa(v, Jl=True)
+            _, Jr = T.transa(v, Jr=True)
+
+            Jl_true = np.eye(3) @ Jr @ np.linalg.inv(T.Adj)
+
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+
 if __name__=="__main__":
     unittest.main()
