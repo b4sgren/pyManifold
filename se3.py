@@ -98,7 +98,7 @@ class SE3:
         t_str = str(self.t)
         return t_str + " " + q_str
 
-    def inv(self, Jr=False, Jl=False):
+    def inv(self, Jr=None, Jl=None):
         q_inv = self.q.inv()
         t_inv = -q_inv.rota(self.t)
         if Jr:
@@ -109,7 +109,7 @@ class SE3:
         else:
             return SE3(q_inv, t_inv)
 
-    def transa(self, v, Jr=False, Jl=False):
+    def transa(self, v, Jr=None, Jl=None):
         vp = self.t + self.q.rota(v)
         if Jr:
             J = np.block([self.R, -self.R @ skew(v)])
@@ -139,7 +139,7 @@ class SE3:
     def boxminusl(self, T):
         return SE3.Log(self * T.inv())
 
-    def compose(self, T, Jr=False, Jl=False, Jr2=False, Jl2=False):
+    def compose(self, T, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * T
         if Jr:
             return res, T.inv().Adj
@@ -158,7 +158,7 @@ class SE3:
         return SE3(q, np.zeros(3))
 
     @staticmethod
-    def log(T, Jr=False, Jl=False):
+    def log(T, Jr=None, Jl=None):
         if Jr:
             logq, Jq_inv = Quaternion.log(T.q, Jr=Jr)
         elif Jl:
@@ -194,7 +194,7 @@ class SE3:
             return logT
 
     @staticmethod
-    def Log(T, Jr=False, Jl=False):
+    def Log(T, Jr=None, Jl=None):
         if Jr:
             logT, J = SE3.log(T, Jr=Jr)
             return SE3.vee(logT), J
@@ -206,7 +206,7 @@ class SE3:
             return SE3.vee(logT)
 
     @classmethod
-    def exp(cls, logT, Jr=False, Jl=False):
+    def exp(cls, logT, Jr=None, Jl=None):
         v = logT[:3]
         w = logT[4:]
         theta = np.linalg.norm(w)
@@ -239,7 +239,7 @@ class SE3:
             return cls(q,t)
 
     @staticmethod
-    def Exp(vec, Jr=False, Jl=False):
+    def Exp(vec, Jr=None, Jl=None):
         logT = SE3.hat(vec)
         if Jr:
             return SE3.exp(logT, Jr=Jr)

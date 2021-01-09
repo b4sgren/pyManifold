@@ -14,7 +14,7 @@ class SE2:
         assert T.shape == (3,3)
         self.arr = T
 
-    def inv(self, Jr=False, Jl=False):
+    def inv(self, Jr=None, Jl=None):
         if Jr:
             return SE2.fromRandt(self.R.T, -self.R.T @ self.t), -self.Adj
         if Jl:
@@ -33,7 +33,7 @@ class SE2:
     def __repr(self):
         return str(self.T)
 
-    def transa(self, v, Jr=False, Jl=False):
+    def transa(self, v, Jr=None, Jl=None):
         assert v.size == 2
         v = np.array([*v, 1])
         vp = (self.T @ v)[:2]
@@ -70,7 +70,7 @@ class SE2:
         assert isinstance(T, SE2)
         return SE2.Log(self * T.inv())
 
-    def compose(self, T, Jr=False, Jl=False, Jr2=False, Jl2=False):
+    def compose(self, T, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * T
         if Jr:
             return res, T.inv().Adj
@@ -123,7 +123,7 @@ class SE2:
         return SE2(np.eye(3))
 
     @staticmethod
-    def log(T, Jr=False, Jl=False):
+    def log(T, Jr=None, Jl=None):
         assert isinstance(T, SE2)
         theta = np.arctan2(T.arr[1,0], T.arr[0,0])
         t = T.t
@@ -169,7 +169,7 @@ class SE2:
             return logT
 
     @classmethod
-    def Log(cls, T, Jr=False, Jl=False):
+    def Log(cls, T, Jr=None, Jl=None):
         if Jr:
             logT, J = cls.log(T, Jr=Jr)
             return cls.vee(logT), J
@@ -180,7 +180,7 @@ class SE2:
             return cls.vee(cls.log(T))
 
     @classmethod
-    def exp(cls, X, Jr=False, Jl=False): #Taylor series expansion
+    def exp(cls, X, Jr=None, Jl=None): #Taylor series expansion
         assert X.shape == (3,3)
         theta = X[1,0]
 
@@ -215,7 +215,7 @@ class SE2:
             return T
 
     @classmethod
-    def Exp(cls, vec, Jr=False, Jl=False):
+    def Exp(cls, vec, Jr=None, Jl=None):
         logR = cls.hat(vec)
         if Jr:
             return cls.exp(logR, Jr=Jr)

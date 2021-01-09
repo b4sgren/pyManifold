@@ -64,7 +64,7 @@ class Quaternion:
         qv = self.qv
         return skew(qv)
 
-    def inv(self, Jr=False, Jl=False):
+    def inv(self, Jr=None, Jl=None):
         if Jr:
             return Quaternion(np.array([self.qw, *(-self.qv)])), -self.Adj
         elif Jl:
@@ -72,7 +72,7 @@ class Quaternion:
             return q_inv, -q_inv.Adj
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
 
-    def rota(self, v, Jr=False, Jl=False):
+    def rota(self, v, Jr=None, Jl=None):
         qw = self.qw
         qv = self.qv
 
@@ -116,7 +116,7 @@ class Quaternion:
         assert isinstance(q, Quaternion)
         return Quaternion.Log(self * q.inv())
 
-    def compose(self, q, Jr=False, Jl=False, Jr2=False, Jl2=False):
+    def compose(self, q, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * q
         if Jr:
             return res, q.inv().Adj
@@ -193,7 +193,7 @@ class Quaternion:
         return W[1:]
 
     @staticmethod
-    def log(q, Jr=False, Jl=False):
+    def log(q, Jr=None, Jl=None):
         qw = q.qw
         qv = q.qv
         theta = np.linalg.norm(qv)
@@ -219,7 +219,7 @@ class Quaternion:
             return logq
 
     @staticmethod
-    def Log(q, Jr=False, Jl=False):
+    def Log(q, Jr=None, Jl=None):
         if Jr:
             W, J = Quaternion.log(q, Jr=Jr)
             return Quaternion.vee(W), J
@@ -231,7 +231,7 @@ class Quaternion:
             return Quaternion.vee(W)
 
     @classmethod
-    def exp(cls, W, Jr=False, Jl=False):
+    def exp(cls, W, Jr=None, Jl=None):
         vec = W[1:]
         theta = np.linalg.norm(vec)
         v = vec / theta
@@ -257,7 +257,7 @@ class Quaternion:
             return q
 
     @staticmethod
-    def Exp(w, Jr=False, Jl=False):
+    def Exp(w, Jr=None, Jl=None):
         W = Quaternion.hat(w)
         if Jr:
             return Quaternion.exp(W, Jr=Jr)

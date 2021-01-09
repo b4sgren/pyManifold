@@ -17,14 +17,14 @@ class SO2:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self, Jr=False, Jl=False):
+    def inv(self, Jr=None, Jl=None):
         if Jr or Jl:
             J = -1
             return SO2(self.arr.T), J
         else:
             return SO2(self.arr.T)
 
-    def rota(self, v, Jr=False, Jl=False):
+    def rota(self, v, Jr=None, Jl=None):
         assert v.size == 2
         if Jr:
             J = self.R @ G @ v
@@ -53,7 +53,7 @@ class SO2:
         assert isinstance(R, SO2)
         return SO2.Log(self * R.inv())
 
-    def compose(self, R, Jr=False, Jl=False, Jr2=False, Jl2=False):
+    def compose(self, R, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * R
         if Jr or Jr2:
             return res, R.inv().Adj
@@ -73,7 +73,7 @@ class SO2:
         return cls(R)
 
     @classmethod
-    def exp(cls, theta_x, Jr=False, Jl=False):
+    def exp(cls, theta_x, Jr=None, Jl=None):
         assert theta_x.shape == (2,2)
         theta = theta_x[1,0]
         if Jr:
@@ -83,7 +83,7 @@ class SO2:
         return cls.fromAngle(theta)
 
     @classmethod
-    def Exp(cls, theta, Jr=False, Jl=False):
+    def Exp(cls, theta, Jr=None, Jl=None):
         logR = cls.hat(theta)
         if Jr:
             R, J = cls.exp(logR, Jr)
@@ -98,7 +98,7 @@ class SO2:
         return SO2(np.eye(2))
 
     @staticmethod
-    def log(R, Jr=False, Jl=False):
+    def log(R, Jr=None, Jl=None):
         assert isinstance(R, SO2)
         theta = np.arctan2(R.arr[1,0], R.arr[0,0])
         if Jr:
@@ -108,7 +108,7 @@ class SO2:
         return G * theta
 
     @classmethod
-    def Log(cls, R, Jr=False, Jl=False):
+    def Log(cls, R, Jr=None, Jl=None):
         if Jr:
             logR, J = cls.log(R, Jr)
             return logR, J

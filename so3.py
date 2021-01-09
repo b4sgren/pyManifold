@@ -32,7 +32,7 @@ class SO3:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self, Jr=False, Jl=False):
+    def inv(self, Jr=None, Jl=None):
         if Jr:
             return SO3(self.arr.T), -self.Adj
         elif Jl:
@@ -44,7 +44,7 @@ class SO3:
     def transpose(self):
         return SO3(self.arr.T)
 
-    def rota(self, v, Jr=False, Jl=False):
+    def rota(self, v, Jr=None, Jl=None):
         assert v.size == 3
         vp = self.R @ v
         if Jr:
@@ -88,7 +88,7 @@ class SO3:
     def det(self):
         return np.linalg.det(self.R)
 
-    def compose(self, R, Jr=False, Jl=False, Jr2=False, Jl2=False):
+    def compose(self, R, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * R
         if Jr:
             J = R.inv().Adj
@@ -167,7 +167,7 @@ class SO3:
         return SO3(np.eye(3))
 
     @staticmethod
-    def log(R, Jr=False, Jl=False): #This function isn't entirely stable but tests pass
+    def log(R, Jr=None, Jl=None): #This function isn't entirely stable but tests pass
         assert isinstance(R, SO3)
 
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
@@ -192,7 +192,7 @@ class SO3:
             return logR
 
     @classmethod
-    def Log(cls, R, Jr=False, Jl=False): #easy call to go straight to a vector
+    def Log(cls, R, Jr=None, Jl=None): #easy call to go straight to a vector
         if Jr:
             logR, J = cls.log(R, Jr=Jr)
             return cls.vee(logR), J
@@ -204,7 +204,7 @@ class SO3:
             return cls.vee(logR)
 
     @classmethod
-    def exp(cls, logR, Jr=False, Jl=False):
+    def exp(cls, logR, Jr=None, Jl=None):
         assert logR.shape == (3,3)
 
         w = cls.vee(logR)
@@ -230,13 +230,13 @@ class SO3:
         return cls(R)
 
     @classmethod
-    def Exp(cls, w, Jr=False, Jl=False):
+    def Exp(cls, w, Jr=None, Jl=None):
         logR = cls.hat(w)
         if Jr:
-            R, J = cls.exp(logR, Jr=True)
+            R, J = cls.exp(logR, Jr=Jr)
             return R, J
         if Jl:
-            R, J = cls.exp(logR, Jl=True)
+            R, J = cls.exp(logR, Jl=Jl)
             return R, J
         R = cls.exp(logR)
         return R
