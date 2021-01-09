@@ -51,8 +51,15 @@ class SO2:
         else:
             return self.inv().rota(v)
 
-    def boxplusr(self, w):
-        return self * SO2.Exp(w)
+    # For the boxplus I'm not sure I need the jacobian wrt the first element ever. I can add it later if I need to
+    def boxplusr(self, w, Jr=None, Jl=None):
+        if Jr:
+            R2, J = SO2.Exp(w, Jr=Jr)
+            return self.compose(R2, Jr2=J)
+        elif Jl:
+            debug = 1
+        else:
+            return self * SO2.Exp(w)
 
     def boxminusr(self, R2):
         assert isinstance(R2, SO2)
@@ -67,8 +74,10 @@ class SO2:
 
     def compose(self, R, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * R
-        if Jr or Jr2:
-            return res, R.inv().Adj
+        if Jr:
+            return res, R.inv().Adj * Jr
+        elif Jr2:
+            return res, R.inv().Adj * Jr2
         elif Jl or Jl2:
             return res, 1.0
         return res
@@ -89,9 +98,9 @@ class SO2:
         assert theta_x.shape == (2,2)
         theta = theta_x[1,0]
         if Jr:
-            return cls.fromAngle(theta), 1.0
+            return cls.fromAngle(theta), 1.0 * Jr
         if Jl:
-            return cls.fromAngle(theta), 1.0
+            return cls.fromAngle(theta), 1.0 * Jl
         return cls.fromAngle(theta)
 
     @classmethod
@@ -99,11 +108,12 @@ class SO2:
         logR = cls.hat(theta)
         if Jr:
             R, J = cls.exp(logR, Jr)
-            return R, J
-        if Jl:
+            return R, J * Jr
+        elif Jl:
             R, J = cls.exp(logR, Jl)
-            return R, J
-        return cls.exp(logR)
+            return R, J * Jl
+        else:
+            return cls.exp(logR)
 
     @staticmethod
     def Identity():

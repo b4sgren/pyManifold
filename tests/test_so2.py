@@ -289,5 +289,15 @@ class SO2Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobian_of_boxplusr(self):
+        for i in range(100):
+            R = SO2.random()
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            R2, Jr = R.boxplusr(theta, Jr=1)
+            _, Jr_true = SO2.Exp(theta, Jr=1)
+
+            np.testing.assert_allclose(Jr_true, Jr)
+
 if __name__=="__main__":
     unittest.main()
