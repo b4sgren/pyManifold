@@ -2,7 +2,6 @@ import numpy as np
 
 G = np.array([[0, -1], [1, 0]])
 
-#TODO: add jacobians
 class SO2:
     def __init__(self, R):
         assert R.shape == (2,2)
@@ -129,7 +128,7 @@ class SO2:
         return theta * G
 
     @property
-    def Adj(self): # sola says this is just 1 and not the identity
+    def Adj(self):
         return 1.0
 
     @classmethod
