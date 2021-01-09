@@ -88,15 +88,19 @@ class SO3:
     def det(self):
         return np.linalg.det(self.R)
 
-    def compose(self, R, Jr=False, Jl=False):
-        # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
+    def compose(self, R, Jr=False, Jl=False, Jr2=False, Jl2=False):
         res = self * R
         if Jr:
             J = R.inv().Adj
             return res, J
-        if Jl:
+        elif Jl:
             return res, np.eye(3)
-        return res
+        elif Jr2:
+            return res, np.eye(3)
+        elif Jl2:
+            return res, self.Adj
+        else:
+            return res
 
     @property
     def R(self):

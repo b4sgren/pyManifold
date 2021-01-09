@@ -55,7 +55,6 @@ class SO2:
         return SO2.Log(self * R.inv())
 
     def compose(self, R, Jr=False, Jl=False, Jr2=False, Jl2=False):
-        # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
         res = self * R
         if Jr or Jr2:
             return res, R.inv().Adj
