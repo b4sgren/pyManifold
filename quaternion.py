@@ -116,13 +116,18 @@ class Quaternion:
         assert isinstance(q, Quaternion)
         return Quaternion.Log(self * q.inv())
 
-    def compose(self, q, Jr=False, Jl=False):
-        # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
+    def compose(self, q, Jr=False, Jl=False, Jr2=False, Jl2=False):
         res = self * q
         if Jr:
             return res, q.inv().Adj
-        if Jl:
+        elif Jl:
             return res, np.eye(3)
+        elif Jr2:
+            return res, np.eye(3)
+        elif Jl2:
+            return res, self.Adj
+        else:
+            return res
 
     @classmethod
     def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)
