@@ -33,11 +33,20 @@ class SE2:
     def __repr(self):
         return str(self.T)
 
-    def transa(self, v):
+    def transa(self, v, Jr=False, Jl=False):
         assert v.size == 2
         v = np.array([*v, 1])
-        vp = self.T @ v
-        return vp[:2]
+        vp = (self.T @ v)[:2]
+        if Jr:
+            one_x = np.array([[0, -1], [1,0]])
+            J = np.block([self.R, (self.R @ one_x @ v[:2])[:,None]])
+            return vp, J
+        elif Jl:
+            one_x = np.array([[0, -1], [1,0]])
+            J = np.block([np.eye(2), (one_x @ vp)[:,None]])
+            return vp, J
+        else:
+            return vp
 
     def transp(self, v):
         assert v.size == 2
