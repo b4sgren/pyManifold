@@ -57,7 +57,8 @@ class SO2:
             R2, J = SO2.Exp(w, Jr=Jr)
             return self.compose(R2, Jr2=J)
         elif Jl:
-            debug = 1
+            R2, J = SO2.Exp(w, Jl=Jl)
+            return self.compose(R2, Jl2=J)
         else:
             return self * SO2.Exp(w)
 
@@ -107,11 +108,11 @@ class SO2:
     def Exp(cls, theta, Jr=None, Jl=None):
         logR = cls.hat(theta)
         if Jr:
-            R, J = cls.exp(logR, Jr)
-            return R, J * Jr
+            R, J = cls.exp(logR, Jr=Jr)
+            return R, J
         elif Jl:
-            R, J = cls.exp(logR, Jl)
-            return R, J * Jl
+            R, J = cls.exp(logR, Jl=Jl)
+            return R, J
         else:
             return cls.exp(logR)
 

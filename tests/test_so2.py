@@ -299,5 +299,17 @@ class SO2Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jr_true, Jr)
 
+    def test_left_jacobian_of_boxplusr(self):
+        for i in range(100):
+            R = SO2.random()
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            R2, Jl = R.boxplusr(theta, Jl=1)
+            _, Jr = R.boxplusr(theta, Jr=1)
+
+            Jl_true = R2.Adj * Jr * 1.0 # Using adjoing formula
+
+            np.testing.assert_allclose(Jl_true, Jl)
+
 if __name__=="__main__":
     unittest.main()
