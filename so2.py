@@ -18,9 +18,12 @@ class SO2:
         return str(self.R)
 
     def inv(self, Jr=None, Jl=None):
-        if Jr or Jl:
+        if Jr:
             J = -1
-            return SO2(self.arr.T), J
+            return SO2(self.arr.T), J * Jr
+        elif Jl:
+            J = -1
+            return SO2(self.arr.T), J * Jl
         else:
             return SO2(self.arr.T)
 
@@ -28,16 +31,21 @@ class SO2:
         assert v.size == 2
         if Jr:
             J = self.R @ G @ v
-            return self.R @ v, J
+            return self.R @ v, J * Jr
         elif Jl:
             J = G @ self.R @ v
             return self.R @ v, J
         else:
             return self.R @ v
 
-    def rotp(self, v):
+    def rotp(self, v, Jr=None, Jl=None):
         assert v.size == 2
-        return self.inv().arr @ v
+        if Jr:
+            R_inv, J = self.inv(Jr=Jr)
+            vp, J = R_inv.rota(v, Jr=J)
+            return vp, J
+        else:
+            return self.inv().rota(v)
 
     def boxplusr(self, w):
         return self * SO2.Exp(w)

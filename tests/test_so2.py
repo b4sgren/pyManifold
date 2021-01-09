@@ -246,7 +246,7 @@ class SO2Test(unittest.TestCase):
 
         self.assertEqual(1/Jl, Jl_inv)
 
-    def test_right_jacobian_of_rotation(self):
+    def test_right_jacobian_of_rota(self):
         for i in range(100):
             R = SO2.random()
             v = np.random.uniform(-10, 10, size=2)
@@ -257,7 +257,7 @@ class SO2Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jr_true, Jr)
 
-    def test_left_jacobian_of_rotation(self):
+    def test_left_jacobian_of_rota(self):
         for i in range(100):
             R = SO2.random()
             v = np.random.uniform(-10, 10, size=2)
@@ -266,6 +266,17 @@ class SO2Test(unittest.TestCase):
             _, Jr = R.rota(v, Jr=True)
 
             np.testing.assert_allclose(Jr, Jl)
+
+    def test_right_jacobian_of_rotp(self):
+        for i in range(100):
+            R = SO2.random()
+            v = np.random.uniform(-10, 10, size=2)
+
+            vp, Jr = R.rotp(v, Jr=1)
+            one_x = np.array([[0, -1], [1, 0]])
+            Jr_true = -one_x @ vp
+
+            np.testing.assert_allclose(Jr_true, Jr)
 
 if __name__=="__main__":
     unittest.main()
