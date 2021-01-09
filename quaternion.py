@@ -40,12 +40,12 @@ class Quaternion:
         return self.arr
 
     @property
-    def R(self):
+    def R(self): # This produces R (same R as passed in via rotation matrix)
         return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property
-    def Adj(self):
-        return self.R.T
+    def Adj(self): # This produces R(q).T (R(q) = R.T) or
+        return self.R
 
     def __mul__(self, q): #may need to define this for the reverse order
         return self.otimes(q)
@@ -72,12 +72,20 @@ class Quaternion:
             return q_inv, -q_inv.Adj
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
 
-    def rota(self, v):
+    def rota(self, v, Jr=False, Jl=False):
         qw = self.qw
         qv = self.qv
 
         t = 2 * skew(v) @ qv
-        return v - qw * t + skew(t) @ qv
+        vp = v - qw * t + skew(t) @ qv
+        if Jr:
+            J = -self.R @ skew(v)
+            return vp, J
+        elif Jl:
+            J = -skew(vp)
+            return vp, J
+        else:
+            return vp
 
     def rotp(self, v):
         qw = self.qw

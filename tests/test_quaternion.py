@@ -168,11 +168,8 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             w = np.random.uniform(-np.pi, np.pi, size=3)
 
-            p_true = Quaternion.Exp(w) * q
-            p = q * Quaternion.Exp(q.Adj @ w)
-            # These two also work for when the adjoint is transposed
-            # p_true = q * Quaternion.Exp(w)
-            # p = Quaternion.Exp(q.Adj @ w) * q
+            p_true = q * Quaternion.Exp(w)
+            p = Quaternion.Exp(q.Adj @ w) * q
 
             np.testing.assert_allclose(p_true.q, p.q)
 
@@ -232,7 +229,7 @@ class Quaternion_Testing(unittest.TestCase):
     def test_right_jacobian_of_inversion(self):
         q = Quaternion.random()
         q_inv, Jr = q.inv(Jr=True)
-        Jr_true = -q.R.T
+        Jr_true = -q.R
 
         np.testing.assert_allclose(Jr_true, Jr)
 
@@ -264,9 +261,7 @@ class Quaternion_Testing(unittest.TestCase):
             q3, Jr = q1.compose(q2, Jr=True)
             _, Jl = q1. compose(q2, Jl=True)
 
-            # Jl_true = q3.Adj @ Jr @ q1.inv().Adj
-            # This is what works but is this an artifact of something being wrong with my quaternion class
-            Jl_true = q1.inv().Adj @ Jr @ q3.Adj
+            Jl_true = q3.Adj @ Jr @ q1.inv().Adj
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
@@ -275,11 +270,6 @@ class Quaternion_Testing(unittest.TestCase):
             tau = np.random.uniform(-np.pi, np.pi, size=3)
             q, Jr = Quaternion.Exp(tau, Jr=True)
             _, Jl = Quaternion.Exp(-tau, Jl=True)
-
-            # Not sure if the .T is an artifact of the reverse multiplication order or not. Check my implementation
-            # Adj_q_true = q.Adj.T
-            # Adj_q = Jl @ np.linalg.inv(Jr)
-            # np.testing.assert_allclose(Adj_q_true, Adj_q)
 
             np.testing.assert_allclose(Jl, Jr)
 
@@ -298,6 +288,31 @@ class Quaternion_Testing(unittest.TestCase):
             _, Jl = Quaternion.Exp(logq, Jl=True)
 
             np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+
+    def test_right_jacobian_of_rotation(self):
+        for i in range(100):
+            q = Quaternion.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jr = q.rota(v, Jr=True)
+            vx = np.array([[0, -v[2], v[1]],
+                            [v[2], 0, -v[0]],
+                            [-v[1], v[0], 0]])
+            Jr_true = - q.R @ vx
+
+            np.testing.assert_allclose(Jr_true, Jr)
+
+    def test_left_jacobian_of_rotation(self):
+        for i in range(100):
+            q = Quaternion.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jl = q.rota(v, Jl=True)
+            _, Jr = q.rota(v, Jr=True)
+
+            Jl_true = np.eye(3) @ Jr @ q.Adj.T
+
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
 
 if __name__=="__main__":
