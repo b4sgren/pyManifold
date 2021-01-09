@@ -323,5 +323,17 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
+    def test_jacobians_of_composition_second_element(self):
+        for i in range(100):
+            T1 = SE2.random()
+            T2 = SE2.random()
+
+            T3, Jr2 = T1.compose(T2, Jr2=True)
+            _, Jl2 = T1.compose(T2, Jl2=True)
+
+            Jl2_true = T3.Adj @ Jr2 @ np.linalg.inv(T2.Adj)
+
+            np.testing.assert_allclose(Jl2_true, Jl2)
+
 if __name__=="__main__":
     unittest.main()

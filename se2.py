@@ -70,14 +70,18 @@ class SE2:
         assert isinstance(T, SE2)
         return SE2.Log(self * T.inv())
 
-    def compose(self, T, Jr=False, Jl=False):
-        # This is currently the right and left jacobian for self. Need to decide how to get the jacobians for R
+    def compose(self, T, Jr=False, Jl=False, Jr2=False, Jl2=False):
         res = self * T
         if Jr:
             return res, T.inv().Adj
-        if Jl:
+        elif Jl:
             return res, np.eye(3)
-        return res
+        elif Jr2:
+            return res, np.eye(3)
+        elif Jl2:
+            return res, self.Adj
+        else:
+            return res
 
     @property
     def Adj(self):
