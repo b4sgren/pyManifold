@@ -44,9 +44,17 @@ class SO3:
     def transpose(self):
         return SO3(self.arr.T)
 
-    def rota(self, v):
+    def rota(self, v, Jr=False, Jl=False):
         assert v.size == 3
-        return self.arr @ v
+        vp = self.R @ v
+        if Jr:
+            J = -self.R @ skew(v)
+            return vp, J
+        elif Jl:
+            J = -skew(vp)
+            return vp, J
+        else:
+            return vp
 
     def rotp(self, v):
         assert v.size == 3

@@ -343,6 +343,31 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
+    def test_right_jacobian_of_rotation(self):
+        for i in range(100):
+            R = SO3.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jr = R.rota(v, Jr=True)
+            vx = np.array([[0, -v[2], v[1]],
+                           [v[2], 0, -v[0]],
+                           [-v[1], v[0], 0]])
+            Jr_true = -R.R @ vx
+
+            np.testing.assert_allclose(Jr_true, Jr)
+
+    def test_left_jacobian_of_rotation(self):
+        for i in range(100):
+            R = SO3.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jl = R.rota(v, Jl=True)
+            _, Jr = R.rota(v, Jr=True)
+
+            # Jl = f(R)_Adj * Jr * R_Adj
+            Jl_true = np.eye(3) @ Jr @ R.Adj.T
+
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
 
 if __name__=="__main__":
