@@ -34,7 +34,7 @@ class SO2:
             return self.R @ v, J * Jr
         elif Jl:
             J = G @ self.R @ v
-            return self.R @ v, J
+            return self.R @ v, J * Jl
         else:
             return self.R @ v
 
@@ -43,6 +43,10 @@ class SO2:
         if Jr:
             R_inv, J = self.inv(Jr=Jr)
             vp, J = R_inv.rota(v, Jr=J)
+            return vp, J
+        elif Jl:
+            R_inv, J = self.inv(Jl=Jl)
+            vp, J = R_inv.rota(v, Jl=J)
             return vp, J
         else:
             return self.inv().rota(v)
