@@ -65,11 +65,11 @@ class Quaternion:
         return skew(qv)
 
     def inv(self, Jr=None, Jl=None):
-        if Jr:
-            return Quaternion(np.array([self.qw, *(-self.qv)])), -self.Adj
-        elif Jl:
+        if not Jr is None:
+            return Quaternion(np.array([self.qw, *(-self.qv)])), -self.Adj @ Jr
+        elif not Jl is None:
             q_inv = Quaternion(np.array([self.qw, *(-self.qv)]))
-            return q_inv, -q_inv.Adj
+            return q_inv, -q_inv.Adj @ Jl
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
 
     def rota(self, v, Jr=None, Jl=None):
@@ -78,21 +78,22 @@ class Quaternion:
 
         t = 2 * skew(v) @ qv
         vp = v - qw * t + skew(t) @ qv
-        if Jr:
+        if not Jr is None:
             J = -self.R @ skew(v)
-            return vp, J
-        elif Jl:
+            return vp, J @ Jr
+        elif not Jl is None:
             J = -skew(vp)
-            return vp, J
+            return vp, J @ Jl
         else:
             return vp
 
-    def rotp(self, v):
-        qw = self.qw
-        qv = self.qv
-
-        t = 2 * skew(v) @ qv
-        return v + qw * t + skew(t) @ qv
+    def rotp(self, v, Jr=None, Jl=None):
+        if not Jr is None:
+            q_inv, J = self.inv(Jr=Jr)
+            vp, J = q_inv.rota(v, Jr=J)
+            return vp, J
+        else:
+            return self.inv().rota(v)
 
     def normalize(self):
         self.arr = self.q / self.norm()
@@ -118,14 +119,14 @@ class Quaternion:
 
     def compose(self, q, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * q
-        if Jr:
-            return res, q.inv().Adj
-        elif Jl:
-            return res, np.eye(3)
-        elif Jr2:
-            return res, np.eye(3)
-        elif Jl2:
-            return res, self.Adj
+        if not Jr is None:
+            return res, q.inv().Adj @ Jr
+        elif not Jl is None:
+            return res, np.eye(3) @ Jl
+        elif not Jr2 is None:
+            return res, np.eye(3) @ Jr2
+        elif not Jl2 is None:
+            return res, self.Adj @ Jl2
         else:
             return res
 
@@ -205,25 +206,25 @@ class Quaternion:
             w = 2 * temp * qv
         logq = np.array([0, *w])
 
-        if Jr:
+        if not Jr is None:
             wx = skew(w)
             phi = np.linalg.norm(w)
             J = np.eye(3) + 0.5 * wx + (1/phi**2 - (1 + np.cos(phi))/(2 * phi * np.sin(phi))) * (wx @ wx)
-            return logq, J
-        elif Jl:
+            return logq, J @ Jr
+        elif not Jl is None:
             wx = skew(w)
             phi = np.linalg.norm(w)
             J = np.eye(3) - 0.5 * wx + (1/phi**2 - (1 + np.cos(phi))/(2 * phi * np.sin(phi))) * (wx @ wx)
-            return logq, J
+            return logq, J @ Jl
         else:
             return logq
 
     @staticmethod
     def Log(q, Jr=None, Jl=None):
-        if Jr:
+        if not Jr is None:
             W, J = Quaternion.log(q, Jr=Jr)
             return Quaternion.vee(W), J
-        elif Jl:
+        elif not Jl is None:
             W, J = Quaternion.log(q, Jl=Jl)
             return Quaternion.vee(W), J
         else:
@@ -245,23 +246,23 @@ class Quaternion:
             qv = vec * temp
         q = cls(np.array([qw, *qv]))
 
-        if Jr:
+        if not Jr is None:
             thetax = skew(vec)
             J = np.eye(3) - (1 - np.cos(theta))/theta**2 * thetax + (theta - np.sin(theta))/theta**3 * (thetax @ thetax)
-            return q, J
-        elif Jl:
+            return q, J @ Jr
+        elif not Jl is None:
             thetax = skew(vec)
             J = np.eye(3) + (1 - np.cos(theta))/theta**2 * thetax + (theta - np.sin(theta))/theta**3 * (thetax @ thetax)
-            return q, J
+            return q, J @ Jl
         else:
             return q
 
     @staticmethod
     def Exp(w, Jr=None, Jl=None):
         W = Quaternion.hat(w)
-        if Jr:
+        if not Jr is None:
             return Quaternion.exp(W, Jr=Jr)
-        elif Jl:
+        elif not Jl is None:
             return Quaternion.exp(W, Jl=Jl)
         else:
             return Quaternion.exp(W)

@@ -228,15 +228,15 @@ class Quaternion_Testing(unittest.TestCase):
 
     def test_right_jacobian_of_inversion(self):
         q = Quaternion.random()
-        q_inv, Jr = q.inv(Jr=True)
+        q_inv, Jr = q.inv(Jr=np.eye(3))
         Jr_true = -q.R
 
         np.testing.assert_allclose(Jr_true, Jr)
 
     def test_left_jacobian_of_inversion(self):
         q = Quaternion.random()
-        q_inv, Jr = q.inv(Jr=True)
-        _, Jl = q.inv(Jl=True)
+        q_inv, Jr = q.inv(Jr=np.eye(3))
+        _, Jl = q.inv(Jl=np.eye(3))
 
         Adj_q = q.Adj
         Adj_qinv = q_inv.Adj
@@ -248,7 +248,7 @@ class Quaternion_Testing(unittest.TestCase):
         q1 = Quaternion.random()
         q2 = Quaternion.random()
 
-        q3, Jr = q1.compose(q2, Jr=True)
+        q3, Jr = q1.compose(q2, Jr=np.eye(3))
         Jr_true = np.linalg.inv(q2.Adj)
 
         np.testing.assert_allclose(Jr_true, Jr)
@@ -258,8 +258,8 @@ class Quaternion_Testing(unittest.TestCase):
             q1 = Quaternion.random()
             q2 = Quaternion.random()
 
-            q3, Jr = q1.compose(q2, Jr=True)
-            _, Jl = q1. compose(q2, Jl=True)
+            q3, Jr = q1.compose(q2, Jr=np.eye(3))
+            _, Jl = q1. compose(q2, Jl=np.eye(3))
 
             Jl_true = q3.Adj @ Jr @ q1.inv().Adj
 
@@ -268,24 +268,24 @@ class Quaternion_Testing(unittest.TestCase):
     def test_jacobians_of_exponential(self):
         for i in range(100):
             tau = np.random.uniform(-np.pi, np.pi, size=3)
-            q, Jr = Quaternion.Exp(tau, Jr=True)
-            _, Jl = Quaternion.Exp(-tau, Jl=True)
+            q, Jr = Quaternion.Exp(tau, Jr=np.eye(3))
+            _, Jl = Quaternion.Exp(-tau, Jl=np.eye(3))
 
             np.testing.assert_allclose(Jl, Jr)
 
     def test_right_jacobian_of_logarithm(self):
         for i in range(100):
             q = Quaternion.random()
-            logq, Jr_inv = Quaternion.Log(q, Jr=True)
-            _, Jr = Quaternion.Exp(logq, Jr=True)
+            logq, Jr_inv = Quaternion.Log(q, Jr=np.eye(3))
+            _, Jr = Quaternion.Exp(logq, Jr=np.eye(3))
 
             np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
     def test_left_jacobian_or_logarithm(self):
         for i in range(100):
             q = Quaternion.random()
-            logq, Jl_inv = Quaternion.Log(q, Jl=True)
-            _, Jl = Quaternion.Exp(logq, Jl=True)
+            logq, Jl_inv = Quaternion.Log(q, Jl=np.eye(3))
+            _, Jl = Quaternion.Exp(logq, Jl=np.eye(3))
 
             np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
@@ -294,7 +294,7 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = q.rota(v, Jr=True)
+            vp, Jr = q.rota(v, Jr=np.eye(3))
             vx = np.array([[0, -v[2], v[1]],
                             [v[2], 0, -v[0]],
                             [-v[1], v[0], 0]])
@@ -307,8 +307,8 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jl = q.rota(v, Jl=True)
-            _, Jr = q.rota(v, Jr=True)
+            vp, Jl = q.rota(v, Jl=np.eye(3))
+            _, Jr = q.rota(v, Jr=np.eye(3))
 
             Jl_true = np.eye(3) @ Jr @ q.Adj.T
 
@@ -319,12 +319,24 @@ class Quaternion_Testing(unittest.TestCase):
             q1 = Quaternion.random()
             q2 = Quaternion.random()
 
-            q3, Jr2 = q1.compose(q2, Jr2=True)
-            _, Jl2 = q1.compose(q2, Jl2=True)
+            q3, Jr2 = q1.compose(q2, Jr2=np.eye(3))
+            _, Jl2 = q1.compose(q2, Jl2=np.eye(3))
 
             Jl2_true = q3.Adj @ Jr2 @ np.linalg.inv(q2.Adj)
 
             np.testing.assert_allclose(Jl2_true, Jl2)
+
+    def test_right_jacobian_of_rotp(self):
+        for i in range(100):
+            q = Quaternion.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jr = q.rotp(v, Jr=np.eye(3))
+            Jr_true = np.array([[0, -vp[2], vp[1]],
+                                [vp[2], 0, -vp[0]],
+                                [-vp[1], vp[0], 0]])
+
+            np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
 
 if __name__=="__main__":
