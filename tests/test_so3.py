@@ -279,7 +279,7 @@ class SO3_testing(unittest.TestCase):
 
     def test_right_jacobian_of_inversion(self):
         R = SO3.random()
-        R_inv, Jr = R.inv(Jr=True)
+        R_inv, Jr = R.inv(Jr=np.eye(3))
         Adj_R = R.Adj
 
         np.testing.assert_allclose(-Adj_R, Jr)
@@ -287,8 +287,8 @@ class SO3_testing(unittest.TestCase):
     def test_left_jacobian_of_inversion(self):
         for i in range(100):
             R = SO3.random()
-            R_inv, Jl = R.inv(Jl=True)
-            _, Jr = R.inv(Jr=True)
+            R_inv, Jl = R.inv(Jl=np.eye(3))
+            _, Jr = R.inv(Jr=np.eye(3))
 
             Jl_true = R_inv.Adj @ Jr @ np.linalg.inv(R.Adj)
 
@@ -299,7 +299,7 @@ class SO3_testing(unittest.TestCase):
         R1 = SO3.random()
         R2 = SO3.random()
 
-        R3, Jr = R1.compose(R2, Jr=True)
+        R3, Jr = R1.compose(R2, Jr=np.eye(3))
         Jr_true = np.linalg.inv(R2.Adj)
 
         np.testing.assert_allclose(Jr_true, Jr)
@@ -309,8 +309,8 @@ class SO3_testing(unittest.TestCase):
             R1 = SO3.random()
             R2 = SO3.random()
 
-            R3, Jr = R1.compose(R2, Jr=True)
-            _, Jl = R1.compose(R2, Jl=True)
+            R3, Jr = R1.compose(R2, Jr=np.eye(3))
+            _, Jl = R1.compose(R2, Jl=np.eye(3))
 
             Jl_true = R3.Adj @ Jr @ np.linalg.inv(R1.Adj)
 
@@ -319,8 +319,8 @@ class SO3_testing(unittest.TestCase):
     def test_jacobians_of_exponential(self):
         for i in range(100):
             tau = np.random.uniform(-np.pi, np.pi, size=3)
-            R, Jr = SO3.Exp(tau, Jr=True)
-            _, Jl = SO3.Exp(tau, Jl=True)
+            R, Jr = SO3.Exp(tau, Jr=np.eye(3))
+            _, Jl = SO3.Exp(tau, Jl=np.eye(3))
 
             Adj_R = R.Adj
             res = Jl @ np.linalg.inv(Jr)
@@ -330,16 +330,16 @@ class SO3_testing(unittest.TestCase):
     def test_right_jacobian_of_logarithm(self):
         for i in range(100):
             R = SO3.random()
-            logR, Jr_inv = SO3.Log(R, Jr=True)
-            _, Jr = SO3.Exp(logR, Jr=True)
+            logR, Jr_inv = SO3.Log(R, Jr=np.eye(3))
+            _, Jr = SO3.Exp(logR, Jr=np.eye(3))
 
             np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
     def test_left_jacobian_of_logarithm(self):
         for i in range(100):
             R = SO3.random()
-            logR, Jl_inv = SO3.Log(R, Jl=True)
-            _, Jl = SO3.Exp(logR, Jl=True)
+            logR, Jl_inv = SO3.Log(R, Jl=np.eye(3))
+            _, Jl = SO3.Exp(logR, Jl=np.eye(3))
 
             np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
@@ -348,7 +348,7 @@ class SO3_testing(unittest.TestCase):
             R = SO3.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = R.rota(v, Jr=True)
+            vp, Jr = R.rota(v, Jr=np.eye(3))
             vx = np.array([[0, -v[2], v[1]],
                            [v[2], 0, -v[0]],
                            [-v[1], v[0], 0]])
@@ -361,8 +361,8 @@ class SO3_testing(unittest.TestCase):
             R = SO3.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jl = R.rota(v, Jl=True)
-            _, Jr = R.rota(v, Jr=True)
+            vp, Jl = R.rota(v, Jl=np.eye(3))
+            _, Jr = R.rota(v, Jr=np.eye(3))
 
             # Jl = f(R)_Adj * Jr * R_Adj
             Jl_true = np.eye(3) @ Jr @ R.Adj.T
@@ -374,12 +374,24 @@ class SO3_testing(unittest.TestCase):
             R1 = SO3.random()
             R2 = SO3.random()
 
-            R3, Jr2 = R1.compose(R2, Jr2=True)
-            _, Jl2 = R1.compose(R2, Jl2=True)
+            R3, Jr2 = R1.compose(R2, Jr2=np.eye(3))
+            _, Jl2 = R1.compose(R2, Jl2=np.eye(3))
 
             Jl2_true = R3.Adj @ Jr2 @ np.linalg.inv(R2.Adj)
 
             np.testing.assert_allclose(Jl2_true, Jl2)
+
+    def test_right_jacobian_or_rotp(self):
+        for i in range(100):
+            R = SO3.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jr = R.rotp(v, Jr=np.eye(3))
+            Jr_true = np.array([[0, -vp[2], vp[1]],
+                                [vp[2], 0, -vp[0]],
+                                [-vp[1], vp[0], 0]])
+
+            np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
 
 if __name__=="__main__":

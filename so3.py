@@ -33,11 +33,11 @@ class SO3:
         return str(self.R)
 
     def inv(self, Jr=None, Jl=None):
-        if Jr:
-            return SO3(self.arr.T), -self.Adj
-        elif Jl:
+        if not Jr is None:
+            return SO3(self.arr.T), -self.Adj @ Jr
+        elif not Jl is None:
             R_inv = SO3(self.arr.T)
-            return R_inv, -R_inv.Adj
+            return R_inv, -R_inv.Adj @ Jl
         else:
             return SO3(self.arr.T)
 
@@ -47,18 +47,25 @@ class SO3:
     def rota(self, v, Jr=None, Jl=None):
         assert v.size == 3
         vp = self.R @ v
-        if Jr:
+        if not Jr is None:
             J = -self.R @ skew(v)
-            return vp, J
-        elif Jl:
+            return vp, J @ Jr
+        elif not Jl is None:
             J = -skew(vp)
-            return vp, J
+            return vp, J @ Jl
         else:
             return vp
 
-    def rotp(self, v):
+    def rotp(self, v, Jr=None, Jl=None):
         assert v.size == 3
-        return self.arr.T @ v
+        if not Jr is None:
+            R_inv, J = self.inv(Jr=Jr)
+            vp, J = R_inv.rota(v, Jr=J)
+            return vp, J
+        elif not Jl is None:
+            debug = 1
+        else:
+            return self.inv().rota(v)
 
     def boxplusr(self, v):
         assert(v.size == 3)
@@ -90,14 +97,14 @@ class SO3:
 
     def compose(self, R, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * R
-        if Jr:
+        if not Jr is None:
             J = R.inv().Adj
             return res, J
-        elif Jl:
+        elif not Jl is None:
             return res, np.eye(3)
-        elif Jr2:
+        elif not Jr2 is None:
             return res, np.eye(3)
-        elif Jl2:
+        elif not Jl2 is None:
             return res, self.Adj
         else:
             return res
@@ -180,11 +187,11 @@ class SO3:
         else:
             logR = theta / (2.0 * np.sin(theta)) * (R - R.transpose())
 
-        if Jr: # TODO: Add Taylor series expansion?
+        if not Jr is None: # TODO: Add Taylor series expansion?
             thetax = skew(SO3.vee(logR))
             J = np.eye(3) + 0.5 * thetax + (1/theta**2 - (1 + np.cos(theta))/(2 * theta * np.sin(theta))) * (thetax @ thetax)
             return logR, J
-        elif Jl:
+        elif not Jl is None:
             thetax = skew(SO3.vee(logR))
             J = np.eye(3) - 0.5 * thetax + (1/theta**2 - (1 + np.cos(theta))/(2 * theta * np.sin(theta))) * (thetax @ thetax)
             return logR, J
@@ -193,10 +200,10 @@ class SO3:
 
     @classmethod
     def Log(cls, R, Jr=None, Jl=None): #easy call to go straight to a vector
-        if Jr:
+        if not Jr is None:
             logR, J = cls.log(R, Jr=Jr)
             return cls.vee(logR), J
-        elif Jl:
+        elif not Jl is None:
             logR, J = cls.log(R, Jl=Jl)
             return cls.vee(logR), J
         else:
@@ -214,32 +221,32 @@ class SO3:
         else: # Do taylor series expansion for small thetas
             R = np.eye(3)
 
-        if Jr: # Possibly add taylor series logic
+        if not Jr is None: # Possibly add taylor series logic
             wx = skew(w)
             a = (1 - np.cos(theta)) / theta**2
             b = (theta - np.sin(theta)) / theta**3
             J = np.eye(3) - a * wx + b * (wx @ wx)
             return cls(R), J
-        if Jl:
+        elif not Jl is None:
             wx = skew(w)
             a = (1 - np.cos(theta)) / theta**2
             b = (theta - np.sin(theta)) / theta**3
             J = np.eye(3) + a * wx + b * (wx @ wx)
             return cls(R), J
-
-        return cls(R)
+        else:
+            return cls(R)
 
     @classmethod
     def Exp(cls, w, Jr=None, Jl=None):
         logR = cls.hat(w)
-        if Jr:
+        if not Jr is None:
             R, J = cls.exp(logR, Jr=Jr)
             return R, J
-        if Jl:
+        elif not Jl is None:
             R, J = cls.exp(logR, Jl=Jl)
             return R, J
-        R = cls.exp(logR)
-        return R
+        else:
+            return cls.exp(logR)
 
     @staticmethod
     def vee(logR):
