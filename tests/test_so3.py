@@ -406,6 +406,18 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_jacobians_of_boxplusr(self):
+        for i in range(100):
+            R = SO3.random()
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+
+            R2, Jr = R.boxplusr(theta, Jr=np.eye(3))
+            _, Jl = R.boxplusr(theta, Jl=np.eye(3))
+
+            Jl_true = R2.Adj @ Jr @ np.eye(3)
+
+            np.testing.assert_allclose(Jl_true, Jl)
+
 
 if __name__=="__main__":
     unittest.main()

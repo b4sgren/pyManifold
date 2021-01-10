@@ -69,9 +69,19 @@ class SO3:
         else:
             return self.inv().rota(v)
 
-    def boxplusr(self, v):
+    # Assumes jacobian is with respect to v
+    def boxplusr(self, v, Jr=None, Jl=None):
         assert(v.size == 3)
-        return self * SO3.Exp(v)
+        if not Jr is None:
+            R, J = SO3.Exp(v, Jr=Jr)
+            res, J = self.compose(R, Jr2=J)
+            return res, J
+        elif not Jl is None:
+            R, J = SO3.Exp(v, Jl=Jl)
+            res, J = self.compose(R, Jl2=J)
+            return res, J
+        else:
+            return self * SO3.Exp(v)
 
     def boxminusr(self, R2):
         assert isinstance(R2, SO3)
@@ -101,13 +111,13 @@ class SO3:
         res = self * R
         if not Jr is None:
             J = R.inv().Adj
-            return res, J
+            return res, J @ Jr
         elif not Jl is None:
-            return res, np.eye(3)
+            return res, np.eye(3) @ Jl
         elif not Jr2 is None:
-            return res, np.eye(3)
+            return res, np.eye(3) @ Jr2
         elif not Jl2 is None:
-            return res, self.Adj
+            return res, self.Adj @ Jl2
         else:
             return res
 
@@ -228,13 +238,13 @@ class SO3:
             a = (1 - np.cos(theta)) / theta**2
             b = (theta - np.sin(theta)) / theta**3
             J = np.eye(3) - a * wx + b * (wx @ wx)
-            return cls(R), J
+            return cls(R), J @ Jr
         elif not Jl is None:
             wx = skew(w)
             a = (1 - np.cos(theta)) / theta**2
             b = (theta - np.sin(theta)) / theta**3
             J = np.eye(3) + a * wx + b * (wx @ wx)
-            return cls(R), J
+            return cls(R), J @ Jl
         else:
             return cls(R)
 
