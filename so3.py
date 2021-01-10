@@ -63,7 +63,9 @@ class SO3:
             vp, J = R_inv.rota(v, Jr=J)
             return vp, J
         elif not Jl is None:
-            debug = 1
+            R_inv, J = self.inv(Jl=Jl)
+            vp, J = R_inv.rota(v, Jl=J)
+            return vp, J
         else:
             return self.inv().rota(v)
 

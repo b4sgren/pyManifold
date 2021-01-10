@@ -393,6 +393,19 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
+    def test_left_jacobian_of_rotp(self):
+        for i in range(100):
+            R = SO3.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jl = R.rotp(v, Jl=np.eye(3))
+            vx = np.array([[0, -v[2], v[1]],
+                            [v[2], 0, -v[0]],
+                            [-v[1], v[0], 0]])
+            Jl_true = R.R.T @ vx
+
+            np.testing.assert_allclose(Jl_true, Jl)
+
 
 if __name__=="__main__":
     unittest.main()
