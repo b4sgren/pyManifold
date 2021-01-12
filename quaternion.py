@@ -105,9 +105,16 @@ class Quaternion:
     def norm(self):
         return np.linalg.norm(self.q)
 
-    def boxplusr(self, w):
+    def boxplusr(self, w, Jr=None, Jl=None):
         assert w.size == 3
-        return self * Quaternion.Exp(w)
+        if not Jr is None:
+            q, J = Quaternion.Exp(w, Jr=Jr)
+            return self.compose(q, Jr2=J)
+        elif not Jl is None:
+            q, J = Quaternion.Exp(w, Jl=Jl)
+            return self.compose(q, Jl2=J)
+        else:
+            return self * Quaternion.Exp(w)
 
     def boxminusr(self, q):
         assert isinstance(q, Quaternion)
