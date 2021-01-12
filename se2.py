@@ -60,9 +60,16 @@ class SE2:
             vp = self.inv().transa(v)
         return vp[:2]
 
-    def boxplusr(self, w):
+    def boxplusr(self, w, Jr=None, Jl=None):
         assert w.size == 3
-        return self * SE2.Exp(w)
+        if not Jr is None:
+            T2, J = SE2.Exp(w, Jr=Jr)
+            return self.compose(T2, Jr2=J)
+        elif not Jl is None:
+            T2, J = SE2.Exp(w, Jl=Jl)
+            return self.compose(T2, Jl2=J)
+        else:
+            return self * SE2.Exp(w)
 
     def boxminusr(self, T):
         assert isinstance(T, SE2)
@@ -79,13 +86,13 @@ class SE2:
     def compose(self, T, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * T
         if not Jr is None:
-            return res, T.inv().Adj
+            return res, T.inv().Adj @ Jr
         elif not Jl is None:
-            return res, np.eye(3)
+            return res, np.eye(3) @ Jl
         elif not Jr2 is None:
-            return res, np.eye(3)
+            return res, np.eye(3) @ Jr2
         elif not Jl2 is None:
-            return res, self.Adj
+            return res, self.Adj @ Jl2
         else:
             return res
 
@@ -208,7 +215,7 @@ class SE2:
             J = np.array([[A, B, u1],
                           [-B, A, u2],
                           [0, 0, 1]])
-            return T, J
+            return T, J @ Jr
         elif not Jl is None:
             p = X[:2, -1]
             u1 = (theta * p[0] + p[1] - p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
@@ -216,7 +223,7 @@ class SE2:
             J = np.array([[A, -B, u1],
                           [B, A, u2],
                           [0, 0, 1]])
-            return T, J
+            return T, J @ Jl
         else:
             return T
 

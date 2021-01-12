@@ -355,5 +355,19 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_jacobians_of_boxplusr(self):
+        for i in range(100):
+            T = SE2.random()
+            theta = np.random.uniform(-np.pi, np.pi)
+            p = np.random.uniform(-10, 10, size=2)
+            tau = np.array([*p, theta])
+
+            T2, Jr = T.boxplusr(tau, Jr=np.eye(3))
+            _, Jl = T.boxplusr(tau, Jl=np.eye(3))
+
+            Jl_true = T2.Adj @ Jr @ np.eye(3)
+
+            np.testing.assert_allclose(Jl_true, Jl)
+
 if __name__=="__main__":
     unittest.main()
