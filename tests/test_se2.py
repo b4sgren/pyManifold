@@ -335,5 +335,25 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
+    def test_right_jacobian_or_transp(self):
+        for i in range(100):
+            T = SE2.random()
+            v = np.random.uniform(-10, 10, size=2)
+
+            vp, Jr = T.transp(v, Jr=np.eye(3))
+            one_x = np.array([[0, -1], [1, 0]])
+            Jr_true = np.block([np.eye(2), (one_x @ T.R.T @ (T.t - v))[:,None]])
+
+    def test_left_jacobian_of_transp(self):
+        for i in range(100):
+            T = SE2.random()
+            v = np.random.uniform(-10, 10, size=2)
+
+            vp, Jl = T.transp(v, Jl=np.eye(3))
+            one_x = np.array([[0, -1], [1, 0]])
+            Jl_true = np.block([-T.R.T, -(T.R.T @ one_x @ v)[:,None]])
+
+            np.testing.assert_allclose(Jl_true, Jl)
+
 if __name__=="__main__":
     unittest.main()

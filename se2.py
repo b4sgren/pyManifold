@@ -16,10 +16,10 @@ class SE2:
 
     def inv(self, Jr=None, Jl=None):
         if not Jr is None:
-            return SE2.fromRandt(self.R.T, -self.R.T @ self.t), -self.Adj
+            return SE2.fromRandt(self.R.T, -self.R.T @ self.t), -self.Adj @ Jr
         if not Jl is None:
             T_inv = SE2.fromRandt(self.R.T, -self.R.T @ self.t)
-            return T_inv, -T_inv.Adj
+            return T_inv, -T_inv.Adj @ Jl
         else:
             return SE2.fromRandt(self.R.T, -self.R.T @ self.t)
 
@@ -40,18 +40,24 @@ class SE2:
         if not Jr is None:
             one_x = np.array([[0, -1], [1,0]])
             J = np.block([self.R, (self.R @ one_x @ v[:2])[:,None]])
-            return vp, J
+            return vp, J @ Jr
         elif not Jl is None:
             one_x = np.array([[0, -1], [1,0]])
             J = np.block([np.eye(2), (one_x @ vp)[:,None]])
-            return vp, J
+            return vp, J @ Jl
         else:
             return vp
 
-    def transp(self, v):
+    def transp(self, v, Jr=None, Jl=None):
         assert v.size == 2
-        v = np.array([*v, 1])
-        vp = self.inv().T @ v
+        if not Jr is None:
+            T_inv, J = self.inv(Jr=Jr)
+            return T_inv.transa(v, Jr=Jr)
+        elif not Jl is None:
+            T_inv, J = self.inv(Jl=Jl)
+            return T_inv.transa(v, Jl=J)
+        else:
+            vp = self.inv().transa(v)
         return vp[:2]
 
     def boxplusr(self, w):
