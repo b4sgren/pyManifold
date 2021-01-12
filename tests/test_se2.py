@@ -239,14 +239,14 @@ class SE2_Test(unittest.TestCase):
 
     def test_right_jacobian_of_inversion(self):
         T = SE2.random()
-        T_inv, Jr = T.inv(Jr=True)
+        T_inv, Jr = T.inv(Jr=np.eye(3))
 
         np.testing.assert_allclose(-T.Adj, Jr)
 
     def test_left_jacobian_of_inversion(self):
         T = SE2.random()
-        T_inv, Jr = T.inv(Jr=True)
-        _, Jl = T.inv(Jl=True)
+        T_inv, Jr = T.inv(Jr=np.eye(3))
+        _, Jl = T.inv(Jl=np.eye(3))
 
         Adj_T = T.Adj
         Adj_Tinv = T_inv.Adj
@@ -259,7 +259,7 @@ class SE2_Test(unittest.TestCase):
         T1 = SE2.random()
         T2 = SE2.random()
 
-        T3, Jr = T1.compose(T2, Jr=True)
+        T3, Jr = T1.compose(T2, Jr=np.eye(3))
         Jr_true = np.linalg.inv(T2.Adj)
 
         np.testing.assert_allclose(Jr_true, Jr)
@@ -269,8 +269,8 @@ class SE2_Test(unittest.TestCase):
             T1 = SE2.random()
             T2 = SE2.random()
 
-            T3, Jr = T1.compose(T2, Jr=True)
-            _, Jl = T1.compose(T2, Jl=True)
+            T3, Jr = T1.compose(T2, Jr=np.eye(3))
+            _, Jl = T1.compose(T2, Jl=np.eye(3))
 
             Jl_true = T3.Adj @ Jr @ T1.inv().Adj
 
@@ -281,22 +281,22 @@ class SE2_Test(unittest.TestCase):
         theta = np.random.uniform(-np.pi, np.pi)
         tau = np.array([*t, theta])
 
-        T, Jr = SE2.Exp(tau, Jr=True)
-        _, Jl = SE2.Exp(-tau, Jl=True)
+        T, Jr = SE2.Exp(tau, Jr=np.eye(3))
+        _, Jl = SE2.Exp(-tau, Jl=np.eye(3))
 
         np.testing.assert_allclose(Jr, Jl)
 
     def test_right_jacobian_of_logarithm(self):
         T = SE2.random()
-        tau, Jr_inv = SE2.Log(T, Jr=True)
-        _, Jr = SE2.Exp(tau, Jr=True)
+        tau, Jr_inv = SE2.Log(T, Jr=np.eye(3))
+        _, Jr = SE2.Exp(tau, Jr=np.eye(3))
 
         np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
     def test_left_jacobian_or_logarithm(self):
         T = SE2.random()
-        tau, Jl_inv = SE2.Log(T, Jl=True)
-        _, Jl = SE2.Exp(tau, Jl=True)
+        tau, Jl_inv = SE2.Log(T, Jl=np.eye(3))
+        _, Jl = SE2.Exp(tau, Jl=np.eye(3))
 
         np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
@@ -305,7 +305,7 @@ class SE2_Test(unittest.TestCase):
             T = SE2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jr = T.transa(v, Jr=True)
+            vp, Jr = T.transa(v, Jr=np.eye(3))
             vx = np.array([-v[1], v[0]])
             Jr_true = np.block([T.R, (T.R @ vx)[:,None]])
 
@@ -316,8 +316,8 @@ class SE2_Test(unittest.TestCase):
             T = SE2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jl = T.transa(v, Jl=True)
-            _, Jr = T.transa(v, Jr=True)
+            vp, Jl = T.transa(v, Jl=np.eye(3))
+            _, Jr = T.transa(v, Jr=np.eye(3))
 
             Jl_true = np.eye(2) @ Jr @ np.linalg.inv(T.Adj)
 
@@ -328,8 +328,8 @@ class SE2_Test(unittest.TestCase):
             T1 = SE2.random()
             T2 = SE2.random()
 
-            T3, Jr2 = T1.compose(T2, Jr2=True)
-            _, Jl2 = T1.compose(T2, Jl2=True)
+            T3, Jr2 = T1.compose(T2, Jr2=np.eye(3))
+            _, Jl2 = T1.compose(T2, Jl2=np.eye(3))
 
             Jl2_true = T3.Adj @ Jr2 @ np.linalg.inv(T2.Adj)
 

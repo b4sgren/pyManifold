@@ -15,9 +15,9 @@ class SE2:
         self.arr = T
 
     def inv(self, Jr=None, Jl=None):
-        if Jr:
+        if not Jr is None:
             return SE2.fromRandt(self.R.T, -self.R.T @ self.t), -self.Adj
-        if Jl:
+        if not Jl is None:
             T_inv = SE2.fromRandt(self.R.T, -self.R.T @ self.t)
             return T_inv, -T_inv.Adj
         else:
@@ -37,11 +37,11 @@ class SE2:
         assert v.size == 2
         v = np.array([*v, 1])
         vp = (self.T @ v)[:2]
-        if Jr:
+        if not Jr is None:
             one_x = np.array([[0, -1], [1,0]])
             J = np.block([self.R, (self.R @ one_x @ v[:2])[:,None]])
             return vp, J
-        elif Jl:
+        elif not Jl is None:
             one_x = np.array([[0, -1], [1,0]])
             J = np.block([np.eye(2), (one_x @ vp)[:,None]])
             return vp, J
@@ -72,13 +72,13 @@ class SE2:
 
     def compose(self, T, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * T
-        if Jr:
+        if not Jr is None:
             return res, T.inv().Adj
-        elif Jl:
+        elif not Jl is None:
             return res, np.eye(3)
-        elif Jr2:
+        elif not Jr2 is None:
             return res, np.eye(3)
-        elif Jl2:
+        elif not Jl2 is None:
             return res, self.Adj
         else:
             return res
@@ -142,7 +142,7 @@ class SE2:
         logT[0,1] = -theta
         logT[1,0] = theta
 
-        if Jr:
+        if not Jr is None:
             p = logT[:2,2]
             u1 = (theta * p[0] - p[1] + p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
             u2 = (p[0] + theta * p[1] - p[0] * np.cos(theta) - p[1] * np.sin(theta))/(theta**2)
@@ -154,7 +154,7 @@ class SE2:
                           [B/den, A/den, w2],
                           [0, 0, 1]])
             return logT, J
-        elif Jl:
+        elif not Jl is None:
             p = logT[:2,2]
             u1 = (theta * p[0] + p[1] - p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
             u2 = (-p[0] + theta * p[1] + p[0] * np.cos(theta) - p[1] * np.sin(theta))/(theta**2)
@@ -170,10 +170,10 @@ class SE2:
 
     @classmethod
     def Log(cls, T, Jr=None, Jl=None):
-        if Jr:
+        if not Jr is None:
             logT, J = cls.log(T, Jr=Jr)
             return cls.vee(logT), J
-        elif Jl:
+        elif not Jl is None:
             logT, J = cls.log(T, Jl=Jl)
             return cls.vee(logT), J
         else:
@@ -195,7 +195,7 @@ class SE2:
         t = V @ X[:2,2]
         T = cls.fromAngleAndt(theta, t)
 
-        if Jr:
+        if not Jr is None:
             p = X[:2, -1]
             u1 = (theta * p[0] - p[1] + p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
             u2 = (p[0] + theta * p[1] - p[0] * np.cos(theta) - p[1] * np.sin(theta))/(theta**2)
@@ -203,7 +203,7 @@ class SE2:
                           [-B, A, u2],
                           [0, 0, 1]])
             return T, J
-        elif Jl:
+        elif not Jl is None:
             p = X[:2, -1]
             u1 = (theta * p[0] + p[1] - p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
             u2 = (-p[0] + theta * p[1] + p[0] * np.cos(theta) - p[1] * np.sin(theta))/(theta**2)
@@ -217,9 +217,9 @@ class SE2:
     @classmethod
     def Exp(cls, vec, Jr=None, Jl=None):
         logR = cls.hat(vec)
-        if Jr:
+        if not Jr is None:
             return cls.exp(logR, Jr=Jr)
-        elif Jl:
+        elif not Jl is None:
             return cls.exp(logR, Jl=Jl)
         else:
             return cls.exp(logR)

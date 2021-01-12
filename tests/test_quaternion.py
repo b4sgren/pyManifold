@@ -326,17 +326,40 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
+    '''
+    These next two tests pass but the jacobians are the reverse of what James lists in his table. Sola makes no mentions of the jacobians being different so I'm not entirely sure what is right. I may need to check out Quaternions for the Error State Kalman filter to decide
+    '''
     def test_right_jacobian_of_rotp(self):
         for i in range(100):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
             vp, Jr = q.rotp(v, Jr=np.eye(3))
+            # vx = np.array([[0, -v[2], v[1]],
+                            # [v[2], 0, -v[0]],
+                            # [-v[1], v[0], 0]])
+            # Jr_true = q.R.T @ vx
             Jr_true = np.array([[0, -vp[2], vp[1]],
                                 [vp[2], 0, -vp[0]],
                                 [-vp[1], vp[0], 0]])
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
+
+    def test_left_jacobian_of_rotp(self):
+        for i in range(100):
+            q = Quaternion.random()
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jl = q.rotp(v, Jl=np.eye(3))
+            # Jl_true = np.array([[0, -vp[2], vp[1]],
+                                # [vp[2], 0, -vp[0]],
+                                # [-vp[1], vp[0], 0]])
+            vx = np.array([[0, -v[2], v[1]],
+                            [v[2], 0, -v[0]],
+                            [-v[1], v[0], 0]])
+            Jl_true = q.R.T @ vx
+
+            np.testing.assert_allclose(Jl_true, Jl)
 
 
 if __name__=="__main__":

@@ -44,7 +44,7 @@ class Quaternion:
         return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property
-    def Adj(self): # This produces R(q).T (R(q) = R.T) or
+    def Adj(self): # This produces R(q).T (R(q).T = R)
         return self.R
 
     def __mul__(self, q):
@@ -91,6 +91,10 @@ class Quaternion:
         if not Jr is None:
             q_inv, J = self.inv(Jr=Jr)
             vp, J = q_inv.rota(v, Jr=J)
+            return vp, J
+        elif not Jl is None:
+            q_inv, J = self.inv(Jl=Jl)
+            vp, J = q_inv.rota(v, Jl=J)
             return vp, J
         else:
             return self.inv().rota(v)
