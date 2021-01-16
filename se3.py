@@ -101,9 +101,9 @@ class SE3:
     def inv(self, Jr=None, Jl=None):
         q_inv = self.q.inv()
         t_inv = -q_inv.rota(self.t)
-        if Jr:
+        if Jr is not None:
             return SE3(q_inv, t_inv), -self.Adj
-        elif Jl:
+        elif Jl is not None:
             T_inv = SE3(q_inv, t_inv)
             return T_inv, -T_inv.Adj
         else:
@@ -111,10 +111,10 @@ class SE3:
 
     def transa(self, v, Jr=None, Jl=None):
         vp = self.t + self.q.rota(v)
-        if Jr:
+        if Jr is not None:
             J = np.block([self.R, -self.R @ skew(v)])
             return vp, J
-        elif Jl:
+        elif Jl is not None:
             J = np.block([np.eye(3), -skew(self.t) - self.R @ skew(v) @ self.R.T])
             return vp, J
         else:
@@ -141,13 +141,13 @@ class SE3:
 
     def compose(self, T, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * T
-        if Jr:
+        if Jr is not None:
             return res, T.inv().Adj
-        elif Jl:
+        elif Jl is not None:
             return res, np.eye(6)
-        elif Jr2:
+        elif Jr2 is not None:
             return res, np.eye(6)
-        elif Jl2:
+        elif Jl2 is not None:
             return res, self.Adj
         else:
             return res
@@ -159,10 +159,10 @@ class SE3:
 
     @staticmethod
     def log(T, Jr=None, Jl=None):
-        if Jr:
-            logq, Jq_inv = Quaternion.log(T.q, Jr=Jr)
-        elif Jl:
-            logq, Jq_inv = Quaternion.log(T.q, Jl=Jl)
+        if Jr is not None:
+            logq, Jq_inv = Quaternion.log(T.q, Jr=np.eye(3))
+        elif Jl is not None:
+            logq, Jq_inv = Quaternion.log(T.q, Jl=np.eye(3))
         else:
             logq = Quaternion.log(T.q)
 
@@ -180,10 +180,10 @@ class SE3:
         logT = np.array([*logt, *logq])
 
         vx = skew(logt)
-        if Jr:
+        if Jr is not None:
             wx = -wx
             vx = -vx
-        if Jl or Jr:
+        if Jl is not None or Jr is not None:
             ct, st = np.cos(theta), np.sin(theta)
             wx2 = wx @ wx
             Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
@@ -195,10 +195,10 @@ class SE3:
 
     @staticmethod
     def Log(T, Jr=None, Jl=None):
-        if Jr:
+        if Jr is not None:
             logT, J = SE3.log(T, Jr=Jr)
             return SE3.vee(logT), J
-        elif Jl:
+        elif Jl is not None:
             logT, J = SE3.log(T, Jl=Jl)
             return SE3.vee(logT), J
         else:
@@ -211,10 +211,10 @@ class SE3:
         w = logT[4:]
         theta = np.linalg.norm(w)
 
-        if Jr:
-            q, Jq = Quaternion.Exp(w, Jr=Jr)
-        elif Jl:
-            q, Jq = Quaternion.Exp(w, Jl=Jl)
+        if Jr is not None:
+            q, Jq = Quaternion.Exp(w, Jr=np.eye(3))
+        elif Jl is not None:
+            q, Jq = Quaternion.Exp(w, Jl=np.eye(3))
         else:
             q = Quaternion.Exp(w)
 
@@ -226,10 +226,10 @@ class SE3:
             t = v
 
         vx = skew(v)
-        if Jr:
+        if Jr is not None:
             vx = -vx
             wx = -wx
-        if Jl or Jr: # Consider doing a taylor series on Q (should simplify quite a bit)
+        if Jl is not None or Jr is not None: # Consider doing a taylor series on Q (should simplify quite a bit)
             ct, st = np.cos(theta), np.sin(theta)
             wx2 = wx @ wx
             Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
@@ -241,9 +241,9 @@ class SE3:
     @staticmethod
     def Exp(vec, Jr=None, Jl=None):
         logT = SE3.hat(vec)
-        if Jr:
+        if Jr is not None:
             return SE3.exp(logT, Jr=Jr)
-        elif Jl:
+        elif Jl is not None:
             return SE3.exp(logT, Jl=Jl)
         else:
             return SE3.exp(logT)
