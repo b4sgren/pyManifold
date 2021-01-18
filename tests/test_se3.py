@@ -6,7 +6,7 @@ import sys
 sys.path.append('..')
 from se3 import SE3
 from so3 import SO3
-from quaternion import Quaternion
+from quaternion import Quaternion, skew
 
 from IPython.core.debugger import Pdb
 
@@ -377,6 +377,15 @@ class SE3_Test(unittest.TestCase):
             Jl2_true = T3.Adj @ Jr2 @ np.linalg.inv(T2.Adj)
 
             np.testing.assert_allclose(Jl2_true, Jl2)
+
+    def test_right_jacobian_of_transp(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jr = T.transp(v, Jr=np.eye(6))
+            Jr_true = np.block([-np.eye(3), skew(T.R.T @ (v - T.t))])
+
+            np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
 if __name__=="__main__":
     unittest.main()

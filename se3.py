@@ -102,10 +102,10 @@ class SE3:
         q_inv = self.q.inv()
         t_inv = -q_inv.rota(self.t)
         if Jr is not None:
-            return SE3(q_inv, t_inv), -self.Adj
+            return SE3(q_inv, t_inv), -self.Adj @ Jr
         elif Jl is not None:
             T_inv = SE3(q_inv, t_inv)
-            return T_inv, -T_inv.Adj
+            return T_inv, -T_inv.Adj @ Jl
         else:
             return SE3(q_inv, t_inv)
 
@@ -113,16 +113,22 @@ class SE3:
         vp = self.t + self.q.rota(v)
         if Jr is not None:
             J = np.block([self.R, -self.R @ skew(v)])
-            return vp, J
+            return vp, J @ Jr
         elif Jl is not None:
             J = np.block([np.eye(3), -skew(self.t) - self.R @ skew(v) @ self.R.T])
-            return vp, J
+            return vp, J @ Jl
         else:
             return vp
 
-    def transp(self, v):
-        T_inv = self.inv()
-        return T_inv.transa(v)
+    def transp(self, v, Jr=None, Jl=None):
+        if Jr is not None:
+            T_inv, J = self.inv(Jr=Jr)
+            return T_inv.transa(v, Jr=J)
+        elif Jl is not None:
+            debug = 1
+        else:
+            T_inv = self.inv()
+            return T_inv.transa(v)
 
     def normalize(self):
         self.q.normalize()
