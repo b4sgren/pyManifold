@@ -387,5 +387,15 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
+    def test_left_jacobian_of_transp(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+
+            vp, Jl = T.transp(v, Jl=np.eye(6))
+            vx = skew(v)
+            Jl_true = np.block([-T.R.T, T.R.T @ vx])
+
+            np.testing.assert_allclose(Jl_true, Jl)
+
 if __name__=="__main__":
     unittest.main()

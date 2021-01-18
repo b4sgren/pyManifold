@@ -125,7 +125,8 @@ class SE3:
             T_inv, J = self.inv(Jr=Jr)
             return T_inv.transa(v, Jr=J)
         elif Jl is not None:
-            debug = 1
+            T_inv, J = self.inv(Jl=Jl)
+            return T_inv.transa(v, Jl=J)
         else:
             T_inv = self.inv()
             return T_inv.transa(v)
