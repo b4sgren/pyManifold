@@ -149,7 +149,8 @@ class SE3:
             dT, J = T.inv().compose(self, Jr2=Jr1)
             return SE3.Log(dT, Jr=J)
         elif Jl1 is not None:
-            debug = 1
+            dT, J = T.inv().compose(self, Jl2=Jl1)
+            return SE3.Log(dT, Jl=J)
         elif Jr2 is not None:
             T_inv, J = T.inv(Jr=Jr2)
             dT, J = T_inv.compose(self, Jr=J)
