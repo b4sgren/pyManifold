@@ -134,8 +134,15 @@ class SE3:
     def normalize(self):
         self.q.normalize()
 
-    def boxplusr(self, v):
-        return self * SE3.Exp(v)
+    def boxplusr(self, v, Jr=None, Jl=None):
+        if Jr is not None:
+            T, J = SE3.Exp(v, Jr=Jr)
+            return self.compose(T, Jr2=J)
+        elif Jl is not None:
+            T, J = SE3.Exp(v, Jl=Jl)
+            return self.compose(T, Jl2=J)
+        else:
+            return self * SE3.Exp(v)
 
     def boxminusr(self, T):
         return SE3.Log(T.inv() * self)
@@ -149,13 +156,13 @@ class SE3:
     def compose(self, T, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * T
         if Jr is not None:
-            return res, T.inv().Adj
+            return res, T.inv().Adj @ Jr
         elif Jl is not None:
-            return res, np.eye(6)
+            return res, np.eye(6) @ Jl
         elif Jr2 is not None:
-            return res, np.eye(6)
+            return res, np.eye(6) @ Jr2
         elif Jl2 is not None:
-            return res, self.Adj
+            return res, self.Adj @ Jl2
         else:
             return res
 
@@ -236,12 +243,13 @@ class SE3:
         if Jr is not None:
             vx = -vx
             wx = -wx
+            Jl = Jr
         if Jl is not None or Jr is not None: # Consider doing a taylor series on Q (should simplify quite a bit)
             ct, st = np.cos(theta), np.sin(theta)
             wx2 = wx @ wx
             Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
             J = np.block([[Jq, Q], [np.zeros((3,3)), Jq]])
-            return cls(q,t), J
+            return cls(q,t), J @ Jl
         else:
             return cls(q,t)
 

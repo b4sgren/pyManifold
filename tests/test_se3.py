@@ -397,5 +397,29 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobian_of_boxplusr(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*v, *theta])
+
+            T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
+            _, Jr_true = SE3.Exp(tau, Jr=np.eye(6))
+
+            np.testing.assert_allclose(Jr_true, Jr)
+
+    def test_left_jacobian_of_boxplusr(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*v, *theta])
+
+            T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
+            _, Jl = T.boxplusr(tau, Jl=np.eye(6))
+
+            Jl_true = T2.Adj @ Jr @ np.eye(6)
+
+            np.testing.assert_allclose(Jl_true, Jl)
+
 if __name__=="__main__":
     unittest.main()
