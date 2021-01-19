@@ -383,5 +383,21 @@ class SE2_Test(unittest.TestCase):
             np.testing.assert_allclose(Jr1_true, Jr1)
             np.testing.assert_allclose(-Jr2_true, Jr2)
 
+    def test_left_jacobians_of_boxminusr(self):
+        for i in range(100):
+            T1, T2 = SE2.random(), SE2.random()
+
+            tau, Jl1 = T1.boxminusr(T2, Jl1=np.eye(3))
+            _, Jr1 = T1.boxminusr(T2, Jr1=np.eye(3))
+            Jl1_true = np.eye(3) @ Jr1 @ np.linalg.inv(T1.Adj)
+
+            _, Jl2 = T1.boxminusr(T2, Jl2=np.eye(3))
+            _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(3))
+            Jl2_true = np.eye(3) @ Jr2 @ np.linalg.inv(T2.Adj)
+
+            np.testing.assert_allclose(Jl1_true, Jl1)
+            np.testing.assert_allclose(Jl2_true, Jl2)
+
+
 if __name__=="__main__":
     unittest.main()
