@@ -421,5 +421,19 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobians_of_boxminusr(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
+
+            tau, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
+            dT = T2.inv() * T1
+            _, Jr1_true = SE3.Log(dT, Jr=np.eye(6))
+
+            _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
+            _, Jr2_true = SE3.Log(dT, Jl=np.eye(6))
+
+            np.testing.assert_allclose(Jr1_true, Jr1)
+            np.testing.assert_allclose(-Jr2_true, Jr2)
+
 if __name__=="__main__":
     unittest.main()

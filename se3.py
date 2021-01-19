@@ -144,8 +144,20 @@ class SE3:
         else:
             return self * SE3.Exp(v)
 
-    def boxminusr(self, T):
-        return SE3.Log(T.inv() * self)
+    def boxminusr(self, T, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
+        if Jr1 is not None:
+            dT, J = T.inv().compose(self, Jr2=Jr1)
+            return SE3.Log(dT, Jr=J)
+        elif Jl1 is not None:
+            debug = 1
+        elif Jr2 is not None:
+            T_inv, J = T.inv(Jr=Jr2)
+            dT, J = T_inv.compose(self, Jr=J)
+            return SE3.Log(dT, Jr=J)
+        elif Jl2 is not None:
+            debug = 1
+        else:
+            return SE3.Log(T.inv() * self)
 
     def boxplusl(self, v):
         return SE3.Exp(v) * self
@@ -197,13 +209,14 @@ class SE3:
         if Jr is not None:
             wx = -wx
             vx = -vx
+            Jl = Jr
         if Jl is not None or Jr is not None:
             ct, st = np.cos(theta), np.sin(theta)
             wx2 = wx @ wx
             Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
             J = np.block([[Jq_inv, -Jq_inv @ Q @ Jq_inv],
                           [np.zeros((3,3)), Jq_inv]])
-            return logT, J
+            return logT, J @ Jl
         else:
             return logT
 
