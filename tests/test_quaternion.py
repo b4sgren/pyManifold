@@ -373,6 +373,20 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobians_of_boxminusr(self):
+        for i in range(100):
+            q1, q2 = Quaternion.random(), Quaternion.random()
+
+            theta, Jr1 = q1.boxminusr(q2, Jr1=np.eye(3))
+            dq = q2.inv() * q1
+            _, Jr1_true = Quaternion.Log(dq, Jr=np.eye(3))
+
+            _, Jr2 = q1.boxminusr(q2, Jr2=np.eye(3))
+            _, Jr2_true = Quaternion.Log(dq, Jl=np.eye(3))
+
+            np.testing.assert_allclose(Jr1_true, Jr1)
+            np.testing.assert_allclose(-Jr2_true, Jr2)
+
 
 if __name__=="__main__":
     unittest.main()
