@@ -89,13 +89,16 @@ class SO3:
             dR, J = R2.inv().compose(self, Jr2=Jr1)
             return SO3.Log(dR, Jr=J)
         elif Jl1 is not None:
-            debug = 1
+            dR, J = R2.inv().compose(self, Jl2=Jl1)
+            return SO3.Log(dR, Jl=J)
         elif Jr2 is not None:
             R2_inv, J = R2.inv(Jr=Jr2)
             dR, J = R2_inv.compose(self, Jr=J)
             return SO3.Log(dR, Jr=J)
         elif Jl2 is not None:
-            debug = 1
+            R2_inv, J = R2.inv(Jl=Jl2)
+            dR, J = R2_inv.compose(self, Jl=J)
+            return SO3.Log(dR, Jl=J)
         else:
             return SO3.Log(R2.inv() * self)
 
