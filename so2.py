@@ -62,9 +62,21 @@ class SO2:
         else:
             return self * SO2.Exp(w)
 
-    def boxminusr(self, R2):
+    def boxminusr(self, R2, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
         assert isinstance(R2, SO2)
-        return SO2.Log(R2.inv() * self)
+        if Jr1 is not None:
+            R2_inv, J = R2.inv(Jr=Jr1)
+            dR, J = R2_inv.compose(self, Jr=J)
+            return SO2.Log(dR, Jr=J)
+        elif Jl1 is not None:
+            debug = 1
+        elif Jr2 is not None:
+            dR, J = R2.inv().compose(self, Jr2=Jr2)
+            return SO2.Log(dR, Jr=J)
+        elif Jl2 is not None:
+            debug = 1
+        else:
+            return SO2.Log(R2.inv() * self)
 
     def boxplusl(self, w):
         return SO2.Exp(w) * self
@@ -79,9 +91,12 @@ class SO2:
             return res, R.inv().Adj * Jr
         elif Jr2:
             return res, R.inv().Adj * Jr2
-        elif Jl or Jl2:
-            return res, 1.0
-        return res
+        elif Jl:
+            return res, 1.0 * Jl
+        elif Jl2:
+            return res, 1.0 * Jl2
+        else:
+            return res
 
     @property
     def R(self):
@@ -125,21 +140,23 @@ class SO2:
         assert isinstance(R, SO2)
         theta = np.arctan2(R.arr[1,0], R.arr[0,0])
         if Jr:
-            return G * theta, 1.0
-        if Jl:
-            return G * theta, 1.0
-        return G * theta
+            return G * theta, 1.0 * Jr
+        elif Jl:
+            return G * theta, 1.0 * Jl
+        else:
+            return G * theta
 
     @classmethod
     def Log(cls, R, Jr=None, Jl=None):
         if Jr:
             logR, J = cls.log(R, Jr)
-            return logR, J
-        if Jl:
+            return logR, J * Jr
+        elif Jl:
             logR, J = cls.log(R,Jl)
-            return logR, J
-        logR = cls.log(R)
-        return cls.vee(logR)
+            return logR, J * Jl
+        else:
+            logR = cls.log(R)
+            return cls.vee(logR)
 
     @staticmethod
     def vee(theta_x):

@@ -311,5 +311,19 @@ class SO2Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobians_or_boxminusr(self):
+        for i in range(100):
+            R1 = SO2.random()
+            R2 = SO2.random()
+
+            theta, Jr1 = R1.boxminusr(R2, Jr1=1)
+            _, Jr2 = R1.boxminusr(R2, Jr2=1)
+            dR = R2.inv() * R1
+            _, Jr1_true = SO2.Log(dR, Jr=1)
+            _, Jr2_true = SO2.Log(dR, Jl=1)
+
+            np.testing.assert_allclose(Jr1_true, Jr1)
+            np.testing.assert_allclose(Jr2_true, Jr2)
+
 if __name__=="__main__":
     unittest.main()
