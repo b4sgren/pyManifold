@@ -156,7 +156,9 @@ class SE3:
             dT, J = T_inv.compose(self, Jr=J)
             return SE3.Log(dT, Jr=J)
         elif Jl2 is not None:
-            debug = 1
+            T_inv, J = T.inv(Jl=Jl2)
+            dT, J = T_inv.compose(self, Jl=J)
+            return SE3.Log(dT, Jl=J)
         else:
             return SE3.Log(T.inv() * self)
 

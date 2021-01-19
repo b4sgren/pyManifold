@@ -439,11 +439,16 @@ class SE3_Test(unittest.TestCase):
         for T1 in self.transforms:
             T2 = SE3.random()
 
-            tau, Jl1 = T1.boxminusl(T2, Jl1=np.eye(6))
-            _, Jr1 = T1.boxminus(T2, Jr1=np.eye(6))
+            tau, Jl1 = T1.boxminusr(T2, Jl1=np.eye(6))
+            _, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
             Jl1_true = np.eye(6) @ Jr1 @ np.linalg.inv(T1.Adj)
 
+            _, Jl2 = T1.boxminusr(T2, Jl2=np.eye(6))
+            _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
+            Jl2_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
+
             np.testing.assert_allclose(Jl1_true, Jl1)
+            np.testing.assert_allclose(Jl2_true, Jl2)
 
 if __name__=="__main__":
     unittest.main()
