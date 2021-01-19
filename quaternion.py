@@ -57,7 +57,7 @@ class Quaternion:
         return f'[{self.qw} + {self.qx}i + {self.qy}j + {self.qz}k]'
 
     def otimes(self, q): # Does this do the wrong thing? R1*R2 = q2 * q1 if I'm not mistaken for quaternions
-        Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See Quat for Err State KF
+        Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See Quat for Err State KF. See if this actually is a typo
         return Quaternion(Q @ q.q)
 
     def skew(self):

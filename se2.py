@@ -71,9 +71,21 @@ class SE2:
         else:
             return self * SE2.Exp(w)
 
-    def boxminusr(self, T):
+    def boxminusr(self, T, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
         assert isinstance(T, SE2)
-        return SE2.Log(T.inv() * self)
+        if Jr1 is not None:
+            dT, J = T.inv().compose(self, Jr2=Jr1)
+            return SE2.Log(dT, Jr=J)
+        elif Jl1 is not None:
+            debug = 1
+        elif Jr2 is not None:
+            T_inv, J = T.inv(Jr=Jr2)
+            dT, J = T_inv.compose(self, Jr=J)
+            return SE2.Log(dT, Jr=J)
+        elif Jl2 is not None:
+            debug = 1
+        else:
+            return SE2.Log(T.inv() * self)
 
     def boxplusl(self, w):
         assert w.size == 3
@@ -166,7 +178,7 @@ class SE2:
             J = np.array([[A/den, -B/den, w1],
                           [B/den, A/den, w2],
                           [0, 0, 1]])
-            return logT, J
+            return logT, J @ Jr
         elif not Jl is None:
             p = logT[:2,2]
             u1 = (theta * p[0] + p[1] - p[1] * np.cos(theta) - p[0] * np.sin(theta))/(theta**2)
@@ -177,7 +189,7 @@ class SE2:
             J = np.array([[A/den, B/den, w1],
                           [-B/den, A/den, w2],
                           [0, 0, 1]])
-            return logT, J
+            return logT, J @ Jl
         else:
             return logT
 
