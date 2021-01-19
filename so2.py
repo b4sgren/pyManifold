@@ -69,12 +69,15 @@ class SO2:
             dR, J = R2_inv.compose(self, Jr=J)
             return SO2.Log(dR, Jr=J)
         elif Jl1 is not None:
-            debug = 1
+            R2_inv, J = R2.inv(Jl=Jl1)
+            dR, J = R2_inv.compose(self, Jl=J)
+            return SO2.Log(dR, Jl=J)
         elif Jr2 is not None:
             dR, J = R2.inv().compose(self, Jr2=Jr2)
             return SO2.Log(dR, Jr=J)
         elif Jl2 is not None:
-            debug = 1
+            dR, J = R2.inv().compose(self, Jl2=Jl2)
+            return SO2.Log(dR, Jl=J)
         else:
             return SO2.Log(R2.inv() * self)
 
