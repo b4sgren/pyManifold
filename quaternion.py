@@ -122,13 +122,16 @@ class Quaternion:
             dq, J = q.inv().compose(self, Jr2=Jr1)
             return Quaternion.Log(dq, Jr=J)
         elif Jl1 is not None:
-            debug = 1
+            dq, J = q.inv().compose(self, Jl2=Jl1)
+            return Quaternion.Log(dq, Jl=J)
         elif Jr2 is not None:
             q_inv, J = q.inv(Jr=Jr2)
             dq, J = q_inv.compose(self, Jr=J)
             return Quaternion.Log(dq, Jr=J)
         elif Jl2 is not None:
-            debug = 1
+            q_inv, J = q.inv(Jl=Jl2)
+            dq, J = q_inv.compose(self, Jl=J)
+            return Quaternion.Log(dq, Jl=J)
         else:
             return Quaternion.Log(q.inv() * self)
 
