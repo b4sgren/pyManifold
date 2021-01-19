@@ -83,9 +83,21 @@ class SO3:
         else:
             return self * SO3.Exp(v)
 
-    def boxminusr(self, R2):
+    def boxminusr(self, R2, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
         assert isinstance(R2, SO3)
-        return SO3.Log(R2.inv() * self)
+        if Jr1 is not None:
+            dR, J = R2.inv().compose(self, Jr2=Jr1)
+            return SO3.Log(dR, Jr=J)
+        elif Jl1 is not None:
+            debug = 1
+        elif Jr2 is not None:
+            R2_inv, J = R2.inv(Jr=Jr2)
+            dR, J = R2_inv.compose(self, Jr=J)
+            return SO3.Log(dR, Jr=J)
+        elif Jl2 is not None:
+            debug = 1
+        else:
+            return SO3.Log(R2.inv() * self)
 
     def boxplusl(self, v):
         assert(v.size == 3)
@@ -202,11 +214,11 @@ class SO3:
         if not Jr is None: # TODO: Add Taylor series expansion?
             thetax = skew(SO3.vee(logR))
             J = np.eye(3) + 0.5 * thetax + (1/theta**2 - (1 + np.cos(theta))/(2 * theta * np.sin(theta))) * (thetax @ thetax)
-            return logR, J
+            return logR, J @ Jr
         elif not Jl is None:
             thetax = skew(SO3.vee(logR))
             J = np.eye(3) - 0.5 * thetax + (1/theta**2 - (1 + np.cos(theta))/(2 * theta * np.sin(theta))) * (thetax @ thetax)
-            return logR, J
+            return logR, J @ Jl
         else:
             return logR
 

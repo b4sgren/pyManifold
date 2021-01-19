@@ -65,18 +65,18 @@ class SO2:
     def boxminusr(self, R2, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
         assert isinstance(R2, SO2)
         if Jr1 is not None:
-            R2_inv, J = R2.inv(Jr=Jr1)
-            dR, J = R2_inv.compose(self, Jr=J)
+            dR, J = R2.inv().compose(self, Jr2=Jr1)
             return SO2.Log(dR, Jr=J)
         elif Jl1 is not None:
-            R2_inv, J = R2.inv(Jl=Jl1)
-            dR, J = R2_inv.compose(self, Jl=J)
+            dR, J = R2.inv().compose(self, Jl2=Jl1)
             return SO2.Log(dR, Jl=J)
         elif Jr2 is not None:
-            dR, J = R2.inv().compose(self, Jr2=Jr2)
+            R2_inv, J = R2.inv(Jr=Jr2)
+            dR, J = R2_inv.compose(self, Jr=J)
             return SO2.Log(dR, Jr=J)
         elif Jl2 is not None:
-            dR, J = R2.inv().compose(self, Jl2=Jl2)
+            R2_inv, J = R2.inv(Jl=Jl2)
+            dR, J = R2.inv().compose(self, Jl=J)
             return SO2.Log(dR, Jl=J)
         else:
             return SO2.Log(R2.inv() * self)

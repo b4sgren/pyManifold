@@ -418,6 +418,20 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_right_jacobians_of_boxminusr(self):
+        for i in range(100):
+            R1, R2 = SO3.random(), SO3.random()
+
+            theta, Jr1 = R1.boxminusr(R2, Jr1=np.eye(3))
+            dR = R2.inv() * R1
+            _, Jr1_true = SO3.Log(dR, Jr=np.eye(3))
+
+            _, Jr2 = R1.boxminusr(R2, Jr2=np.eye(3))
+            _, Jr2_true = SO3.Log(dR, Jl=np.eye(3))
+
+            np.testing.assert_allclose(Jr1_true, Jr1)
+            np.testing.assert_allclose(-Jr2_true, Jr2)
+
 
 if __name__=="__main__":
     unittest.main()
