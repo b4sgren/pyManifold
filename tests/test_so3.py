@@ -444,8 +444,8 @@ class SO3_testing(unittest.TestCase):
             _, Jr2 = R1.boxminusr(R2, Jr2=np.eye(3))
             Jl2_true = np.eye(3) @ Jr2 @ R2.Adj.T
 
-            np.testing.assert_allclose(Jl1_true, Jl1)
-            np.testing.assert_allclose(Jl2_true, Jl2)
+            np.testing.assert_allclose(Jl1_true, Jl1, rtol=1e-5)
+            np.testing.assert_allclose(Jl2_true, Jl2, rtol=1e-5)
 
     def test_jacobians_of_boxplusl(self):
         for i in range(100):
