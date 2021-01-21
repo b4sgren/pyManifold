@@ -172,8 +172,23 @@ class SE3:
         else:
             return SE3.Exp(v) * self
 
-    def boxminusl(self, T):
-        return SE3.Log(self * T.inv())
+    def boxminusl(self, T, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
+        if Jr1 is not None:
+            diff, J = self.compose(T.inv(), Jr=Jr1)
+            return SE3.Log(diff, Jr=J)
+        elif Jl1 is not None:
+            diff, J = self.compose(T.inv(), Jl=Jl1)
+            return SE3.Log(diff, Jl=J)
+        elif Jr2 is not None:
+            T_inv, J = T.inv(Jr=Jr2)
+            diff, J = self.compose(T_inv, Jr2=J)
+            return SE3.Log(diff, Jr=J)
+        elif Jl2 is not None:
+            T_inv, J = T.inv(Jl=Jl2)
+            diff, J = self.compose(T_inv, Jl2=J)
+            return SE3.Log(diff, Jl=J)
+        else:
+            return SE3.Log(self * T.inv())
 
     def compose(self, T, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * T

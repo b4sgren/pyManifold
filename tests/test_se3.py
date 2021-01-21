@@ -462,5 +462,25 @@ class SE3_Test(unittest.TestCase):
             Jl_true = T2.Adj @ Jr @ np.eye(6)
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_jacobians_of_boxminusl(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
+
+            diff, Jr = T1.boxminusl(T2, Jr1=np.eye(6))
+            diff, Jl = T1.boxminusl(T2, Jl1=np.eye(6))
+
+            Jl_true = np.eye(6) @ Jr @ np.linalg.inv(T1.Adj)
+            np.testing.assert_allclose(Jl_true, Jl)
+
+    def test_jacobians_of_boxminusl_second_element(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
+
+            diff, Jr2 = T1.boxminusl(T2, Jr2=np.eye(6))
+            diff, Jl2 = T1.boxminusl(T2, Jl2=np.eye(6))
+
+            Jl_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
+            np.testing.assert_allclose(Jl_true, Jl2)
+
 if __name__=="__main__":
     unittest.main()
