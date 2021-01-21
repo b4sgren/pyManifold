@@ -339,5 +339,37 @@ class SO2Test(unittest.TestCase):
         np.testing.assert_allclose(Jl1_truth, Jl1)
         np.testing.assert_allclose(Jl2_truth, Jl2)
 
+    def test_jacobians_of_boxplusl(self):
+        for i in range(100):
+            R = SO2.random()
+            theta = np.random.uniform(-np.pi, np.pi)
+
+            R2, Jr = R.boxplusl(theta, Jr=1)
+            _, Jl = R.boxplusl(theta, Jl=1)
+
+            Jl_true = R2.Adj * Jr * 1
+
+            np.testing.assert_allclose(Jl_true, Jl)
+
+    def test_jacobians_of_boxminusl(self):
+        for i in range(100):
+            R1, R2 = SO2.random(), SO2.random()
+
+            theta, Jr = R1.boxminusl(R2, Jr1=1)
+            _, Jl = R1.boxminusl(R2, Jl1=1)
+
+            Jl_true = 1 * Jr * R1.Adj
+            np.testing.assert_allclose(Jl_true, Jl)
+
+    def test_jacobians_of_boxminus_second_element(self):
+        for i in range(100):
+            R1, R2 = SO2.random(), SO2.random()
+
+            theta, Jr2 = R1.boxminusl(R2, Jr2=1)
+            _, Jl2 = R1.boxminusl(R2, Jl2=1)
+
+            Jl_true = 1 * Jr2 * R2.Adj
+            np.testing.assert_allclose(Jl_true, Jl2)
+
 if __name__=="__main__":
     unittest.main()

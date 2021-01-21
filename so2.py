@@ -81,12 +81,34 @@ class SO2:
         else:
             return SO2.Log(R2.inv() * self)
 
-    def boxplusl(self, w):
-        return SO2.Exp(w) * self
+    def boxplusl(self, w, Jr=None, Jl=None):
+        if Jr is not None:
+            R, J = SO2.Exp(w, Jr=Jr)
+            return R.compose(self, Jr=J)
+        elif Jl is not None:
+            R, J = SO2.Exp(w, Jl=Jl)
+            return R.compose(self, Jl=J)
+        else:
+            return SO2.Exp(w) * self
 
-    def boxminusl(self, R):
+    def boxminusl(self, R, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
         assert isinstance(R, SO2)
-        return SO2.Log(self * R.inv())
+        if Jr1 is not None:
+            temp, J = self.compose(R.inv(), Jr=Jr1)
+            return SO2.Log(temp, Jr=J)
+        elif Jl1 is not None:
+            temp, J = self.compose(R.inv(), Jl=Jl1)
+            return SO2.Log(temp, Jl=J)
+        elif Jr2 is not None:
+            R_inv, J = R.inv(Jr=Jr2)
+            temp, J = self.compose(R_inv, Jr2=J)
+            return SO2.Log(temp, Jr=J)
+        elif Jl2 is not None:
+            R_inv, J = R.inv(Jl=Jl2)
+            temp, J = self.compose(R_inv, Jl2=J)
+            return SO2.Log(temp, Jl=J)
+        else:
+            return SO2.Log(self * R.inv())
 
     def compose(self, R, Jr=None, Jl=None, Jr2=None, Jl2=None):
         res = self * R
