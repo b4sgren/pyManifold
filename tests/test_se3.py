@@ -450,5 +450,17 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(Jl1_true, Jl1)
             np.testing.assert_allclose(Jl2_true, Jl2)
 
+    def test_jacobians_of_boxplusl(self):
+        for T in self.transforms:
+            t = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*t, *theta])
+
+            T2, Jr = T.boxplusl(tau, Jr=np.eye(6))
+            T2, Jl = T.boxplusl(tau, Jl=np.eye(6))
+
+            Jl_true = T2.Adj @ Jr @ np.eye(6)
+            np.testing.assert_allclose(Jl_true, Jl)
+
 if __name__=="__main__":
     unittest.main()

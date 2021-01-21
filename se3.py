@@ -162,8 +162,15 @@ class SE3:
         else:
             return SE3.Log(T.inv() * self)
 
-    def boxplusl(self, v):
-        return SE3.Exp(v) * self
+    def boxplusl(self, v, Jr=None, Jl=None):
+        if Jr is not None:
+            T, J = SE3.Exp(v, Jr=Jr)
+            return T.compose(self, Jr=J)
+        elif Jl is not None:
+            T, J = SE3.Exp(v, Jl=Jl)
+            return T.compose(self, Jl=J)
+        else:
+            return SE3.Exp(v) * self
 
     def boxminusl(self, T):
         return SE3.Log(self * T.inv())
