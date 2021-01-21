@@ -398,6 +398,39 @@ class SE2_Test(unittest.TestCase):
             np.testing.assert_allclose(Jl1_true, Jl1)
             np.testing.assert_allclose(Jl2_true, Jl2)
 
+    def test_jacobians_for_boxplusl(self):
+        for i in range(100):
+            T1 = SE2.random()
+            t = np.random.uniform(-10, 10, size=2)
+            theta = np.random.uniform(-np.pi, np.pi)
+            tau = np.array([*t, theta])
+
+            T2, Jr = T1.boxplusl(tau, Jr=np.eye(3))
+            _, Jl = T1.boxplusl(tau, Jl=np.eye(3))
+
+            Jl_true = T2.Adj @ Jr @ np.eye(3)
+            np.testing.assert_allclose(Jl_true, Jl)
+
+    def test_jacobians_of_boxminusl(self):
+        for i in range(100):
+            T1, T2 = SE2.random(), SE2.random()
+
+            tau, Jr = T1.boxminusl(T2, Jr1=np.eye(3))
+            _, Jl = T1.boxminusl(T2, Jl1=np.eye(3))
+
+            Jl_true = np.eye(3) @ Jr @ np.linalg.inv(T1.Adj)
+            np.testing.assert_allclose(Jl_true, Jl)
+
+    def test_jacobians_of_boxminusl_second_element(self):
+        for i in range(100):
+            T1, T2 = SE2.random(), SE2.random()
+
+            tau, Jr2 = T1.boxminusl(T2, Jr2=np.eye(3))
+            _, Jl2 = T1.boxminusl(T2, Jl2=np.eye(3))
+
+            Jl_true = np.eye(3) @ Jr2 @ np.linalg.inv(T2.Adj)
+            np.testing.assert_allclose(Jl_true, Jl2)
+
 
 if __name__=="__main__":
     unittest.main()
