@@ -135,9 +135,16 @@ class Quaternion:
         else:
             return Quaternion.Log(q.inv() * self)
 
-    def boxplusl(self, w):
+    def boxplusl(self, w, Jr=None, Jl=None):
         assert w.size == 3
-        return Quaternion.Exp(w) * self
+        if Jr is not None:
+            q, J = Quaternion.Exp(w, Jr=Jr)
+            return q.compose(self, Jr=J)
+        elif Jl is not None:
+            q, J = Quaternion.Exp(w, Jl=Jl)
+            return q.compose(self, Jl=J)
+        else:
+            return Quaternion.Exp(w) * self
 
     def boxminusl(self, q):
         assert isinstance(q, Quaternion)

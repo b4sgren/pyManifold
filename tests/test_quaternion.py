@@ -402,6 +402,17 @@ class Quaternion_Testing(unittest.TestCase):
             np.testing.assert_allclose(Jl1_true, Jl1)
             np.testing.assert_allclose(Jl2_true, Jl2)
 
+    def test_jacobians_of_boxplusl(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+
+            q2, Jr = q1.boxplusl(theta, Jr=np.eye(3))
+            _, Jl = q1.boxplusl(theta, Jl=np.eye(3))
+
+            Jl_true = q2.Adj @ Jr @ np.eye(3)
+            np.testing.assert_allclose(Jl_true, Jl)
+
 
 if __name__=="__main__":
     unittest.main()
