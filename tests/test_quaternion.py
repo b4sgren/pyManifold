@@ -413,6 +413,26 @@ class Quaternion_Testing(unittest.TestCase):
             Jl_true = q2.Adj @ Jr @ np.eye(3)
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_jacobians_of_boxminusl(self):
+        for i in range(100):
+            q1, q2 = Quaternion.random(), Quaternion.random()
+
+            theta, Jr = q1.boxminusl(q2, Jr1=np.eye(3))
+            _, Jl = q1.boxminusl(q2, Jl1=np.eye(3))
+
+            Jl_true = np.eye(3) @ Jr @ q1.Adj.T
+            np.testing.assert_allclose(Jl_true, Jl)
+
+    def test_jacobian_of_boxminusl_second_element(self):
+        for i in range(100):
+            q1, q2 = Quaternion.random(), Quaternion.random()
+
+            theta, Jr2 = q1.boxminusl(q2, Jr2=np.eye(3))
+            _, Jl2 = q1.boxminusl(q2, Jl2=np.eye(3))
+
+            Jl_true = np.eye(3) @ Jr2 @ q2.Adj.T
+            np.testing.assert_allclose(Jl_true, Jl2)
+
 
 if __name__=="__main__":
     unittest.main()
