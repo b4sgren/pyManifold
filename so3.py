@@ -113,9 +113,24 @@ class SO3:
         else:
             return SO3.Exp(v) * self
 
-    def boxminusl(self, R2):
+    def boxminusl(self, R2, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
         assert isinstance(R2, SO3)
-        return SO3.Log(self * R2.inv())
+        if Jr1 is not None:
+            diff, J = self.compose(R2.inv(), Jr=Jr1)
+            return SO3.Log(diff, Jr=J)
+        elif Jl1 is not None:
+            diff, J = self.compose(R2.inv(), Jl=Jl1)
+            return SO3.Log(diff, Jl=J)
+        elif Jr2 is not None:
+            R_inv, J = R2.inv(Jr=Jr2)
+            diff, J = self.compose(R_inv, Jr2=J)
+            return SO3.Log(diff, Jr=J)
+        elif Jl2 is not None:
+            R_inv, J = R2.inv(Jl=Jl2)
+            diff, J = self.compose(R_inv, Jl2=J)
+            return SO3.Log(diff, Jl=J)
+        else:
+            return SO3.Log(self * R2.inv())
 
     def normalize(self):
         x = self.R[:,0]

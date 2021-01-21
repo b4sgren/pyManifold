@@ -458,6 +458,26 @@ class SO3_testing(unittest.TestCase):
             Jl_true = R2.Adj @ Jr @ np.eye(3)
             np.testing.assert_allclose(Jl_true, Jl)
 
+    def test_jacobians_of_boxminusl(self):
+        for i in range(100):
+            R1, R2 = SO3.random(), SO3.random()
+
+            theta, Jr = R1.boxminusl(R2, Jr1=np.eye(3))
+            _, Jl = R1.boxminusl(R2, Jl1=np.eye(3))
+
+            Jl_true = np.eye(3) @ Jr @ R1.Adj.T
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-8)
+
+    def test_jacobians_of_boxminusl_second_element(self):
+        for i in range(100):
+            R1, R2 = SO3.random(), SO3.random()
+
+            theta, Jr2 = R1.boxminusl(R2, Jr2=np.eye(3))
+            _, Jl2 = R1.boxminusl(R2, Jl2=np.eye(3))
+
+            Jl_true = np.eye(3) @ Jr2 @ R2.Adj.T
+            np.testing.assert_allclose(Jl_true, Jl2)
+
 
 if __name__=="__main__":
     unittest.main()
