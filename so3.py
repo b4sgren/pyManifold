@@ -102,9 +102,16 @@ class SO3:
         else:
             return SO3.Log(R2.inv() * self)
 
-    def boxplusl(self, v):
+    def boxplusl(self, v, Jr=None, Jl=None):
         assert(v.size == 3)
-        return SO3.Exp(v) * self
+        if Jr is not None:
+            R, J = SO3.Exp(v, Jr=Jr)
+            return R.compose(self, Jr=J)
+        elif Jl is not None:
+            R, J = SO3.Exp(v, Jl=Jl)
+            return R.compose(self, Jl=J)
+        else:
+            return SO3.Exp(v) * self
 
     def boxminusl(self, R2):
         assert isinstance(R2, SO3)
