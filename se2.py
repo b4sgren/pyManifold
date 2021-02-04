@@ -30,7 +30,7 @@ class SE2:
     def __str__(self):
         return str(self.T)
 
-    def __repr(self):
+    def __repr__(self):
         return str(self.T)
 
     def transa(self, v, Jr=None, Jl=None):
