@@ -3,6 +3,9 @@ import numpy as np
 def skew(qv):
     return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
 
+'''
+The way this class is written it behaves like a rotation matrix. May want to change this in the future. TO fix would require fixing stuff in R, Adj and otimes as well as the unit tests and maybe stuff in SE3
+'''
 class Quaternion:
     def __init__(self, q):
         if isinstance(q, np.ndarray):
@@ -40,7 +43,7 @@ class Quaternion:
         return self.arr
 
     @property
-    def R(self): # This produces R (same R as passed in via rotation matrix)
+    def R(self): # This produces R (same R as passed in via rotation matrix). change the middle term to -2*qw*skew(qv) to get R(q)
         return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property
