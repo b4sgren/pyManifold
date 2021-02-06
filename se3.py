@@ -81,7 +81,7 @@ class SE3:
 
     @property
     def Adj(self):
-        R = self.R
+        R = self.R.T
         tx = skew(self.t)
         return np.block([[R, tx @ R], [np.zeros((3,3)), R]])
 
