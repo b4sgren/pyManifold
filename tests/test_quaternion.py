@@ -320,10 +320,7 @@ class Quaternion_Testing(unittest.TestCase):
             v = np.random.uniform(-10, 10, size=3)
 
             vp, Jr = q.rota(v, Jr=np.eye(3))
-            vx = np.array([[0, -v[2], v[1]],
-                            [v[2], 0, -v[0]],
-                            [-v[1], v[0], 0]])
-            Jr_true = - q.R @ vx
+            Jr_true = -skew(q.R @ v) # left jacobian in James table... Need to study a little more
 
             np.testing.assert_allclose(Jr_true, Jr)
 
@@ -335,7 +332,7 @@ class Quaternion_Testing(unittest.TestCase):
             vp, Jl = q.rota(v, Jl=np.eye(3))
             _, Jr = q.rota(v, Jr=np.eye(3))
 
-            Jl_true = np.eye(3) @ Jr @ q.Adj
+            Jl_true = np.eye(3) @ Jr @ np.linalg.inv(q.Adj)
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
@@ -360,7 +357,7 @@ class Quaternion_Testing(unittest.TestCase):
             vx = np.array([[0, -v[2], v[1]],
                             [v[2], 0, -v[0]],
                             [-v[1], v[0], 0]])
-            Jr_true = skew(q.R.T @ v)
+            Jr_true = q.R.T @ skew(v) # left jacobian in james table...?
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
@@ -373,12 +370,9 @@ class Quaternion_Testing(unittest.TestCase):
             vp, Jl = q.rotp(v, Jl=np.eye(3))
             _, Jr = q.rotp(v, Jr=np.eye(3))
 
-            vx = np.array([[0, -v[2], v[1]],
-                            [v[2], 0, -v[0]],
-                            [-v[1], v[0], 0]])
-            Jl_true = np.eye(3) @ Jr @ q.Adj
+            Jl_true = np.eye(3) @ Jr @ np.linalg.inv(q.Adj)
 
-            np.testing.assert_allclose(Jl_true, Jl)
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
     def test_jacobians_of_boxplusr(self):
         for i in range(100):

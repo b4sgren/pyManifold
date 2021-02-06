@@ -75,36 +75,30 @@ class Quaternion:
             return q_inv, -q_inv.Adj @ Jl
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
 
-    def rota(self, v, Jr=None, Jl=None):
+    # I don't understand something still. To get the relationship to work that Jl = Ad_f(x) * Jr * Ad_x^-1 I need to swap the left and right jacobians. Is this a product of the opposite order of multiplying the jacobians? If so why does it not affect composition?
+    def rota(self, v, Jr=None, Jl=None): # q * v * q.inv()
         qw = self.qw
         qv = self.qv
 
         t = 2 * skew(v) @ qv
         vp = v - qw * t + skew(t) @ qv
         if not Jr is None:
-            J = -self.R @ skew(v)
+            J = -skew(self.R @ v)
             return vp, J @ Jr
         elif not Jl is None:
-            # J = -skew(vp) # This was true for rotation matrix. Apparenty not for quaternion. See if I can derive this
-            J = -skew(self.R @ v)
+            J = - self.R @ skew(v)
             return vp, J @ Jl
         else:
             return vp
 
-    def rotp(self, v, Jr=None, Jl=None):
+    def rotp(self, v, Jr=None, Jl=None): # q.inv * v * q
         if not Jr is None:
-            # This doesn't work currently
-            # q_inv, J = self.inv(Jr=Jr)
-            # vp, J = q_inv.rota(v, Jr=J)
-            vp = self.inv().rota(v)
-            J = skew(self.R.T @ v)
+            q_inv, J = self.inv(Jr=Jr)
+            vp, J = q_inv.rota(v, Jr=J)
             return vp, J
         elif not Jl is None:
-            # This doesn't work currently
-            # q_inv, J = self.inv(Jl=Jl)
-            # vp, J = q_inv.rota(v, Jl=J)
-            vp = self.inv().rota(v)
-            J = self.R.T @ skew(v)
+            q_inv, J = self.inv(Jl=Jl)
+            vp, J = q_inv.rota(v, Jl=J)
             return vp, J
         else:
             return self.inv().rota(v)
