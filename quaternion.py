@@ -50,7 +50,7 @@ class Quaternion:
     def Adj(self): # This produces R(q).T (R(q).T = R)
         return self.R.T
 
-    def __mul__(self, q):
+    def __mul__(self, q): # this seems to actually be doing q * self even though the order is self * q
         return self.otimes(q)
 
     def __str__(self):

@@ -68,6 +68,20 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(q_true.q, T.q_arr)
             np.testing.assert_allclose(t, T.t)
 
+    def test_transforma(self):
+        pt = np.array([1, 0, 0])
+        T = SE3.fromAxisAngleAndt(np.pi/2 * np.array([0, 0, 1]), np.array([0, 1, 0]))
+        pt_p = T.transa(pt)
+        pt_true = np.array([0, 2, 0])
+        np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
+
+    def test_transformp(self):
+        pt = np.array([1, 0, 0])
+        T = SE3.fromAxisAngleAndt(np.pi/2 * np.array([0, 0, 1]), np.array([0, 1, 0]))
+        pt_p = T.transp(pt)
+        pt_true = np.array([-1, -1, 0])
+        np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
+
     def test_active_transforming_a_point(self):
         pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
         for (T,pt) in zip(self.transforms, pts):
