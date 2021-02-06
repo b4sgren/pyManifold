@@ -4,8 +4,20 @@ import scipy.linalg as spl
 import unittest
 import sys
 sys.path.append('..')
-from quaternion import Quaternion
+from quaternion import Quaternion, skew
 from so3 import SO3
+
+# Some things are't quite consistent in this class. Need to fix and then fix SE3
+
+def quatMultiply(q1, q2):
+    q3 = np.array([
+            q1.qw * q2.qw - q1.qx * q2.qx - q1.qy * q2.qy - q1.qz * q2.qz,
+            q1.qw * q2.qx + q1.qx * q2.qw + q1.qy * q2.qz - q1.qz * q2.qy,
+            q1.qw * q2.qy - q1.qx * q2.qz + q1.qy * q2.qw + q1.qz * q2.qx,
+            q1.qw * q2.qz + q1.qx * q2.qy - q1.qy * q2.qx + q1.qz * q2.qw
+            ])
+
+    return q3
 
 class Quaternion_Testing(unittest.TestCase):
     def testRandomGeneration(self):
@@ -20,7 +32,7 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             R = SO3.fromQuaternion(q.q)
 
-            np.testing.assert_allclose(q.R, R.R)
+            np.testing.assert_allclose(q.R, R.R.T)
 
     def testQuaternionMultiply(self):
         for i in range(100):
@@ -29,10 +41,7 @@ class Quaternion_Testing(unittest.TestCase):
 
             q3 = q1 * q2
 
-            q3_true = np.array([q1.qw * q2.qw - q1.qx * q2.qx - q1.qy * q2.qy - q1.qz * q2.qz,
-                                q1.qw * q2.qx + q1.qx * q2.qw + q1.qy * q2.qz - q1.qz * q2.qy,
-                                q1.qw * q2.qy - q1.qx * q2.qz + q1.qy * q2.qw + q1.qz * q2.qx,
-                                q1.qw * q2.qz + q1.qx * q2.qy - q1.qy * q2.qx + q1.qz * q2.qw])
+            q3_true = quatMultiply(q1, q2)
 
             if q3_true[0] < 0:
                 q3_true *= -1
@@ -52,18 +61,34 @@ class Quaternion_Testing(unittest.TestCase):
     def testRotationMatrixFromQuaternion(self):
         for i in range(100):
             q = Quaternion.random()
-            R = q.R
-            q2 = Quaternion.fromRotationMatrix(R)
+            R = SO3.fromQuaternion(q.q)
+            q2 = Quaternion.fromRotationMatrix(R.R)
 
             np.testing.assert_allclose(q.R, q2.R)
+
+    def testRota(self):
+        v = np.array([1, 0, 0])
+        q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi/2)
+        vp = q.rota(v)
+        vp_true = np.array([0, 1, 0])
+
+        np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+
+    def testRotp(self):
+        v = np.array([1, 0, 0])
+        q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi/2)
+        vp = q.rotp(v)
+        vp_true = np.array([0, -1, 0])
+
+        np.testing.assert_allclose(vp_true, vp, atol=1e-10)
 
     def testRotatingVector(self):
         for i in range(100):
             v = np.random.uniform(-10, 10, size=3)
             q = Quaternion.random()
-            R = q.R
+            R = SO3.fromQuaternion(q.q)
 
-            vp_true = R @ v
+            vp_true = R.rota(v)
             vp = q.rota(v)
 
             np.testing.assert_allclose(vp_true, vp)
@@ -71,9 +96,9 @@ class Quaternion_Testing(unittest.TestCase):
         for i in range(100):
             v = np.random.uniform(-10, 10, size=3)
             q = Quaternion.random()
-            R = q.R
+            R = SO3.fromQuaternion(q.q)
 
-            vp_true = R.T @ v
+            vp_true = R.rotp(v)
             vp = q.rotp(v)
 
             np.testing.assert_allclose(vp_true, vp)
@@ -191,7 +216,7 @@ class Quaternion_Testing(unittest.TestCase):
             q2 = q.boxplusr(w)
             R2 = R.boxplusr(w)
 
-            np.testing.assert_allclose(R2.R, q2.R)
+            np.testing.assert_allclose(R2.R, q2.R.T)
 
     def testBoxMinus(self):
         for i in range(100):
@@ -214,7 +239,7 @@ class Quaternion_Testing(unittest.TestCase):
             q2 = q.boxplusl(w)
             R2 = R.boxplusl(w)
 
-            np.testing.assert_allclose(R2.R, q2.R)
+            np.testing.assert_allclose(R2.R, q2.R.T)
 
     def test_boxminusl(self):
         for i in range(100):
@@ -229,7 +254,7 @@ class Quaternion_Testing(unittest.TestCase):
     def test_right_jacobian_of_inversion(self):
         q = Quaternion.random()
         q_inv, Jr = q.inv(Jr=np.eye(3))
-        Jr_true = -q.R
+        Jr_true = -q.R.T
 
         np.testing.assert_allclose(Jr_true, Jr)
 
@@ -310,7 +335,7 @@ class Quaternion_Testing(unittest.TestCase):
             vp, Jl = q.rota(v, Jl=np.eye(3))
             _, Jr = q.rota(v, Jr=np.eye(3))
 
-            Jl_true = np.eye(3) @ Jr @ q.Adj.T
+            Jl_true = np.eye(3) @ Jr @ q.Adj
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
@@ -326,38 +351,32 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
-    '''
-    These next two tests pass but the jacobians are the reverse of what James lists in his table. Sola makes no mentions of the jacobians being different so I'm not entirely sure what is right. I may need to check out Quaternions for the Error State Kalman filter to decide
-    '''
     def test_right_jacobian_of_rotp(self):
         for i in range(100):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
             vp, Jr = q.rotp(v, Jr=np.eye(3))
-            # vx = np.array([[0, -v[2], v[1]],
-                            # [v[2], 0, -v[0]],
-                            # [-v[1], v[0], 0]])
-            # Jr_true = q.R.T @ vx
-            Jr_true = np.array([[0, -vp[2], vp[1]],
-                                [vp[2], 0, -vp[0]],
-                                [-vp[1], vp[0], 0]])
+            vx = np.array([[0, -v[2], v[1]],
+                            [v[2], 0, -v[0]],
+                            [-v[1], v[0], 0]])
+            Jr_true = skew(q.R.T @ v)
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
+    # Rotating a vector isn't consistent across different ways
     def test_left_jacobian_of_rotp(self):
         for i in range(100):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
             vp, Jl = q.rotp(v, Jl=np.eye(3))
-            # Jl_true = np.array([[0, -vp[2], vp[1]],
-                                # [vp[2], 0, -vp[0]],
-                                # [-vp[1], vp[0], 0]])
+            _, Jr = q.rotp(v, Jr=np.eye(3))
+
             vx = np.array([[0, -v[2], v[1]],
                             [v[2], 0, -v[0]],
                             [-v[1], v[0], 0]])
-            Jl_true = q.R.T @ vx
+            Jl_true = np.eye(3) @ Jr @ q.Adj
 
             np.testing.assert_allclose(Jl_true, Jl)
 

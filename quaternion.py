@@ -43,12 +43,12 @@ class Quaternion:
         return self.arr
 
     @property
-    def R(self): # This produces R (same R as passed in via rotation matrix). change the middle term to -2*qw*skew(qv) to get R(q)
-        return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
+    def R(self): # This produces R(q) = R.T
+        return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property
     def Adj(self): # This produces R(q).T (R(q).T = R)
-        return self.R
+        return self.R.T
 
     def __mul__(self, q):
         return self.otimes(q)
@@ -60,7 +60,7 @@ class Quaternion:
         return f'[{self.qw} + {self.qx}i + {self.qy}j + {self.qz}k]'
 
     def otimes(self, q): # Does this do the wrong thing? R1*R2 = q2 * q1 if I'm not mistaken for quaternions
-        Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]]) #Typo in Jame's stuff. See Quat for Err State KF. See if this actually is a typo
+        Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]])
         return Quaternion(Q @ q.q)
 
     def skew(self):
@@ -85,19 +85,26 @@ class Quaternion:
             J = -self.R @ skew(v)
             return vp, J @ Jr
         elif not Jl is None:
-            J = -skew(vp)
+            # J = -skew(vp) # This was true for rotation matrix. Apparenty not for quaternion. See if I can derive this
+            J = -skew(self.R @ v)
             return vp, J @ Jl
         else:
             return vp
 
     def rotp(self, v, Jr=None, Jl=None):
         if not Jr is None:
-            q_inv, J = self.inv(Jr=Jr)
-            vp, J = q_inv.rota(v, Jr=J)
+            # This doesn't work currently
+            # q_inv, J = self.inv(Jr=Jr)
+            # vp, J = q_inv.rota(v, Jr=J)
+            vp = self.inv().rota(v)
+            J = skew(self.R.T @ v)
             return vp, J
         elif not Jl is None:
-            q_inv, J = self.inv(Jl=Jl)
-            vp, J = q_inv.rota(v, Jl=J)
+            # This doesn't work currently
+            # q_inv, J = self.inv(Jl=Jl)
+            # vp, J = q_inv.rota(v, Jl=J)
+            vp = self.inv().rota(v)
+            J = self.R.T @ skew(v)
             return vp, J
         else:
             return self.inv().rota(v)
