@@ -12,12 +12,15 @@ class SO2:
         assert R.shape == (2,2)
         self.arr = R
 
-    def __mul__(self, R2:'SO2'):
+    def __mul__(self, R2:'SO2') -> 'SO2':
         """
         Multiplication Operator
 
         Args:
         R2 -- SO2 object
+
+        Returns:
+        Instance of SO2
         """
         assert isinstance(R2, SO2)
         return SO2(self.arr @ R2.arr)
@@ -28,13 +31,17 @@ class SO2:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self, Jr: int = None, Jl: int = None):
+    def inv(self, Jr: int = None, Jl: int = None) -> 'SO2':
         """
         Take the inverse of the SO2 element
 
         Keyword Args:
         Jr -- Indicates if the right jacobian is to be computed. Pass 1 if calling directly
         Jl -- Indicates if the left jacobian is to be computed. Pass 1 if calling directly
+
+        Returns:
+        Instance of SO2
+        If Jr or Jl is specified it will also return the associated jacobian
         """
         if Jr:
             J = -1
@@ -45,7 +52,7 @@ class SO2:
         else:
             return SO2(self.arr.T)
 
-    def rota(self, v: np.ndarray, Jr: int = None, Jl: int = None):
+    def rota(self, v: np.ndarray, Jr: int = None, Jl: int = None) -> np.ndarray:
         """
         Rotates an element using R
 
@@ -55,6 +62,10 @@ class SO2:
         Keyword Args:
         Jr -- Indicates if the right jacobian is to be computed. Pass 1 if calling directly
         Jl -- Indicates if the left jacobian is to be computed. Pass 1 if calling directly
+
+        Returns:
+        Rotated vector as numpy array
+        If Jr or Jl is specified it will return the associated jacobian
         """
         assert v.size == 2
         if Jr:
@@ -66,7 +77,7 @@ class SO2:
         else:
             return self.R @ v
 
-    def rotp(self, v, Jr=None, Jl=None):
+    def rotp(self, v, Jr=None, Jl=None) -> np.ndarray:
         """
         Rotates an element using R.inv()
 
@@ -76,6 +87,10 @@ class SO2:
         Keyword Args:
         Jr -- Indicates if the right jacobian is to be computed. Pass 1 if calling directly
         Jl -- Indicates if the left jacobian is to be computed. Pass 1 if calling directly
+
+        Returns:
+        Rotated vector as numpy array
+        If Jr or Jl is specified it will return the associated jacobian
         """
         assert v.size == 2
         if Jr:
@@ -90,7 +105,7 @@ class SO2:
             return self.inv().rota(v)
 
     # For the boxplus I'm not sure I need the jacobian wrt the first element ever. I can add it later if I need to
-    def boxplusr(self, w:float, Jr: int = None, Jl: int = None):
+    def boxplusr(self, w:float, Jr: int = None, Jl: int = None) -> 'SO2':
         """
         Peforms a generalized plus operation: R * Exp(w)
 
@@ -100,6 +115,10 @@ class SO2:
         Keyword Args:
         Jr -- Indicates if the right jacobian is to be computed. Pass 1 if calling directly
         Jl -- Indicates if the left jacobian is to be computed. Pass 1 if calling directly
+
+        Returns:
+        Instance of SO2
+        If Jr or Jl is specified it will return the associated Jacobian
         """
         if Jr:
             R2, J = SO2.Exp(w, Jr=Jr)
@@ -111,7 +130,7 @@ class SO2:
             return self * SO2.Exp(w)
 
     def boxminusr(self, R2: 'SO2', Jr1: int = None, Jl1: int = None,
-                  Jr2: int = None, Jl2: int = None):
+                  Jr2: int = None, Jl2: int = None) -> float:
         """
         Peforms a generalized minus operation: Log(R2.inv() * self)
 
@@ -123,8 +142,11 @@ class SO2:
         Jl1 -- Indicates if the left jacobian is to be computed wrt self. Pass 1 if calling directly
         Jr2 -- Indicates if the right jacobian is to be computed wrt R2. Pass 1 if calling directly
         Jl2 -- Indicates if the left jacobian is to be computed wrt R2. Pass 1 if calling directly
-        """
 
+        Returns:
+        The angle representing the difference between self and R2
+        If a Jacobian is specified it will also return the corresponding jacobian
+        """
         assert isinstance(R2, SO2)
         if Jr1 is not None:
             dR, J = R2.inv().compose(self, Jr2=Jr1)
@@ -143,7 +165,7 @@ class SO2:
         else:
             return SO2.Log(R2.inv() * self)
 
-    def boxplusl(self, w: float, Jr: int = None, Jl: int = None):
+    def boxplusl(self, w: float, Jr: int = None, Jl: int = None) -> 'SO2':
         """
         Peforms a generalized plus operation: Exp(w) * R
 
@@ -153,8 +175,11 @@ class SO2:
         Keyword Args:
         Jr -- Indicates if the right jacobian is to be computed. Pass 1 if calling directly
         Jl -- Indicates if the left jacobian is to be computed. Pass 1 if calling directly
-        """
 
+        Returns:
+        An instance of SO2
+        If Jr or Jl is specified it will also return the associated jacobian
+        """
         if Jr is not None:
             R, J = SO2.Exp(w, Jr=Jr)
             return R.compose(self, Jr=J)
@@ -165,7 +190,7 @@ class SO2:
             return SO2.Exp(w) * self
 
     def boxminusl(self, R: 'SO2', Jr1: int = None, Jl1: int = None,
-                  Jr2: int = None, Jl2: int = None):
+                  Jr2: int = None, Jl2: int = None) -> float:
         """
         Peforms a generalized minus operation: Log(self * R2.inv())
 
@@ -177,8 +202,11 @@ class SO2:
         Jl1 -- Indicates if the left jacobian is to be computed wrt self. Pass 1 if calling directly
         Jr2 -- Indicates if the right jacobian is to be computed wrt R2. Pass 1 if calling directly
         Jl2 -- Indicates if the left jacobian is to be computed wrt R2. Pass 1 if calling directly
-        """
 
+        Returns:
+        A float representing the difference between self and R
+        If any of the Jacobians are specified it will return the corresponding jacobian as well
+        """
         assert isinstance(R, SO2)
         if Jr1 is not None:
             temp, J = self.compose(R.inv(), Jr=Jr1)
@@ -197,7 +225,7 @@ class SO2:
         else:
             return SO2.Log(self * R.inv())
 
-    def compose(self, R: 'SO2', Jr: int = None, Jl: int = None, Jr2: int = None, Jl2: int = None):
+    def compose(self, R: 'SO2', Jr: int = None, Jl: int = None, Jr2: int = None, Jl2: int = None) -> 'SO2':
         """
         Alternate call to compose two rotation matrices. This call allows for jacobian calculation
 
@@ -209,6 +237,10 @@ class SO2:
         Jl1 -- Indicates if the left jacobian is to be computed wrt self. Pass 1 if calling directly
         Jr2 -- Indicates if the right jacobian is to be computed wrt R. Pass 1 if calling directly
         Jl2 -- Indicates if the left jacobian is to be computed wrt R. Pass 1 if calling directly
+
+        Returns:
+        An instance of SO2
+        If any of the jacobians are specified it will also return the corresponding jacobian
         """
         res = self * R
         if Jr:
@@ -223,17 +255,20 @@ class SO2:
             return res
 
     @property
-    def R(self):
+    def R(self) -> np.ndarray:
         """Returns the underlying np.array"""
         return self.arr
 
     @classmethod
-    def fromAngle(cls, theta: float):
+    def fromAngle(cls, theta: float) -> 'SO2':
         """
         Creates an SO2 instance from an angle
 
         Args:
         theta -- The rotation angle
+
+        Returns:
+        An instance of SO2
         """
         ct = np.cos(theta)
         st = np.sin(theta)
@@ -241,7 +276,7 @@ class SO2:
         return cls(R)
 
     @classmethod
-    def exp(cls, theta_x: np.ndarray, Jr: int = None, Jl: int = None):
+    def exp(cls, theta_x: np.ndarray, Jr: int = None, Jl: int = None) -> 'SO2':
         """
         Performs the Exponential Map to do R^1 -> SO2
 
@@ -251,6 +286,10 @@ class SO2:
         Keyword Args:
         Jr -- Indicates if the right jacobian is to be computed. Pass 1 if calling directly
         Jl -- Indicates if the left jacobian is to be computed. Pass 1 if calling directly
+
+        Returns:
+        An instance of SO2
+        If Jr or Jl is specified it also will return the associated jacobian
         """
         assert theta_x.shape == (2,2)
         theta = theta_x[1,0]
@@ -273,12 +312,12 @@ class SO2:
             return cls.exp(logR)
 
     @staticmethod
-    def Identity():
+    def Identity() -> 'SO2':
         """Returns SO2 element at identity"""
         return SO2(np.eye(2))
 
     @staticmethod
-    def log(R: 'SO2', Jr: int = None, Jl: int = None):
+    def log(R: 'SO2', Jr: int = None, Jl: int = None) -> float:
         assert isinstance(R, SO2)
         """
         Performs the Logarithmic Map to do SO2 -> R^1
@@ -290,6 +329,9 @@ class SO2:
         Jr -- Indicates if the right jacobian is to be computed. Pass 1 if calling directly
         Jl -- Indicates if the left jacobian is to be computed. Pass 1 if calling directly
 
+        Returns:
+        A float in the tangent space of SO2
+        If Jr or Jl is specified it will also return the associated jacobian
         """
         theta = np.arctan2(R.arr[1,0], R.arr[0,0])
         if Jr:
@@ -312,37 +354,41 @@ class SO2:
             return cls.vee(logR)
 
     @staticmethod
-    def vee(theta_x: np.ndarray):
+    def vee(theta_x: np.ndarray) -> float:
         """
         vee operator to convert a 2x2 skew symmetric matrix to a scalar
 
         Args:
         theta_x -- A 2x2 skew symmetric matrix
+
+        Returns:
+        The float used to form the skew symmetric matrix
         """
         assert theta_x.shape == (2,2)
         return theta_x[1,0]
 
     @staticmethod
-    def hat(theta: float):
+    def hat(theta: float) -> np.ndarray:
         """
         hat operator to convert a scalar to a skew symmetric matrix
 
         Args:
         theta -- Angle to put into a 2x2 skew symmetric matrix
+
+        Return:
+        A skew symmetric matrix from the angle
         """
         return theta * G
 
     @property
-    def Adj(self):
-        """
-        Adjoint operator
-        """
+    def Adj(self) -> float:
+        """Adjoint operator"""
         return 1.0
 
     @classmethod
-    def random(cls):
+    def random(cls) -> 'SO2':
         """
-        Creates a random instance of SO2
+        Create a random instance of SO2
         """
         theta = np.random.uniform(-np.pi, np.pi)
         return cls.fromAngle(theta)
