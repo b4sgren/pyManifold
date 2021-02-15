@@ -23,6 +23,7 @@ class SO2Test(unittest.TestCase):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
             R = SO2.fromAngle(theta)
+            R.inv()
             logR_true = np.array([[0, -theta], [theta, 0]])
             logR = SO2.log(R)
             self.assertAlmostEqual(logR[1,0], logR_true[1,0])

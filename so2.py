@@ -1,9 +1,12 @@
 import numpy as np
+from typing import Tuple, Iterable
 
 G = np.array([[0, -1], [1, 0]])
 
+# TODO: changing return types float or float and np.ndarray??
+
 class SO2:
-    def __init__(self, R: np.ndarray):
+    def __init__(self, R: np.ndarray) -> None:
         """
         Constructor
         Args:
