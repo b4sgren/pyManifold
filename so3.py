@@ -10,18 +10,34 @@ G = np.array([[[0, 0, 0],
                 [1, 0, 0],
                 [0, 0, 0]]])
 
-def skew(qv):
+def skew(qv: np.ndarray) -> np.ndarray:
     return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
 
 class SO3:
-    def __init__(self, R):
+    def __init__(self, R: np.ndarray) -> None:
+        """
+        Constructor for SO3
+
+        Args:
+        R -- Numpy array expressing a rotation matrix
+        """
         assert (R.shape == (3,3))
         self.arr = R
 
-    def __mul__(self, R2):
+    def __mul__(self, R2: 'SO3') -> 'SO3':
+        """
+        Overloaded * operator
+
+        Args:
+        R2 -- An instance of SO3
+
+        Returns:
+        The new rotation consisting of self * R2
+        """
         assert isinstance(R2, SO3)
         return SO3(self.R @ R2.R)
 
+    # What to do about this. I don't want this public
     def __sub__(self, R2):
         assert isinstance(R2, SO3)
         return self.R - R2.R
@@ -32,7 +48,18 @@ class SO3:
     def __repr__(self):
         return str(self.R)
 
-    def inv(self, Jr=None, Jl=None):
+    def inv(self, Jr: np.ndarray = None, Jl: np.ndarray = None) -> 'SO3':
+        """
+        Computes the inverse of the SO3 instance
+
+        Keyword Args:
+        Jr -- If specified it computes the right jacobian. If calling directly Jr should be passed as np.eye(3)
+        Jl -- If specified it computes the left jacobian. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        The inverse of the current SO3 instance
+        and the associated jacobian if specified
+        """
         if not Jr is None:
             return SO3(self.arr.T), -self.Adj @ Jr
         elif not Jl is None:
@@ -41,10 +68,24 @@ class SO3:
         else:
             return SO3(self.arr.T)
 
-    def transpose(self):
+    def transpose(self) -> 'SO3':
+        """Returns the transpose of the current instance"""
         return SO3(self.arr.T)
 
-    def rota(self, v, Jr=None, Jl=None):
+    def rota(self, v: np.ndarray, Jr: np.ndarray = None, Jl: np.ndarray = None) -> np.ndarray:
+        """
+        Computes the rotated vector by doing R * v
+
+        Args:
+        v -- Numpy array containing the vector to be rotated
+
+        Keyword Args:
+        Jr -- If specified it computes the right jacobian. If calling directly Jr should be passed as np.eye(3)
+        Jl -- If specified it computes the left jacobian. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        The rotated vector as a numpy array
+        """
         assert v.size == 3
         vp = self.R @ v
         if not Jr is None:
@@ -56,7 +97,20 @@ class SO3:
         else:
             return vp
 
-    def rotp(self, v, Jr=None, Jl=None):
+    def rotp(self, v: np.ndarray, Jr: np.ndarray = None, Jl: np.ndarray = None) -> np.ndarray:
+        """
+        Computes the rotated vector by doing R^-1 * v
+
+        Args:
+        v -- Numpy array containing the vector to be rotated
+
+        Keyword Args:
+        Jr -- If specified it computes the right jacobian. If calling directly Jr should be passed as np.eye(3)
+        Jl -- If specified it computes the left jacobian. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        The rotated vector as a numpy array
+        """
         assert v.size == 3
         if not Jr is None:
             R_inv, J = self.inv(Jr=Jr)
