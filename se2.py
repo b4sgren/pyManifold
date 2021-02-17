@@ -71,6 +71,8 @@ class SE2:
         else:
             return self * SE2.Exp(w)
 
+    # TODO: Need to check if theta is close to zero. If it is then
+    # Jr = np.array([[1, 0, rho[1]/2], [0, 1, -rho[0]/2], [0, 0, 1]])
     def boxminusr(self, T, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
         assert isinstance(T, SE2)
         if Jr1 is not None:

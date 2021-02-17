@@ -124,7 +124,21 @@ class SO3:
             return self.inv().rota(v)
 
     # Assumes jacobian is with respect to v
-    def boxplusr(self, v, Jr=None, Jl=None):
+    def boxplusr(self, v: np.ndarray, Jr: np.ndarray = None,
+                 Jl: np.ndarray = None) -> 'SO3':
+        """
+        Computes self * Exp(v)
+
+        Args:
+        v -- The perturbation in the tangent space
+
+        Keyword Args:
+        Jr -- If specified it computes the right jacobian. If calling directly Jr should be passed as np.eye(3)
+        Jl -- If specified it computes the left jacobian. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        An instance of SO3
+        """
         assert(v.size == 3)
         if not Jr is None:
             R, J = SO3.Exp(v, Jr=Jr)
@@ -137,7 +151,24 @@ class SO3:
         else:
             return self * SO3.Exp(v)
 
-    def boxminusr(self, R2, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
+    def boxminusr(self, R2: 'SO3', Jr1: np.ndarray = None,
+                  Jl1: np.ndarray = None, Jr2: np.ndarray = None,
+                  Jl2: np.ndarray = None) -> np.ndarray:
+        """
+        Returns Log(R2.inv() * self)
+
+        Args:
+        R2 -- An instance of SO2
+
+        Keyword Args:
+        Jr1-- If specified it computes the right jacobian of self. If calling directly Jr should be passed as np.eye(3)
+        Jl1 -- If specified it computes the left jacobian of self. If calling directly Jr should be passed as np.eye(3)
+        Jr2 -- If specified it computes the right jacobian of R2. If calling directly Jr should be passed as np.eye(3)
+        Jl2 -- If specified it computes the left jacobian of R2. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        A numpy array representing the difference in the tangent space.
+        """
         assert isinstance(R2, SO3)
         if Jr1 is not None:
             dR, J = R2.inv().compose(self, Jr2=Jr1)
@@ -156,7 +187,21 @@ class SO3:
         else:
             return SO3.Log(R2.inv() * self)
 
-    def boxplusl(self, v, Jr=None, Jl=None):
+    def boxplusl(self, v: np.ndarray, Jr: np.ndarray = None,
+                 Jl: np.ndarray = None) -> 'SO3':
+        """
+        Returns Exp(v) * self
+
+        Args:
+        v -- Numpy array for the perturbation vector in the tangent space
+
+        Keyword Args:
+        Jr -- If specified it computes the right jacobian. If calling directly Jr should be passed as np.eye(3)
+        Jl -- If specified it computes the left jacobian. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        An instance of SO3
+        """
         assert(v.size == 3)
         if Jr is not None:
             R, J = SO3.Exp(v, Jr=Jr)
@@ -167,7 +212,25 @@ class SO3:
         else:
             return SO3.Exp(v) * self
 
-    def boxminusl(self, R2, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
+    def boxminusl(self, R2: 'SO3', Jr1: np.ndarray = None,
+                  Jl1: np.ndarray = None, Jr2: np.ndarray = None,
+                  Jl2: np.ndarray = None):
+        """
+        Returns Log(R2.inv() * self)
+
+        Args:
+        R2 -- An instance of SO2
+
+        Keyword Args:
+        Jr1-- If specified it computes the right jacobian of self. If calling directly Jr should be passed as np.eye(3)
+        Jl1 -- If specified it computes the left jacobian of self. If calling directly Jr should be passed as np.eye(3)
+        Jr2 -- If specified it computes the right jacobian of R2. If calling directly Jr should be passed as np.eye(3)
+        Jl2 -- If specified it computes the left jacobian of R2. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        A numpy array representing the difference in the tangent space.
+        """
+
         assert isinstance(R2, SO3)
         if Jr1 is not None:
             diff, J = self.compose(R2.inv(), Jr=Jr1)
@@ -186,7 +249,8 @@ class SO3:
         else:
             return SO3.Log(self * R2.inv())
 
-    def normalize(self):
+    def normalize(self) -> None:
+        """Normalizes the rotation matrix"""
         x = self.R[:,0]
         x = x / np.linalg.norm(x)
         y = np.cross(self.R[:,2], x)
@@ -195,10 +259,28 @@ class SO3:
 
         self.arr = np.array([[*x], [*y], [*z]]).T
 
-    def det(self):
+    def det(self) -> float:
+        """Computes the determinant"""
         return np.linalg.det(self.R)
 
-    def compose(self, R, Jr=None, Jl=None, Jr2=None, Jl2=None):
+    def compose(self, R: 'SO3', Jr: np.ndarray = None,
+                Jl: np.ndarray = None, Jr2: np.ndarray = None,
+                Jl2: np.ndarray = None):
+        """
+        Alternate way to * operator to compose two matrices. This allows for calculating the jacobians
+
+        Args:
+        R -- An instance of SO3
+
+        Keyword Args:
+        Jr1-- If specified it computes the right jacobian of self. If calling directly Jr should be passed as np.eye(3)
+        Jl1 -- If specified it computes the left jacobian of self. If calling directly Jr should be passed as np.eye(3)
+        Jr2 -- If specified it computes the right jacobian of R2. If calling directly Jr should be passed as np.eye(3)
+        Jl2 -- If specified it computes the left jacobian of R2. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        An instance of SO3
+        """
         res = self * R
         if not Jr is None:
             J = R.inv().Adj
@@ -213,11 +295,21 @@ class SO3:
             return res
 
     @property
-    def R(self):
+    def R(self) -> np.ndarray:
+        """Returns the underlying array"""
         return self.arr
 
     @classmethod
-    def fromRPY(cls, angles):
+    def fromRPY(cls, angles: np.ndarray) -> 'SO3':
+        """
+        Creates an SO3 instance from roll, pitch, yaw angles
+
+        Args:
+        angles -- A numpy array with [roll, pitch, yaw]
+
+        Returns:
+        An instance of SO3
+        """
         phi = angles[0]
         theta = angles[1]
         psi = angles[2]
@@ -237,7 +329,16 @@ class SO3:
         return cls(R1 @ R2 @ R3)
 
     @classmethod
-    def fromAxisAngle(cls, w):
+    def fromAxisAngle(cls, w: np.ndarray) -> 'SO3':
+        """
+        Creates an instance of SO3 from an Axis Angle Formulation
+
+        Args:
+        w -- A vector with norm of theta in the direction of the vector of rotation
+
+        Returns:
+        An instance of SO3
+        """
         theta = np.linalg.norm(w)
         skew_w = np.array([[0, -w[2], w[1]], [w[2], 0, -w[0]], [-w[1], w[0], 0]])
 
@@ -253,7 +354,16 @@ class SO3:
         return cls(arr)
 
     @classmethod
-    def fromQuaternion(cls, q):
+    def fromQuaternion(cls, q: np.ndarray) -> 'SO3':
+        """
+        Creates an instance of SO3 from a quaternion
+
+        Args:
+        q -- A numpy array representing a quaternion in [qw, qx, qy, qz]
+
+        Returns:
+        An instance of SO3
+        """
         qw = q[0]
         qv = q[1:]
         qv_skew = np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
@@ -262,7 +372,10 @@ class SO3:
         return cls(R)
 
     @classmethod
-    def random(cls):
+    def random(cls) -> 'SO3':
+        """
+        Returns a randomly generated rotation matrix
+        """
         x = np.random.uniform(0, 1, size=3)
         psi = 2 * np.pi * x[0]
         R = np.array([[np.cos(psi), np.sin(psi), 0], [-np.sin(psi), np.cos(psi), 0], [0, 0, 1]])
@@ -273,11 +386,25 @@ class SO3:
         return cls(-H @ R)
 
     @staticmethod
-    def Identity():
+    def Identity() -> 'SO3':
+        """Returns the identity matrix"""
         return SO3(np.eye(3))
 
     @staticmethod
-    def log(R, Jr=None, Jl=None): #This function isn't entirely stable but tests pass
+    def log(R: 'SO3', Jr: np.ndarray = None, Jl: np.ndarray = None) -> np.ndarray: #This function isn't entirely stable but tests pass
+        """
+        Performs the logarithmic map to convert SO3 elements to its tangent space
+
+        Args:
+        R -- An instance of SO3
+
+        Keyword Args:
+        Jr-- If specified it computes the right jacobian of self. If calling directly Jr should be passed as np.eye(3)
+        Jl -- If specified it computes the left jacobian of self. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        The representation in the tangent space as a skew symmetric matrix
+        """
         assert isinstance(R, SO3)
 
         theta = np.arccos((np.trace(R.arr) - 1)/2.0)
@@ -301,7 +428,7 @@ class SO3:
         else:
             return logR
 
-    @classmethod
+    @classmethod # Make this method the above
     def Log(cls, R, Jr=None, Jl=None): #easy call to go straight to a vector
         if not Jr is None:
             logR, J = cls.log(R, Jr=Jr)
@@ -314,7 +441,21 @@ class SO3:
             return cls.vee(logR)
 
     @classmethod
-    def exp(cls, logR, Jr=None, Jl=None):
+    def exp(cls, logR: np.ndarray, Jr: np.ndarray = None,
+            Jl: np.ndarray = None) -> 'SO3':
+        """
+        Computes the exponential map to convert elements of the tangent space to the manifold
+
+        Args:
+        logR -- A skew symmetric matrix of the tangent space vector
+
+        Keyword Args:
+        Jr-- If specified it computes the right jacobian of self. If calling directly Jr should be passed as np.eye(3)
+        Jl -- If specified it computes the left jacobian of self. If calling directly Jr should be passed as np.eye(3)
+
+        Returns:
+        An instance of SO3
+        """
         assert logR.shape == (3,3)
 
         w = cls.vee(logR)
@@ -339,7 +480,7 @@ class SO3:
         else:
             return cls(R)
 
-    @classmethod
+    @classmethod # Do this in the above method
     def Exp(cls, w, Jr=None, Jl=None):
         logR = cls.hat(w)
         if not Jr is None:
@@ -352,16 +493,35 @@ class SO3:
             return cls.exp(logR)
 
     @staticmethod
-    def vee(logR):
+    def vee(logR: np.ndarray) -> np.ndarray:
+        """
+        Convert a skew symmetric matrix to a vector
+
+        Args:
+        logR -- A skew symmetric matrix
+
+        Returns:
+        The vector used to make logR
+        """
         assert logR.shape == (3,3)
         omega = np.array([logR[2,1], logR[0,2], logR[1,0]])
         return omega
 
     @staticmethod
-    def hat(omega):
+    def hat(omega: np.ndarray) -> np.ndarray:
+        """
+        Creates a skew symmetric matrix from a 3 array
+
+        Args:
+        omega -- A numpy array of size 3
+
+        Returns:
+        A 3x3 skew symmetric matrix
+        """
         assert omega.size == 3
         return (G @ omega).squeeze()
 
     @property
-    def Adj(self):
+    def Adj(self) -> np.ndarray:
+        """Computes the Adjoint for the group instance"""
         return self.arr
