@@ -80,6 +80,22 @@ class SE3:
         return arr
 
     @property
+    def x(self):
+        return self.t[0]
+
+    @property
+    def y(self):
+        return self.t[1]
+
+    @property
+    def z(self):
+        return self.t[2]
+
+    @property
+    def euler(self):
+        return self.q_.euler
+
+    @property
     def Adj(self):
         R = self.R.T
         tx = skew(self.t)
