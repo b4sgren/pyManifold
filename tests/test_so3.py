@@ -478,6 +478,13 @@ class SO3_testing(unittest.TestCase):
             Jl_true = np.eye(3) @ Jr2 @ R2.Adj.T
             np.testing.assert_allclose(Jl_true, Jl2)
 
+    def test_euler(self):
+        for i in range(100):
+            R1 = SO3.random()
+            rpy = R1.euler
+            R2 = SO3.fromRPY(rpy)
+            np.testing.assert_allclose(R1.R, R2.R, rtol=1e-5)
+
 
 if __name__=="__main__":
     unittest.main()

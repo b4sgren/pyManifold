@@ -299,6 +299,23 @@ class SO3:
         """Returns the underlying array"""
         return self.arr
 
+    @property
+    def euler(self) -> np.ndarray:
+        """Returns the RPY angles for the rotation matrix"""
+        if 1 - np.abs(self.R[2,0]) > 1e-8:
+            phi = np.arctan2(self.R[2,1], self.R[2,2])
+            theta = np.arcsin(-self.R[2,0])
+            psi = np.arctan2(self.R[1,0], self.R[0,0])
+        else:
+            phi = 0
+            if np.sign(self.R[2,0]) > 0:
+                theta = np.pi/2
+                psi = -np.arctan2(-self.R[1,2], self.R[1,1])
+            else:
+                theta = -np.pi/2
+                psi = np.arctan2(-self.R[1,2], self.R[1,1])
+        return np.array([phi, theta, psi])
+
     @classmethod
     def fromRPY(cls, angles: np.ndarray) -> 'SO3':
         """
