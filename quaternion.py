@@ -47,6 +47,22 @@ class Quaternion:
         return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property
+    def euler(self) -> np.ndarray:
+        t0 = 2 * (self.qw*self.qx + self.qy*self.qz)
+        t1 = 1 - 2 * (self.qx**2 + self.qy**2)
+        phi = np.arctan2(t0, t1)
+
+        t2 = 2 * (self.qw*self.qy - self.qz*self.qx)
+        t2 = 1.0 * np.sign(t2) if np.abs(t2) > 1.0 else t2
+        theta = np.arcsin(t2)
+
+        t3 = 2.0 * (self.qw*self.qz + self.qx*self.qy)
+        t4 = 1 - 2.0 * (self.qy**2 + self.qz**2)
+        psi = np.arctan2(t3, t4)
+
+        return np.array([phi, theta, psi])
+
+    @property
     def Adj(self): # This produces R(q).T (R(q).T = R)
         return self.R.T
 
