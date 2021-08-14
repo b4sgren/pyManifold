@@ -155,6 +155,18 @@ class SE2:
     def T(self):
         return self.arr
 
+    @property
+    def x(self):
+        return self.t[0]
+
+    @property
+    def y(self):
+        return self.t[1]
+
+    @property
+    def theta(self):
+        return SE2.Log(self)[-1]
+
     @classmethod
     def fromAngleAndt(cls, theta, t):
         ct = np.cos(theta)
