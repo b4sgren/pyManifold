@@ -260,6 +260,11 @@ class SO2:
         """Returns the underlying np.array"""
         return self.arr
 
+    @property
+    def theta(self) -> float:
+        """ Returns the angle representing the rotation matrix"""
+        return SO2.Log(self)
+
     @classmethod
     def fromAngle(cls, theta: float) -> 'SO2':
         """
@@ -393,3 +398,28 @@ class SO2:
         """
         theta = np.random.uniform(-np.pi, np.pi)
         return cls.fromAngle(theta)
+
+# Class needs to be tested still. Are these equations valid for non-SE3. Check paper
+class UncertainSO2(SO2):
+    def __init__(self, R: np.ndarray, cov: np.ndarray) -> None:
+        super().__init__(R)
+        self.cov_ = cov
+
+    def compose(self, T_jk: 'UncertainSO2', cov_ij: float = 0.0) -> 'UncertainSO2':
+        T_ik = self * T_jk
+        cov_ik = self.cov_ + self.Adj*T_jk.cov_*self.Adj + 2*self.Adj*cov_ij
+
+        return UncertainSO2(T_ik.R, cov_ik)
+
+    def inv(self) -> 'UncertainSO2':
+        Tinv = super().inv()
+        cov = Tinv.Adj * self.cov_ * Tinv.Adj
+        return UncertainSO2(Tinv.R, cov)
+
+    def between(self, T_ik: 'UncertainSO2', cov_ij: float = 0.0) -> 'UncertainSO2':
+        T_inv = self.inv()
+        T_jk = T_inv * T_ik # can I do this ...
+        Adj_ti = T_inv.Adj
+        cov = T_inv.cov_ + Adj_ti*T_ik.cov_*Adj_ti - 2*Adj_ti*cov_ij*Adj_ti
+
+        return UncertainSO2(T_jk.R, cov)

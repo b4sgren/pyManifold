@@ -4,8 +4,6 @@ sys.path.append('..')
 from so2 import SO2
 import numpy as np
 
-from IPython.core.debugger import Pdb
-
 class SO2Test(unittest.TestCase):
 
     def testExp(self):
@@ -371,6 +369,13 @@ class SO2Test(unittest.TestCase):
 
             Jl_true = 1 * Jr2 * R2.Adj
             np.testing.assert_allclose(Jl_true, Jl2)
+
+    def test_theta(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            R = SO2.fromAngle(theta)
+
+            np.testing.assert_allclose(theta, R.theta)
 
 if __name__=="__main__":
     unittest.main()
