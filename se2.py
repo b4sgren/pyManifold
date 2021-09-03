@@ -60,6 +60,7 @@ class SE2:
             vp = self.inv().transa(v)
         return vp[:2]
 
+    # Add a Ju option which takes wrt w
     def boxplusr(self, w, Jr=None, Jl=None):
         assert w.size == 3
         if not Jr is None:

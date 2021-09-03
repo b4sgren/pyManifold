@@ -9,7 +9,8 @@ class Robot:
   def __init__(self):
     self._state = SE2.Identity()
     self._odom_cov = np.diag([.1, .1, 1e-2])
-    self._R = np.diag([1e-2, 1e-2])
+    # self._R = np.diag([1e-2, 1e-2])
+    self._R = np.diag([1e-5, 1e-5])
 
   @property
   def state(self):
@@ -42,7 +43,7 @@ class Robot:
   def measurements(self, lms):
     # Currently measing position for simplicity.
     # Move to range/bearing after it is working
-    z = [lm + np.random.multivariate_normal(np.zeros(2), self._R) for lm in lms]
+    z = [self.state.transp(lm) + np.random.multivariate_normal(np.zeros(2), self._R) for lm in lms]
     return z
 
 class SE2_EKF:
