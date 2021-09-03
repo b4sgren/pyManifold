@@ -9,8 +9,7 @@ class Robot:
   def __init__(self):
     self._state = SE2.Identity()
     self._odom_cov = np.diag([.1, .1, 1e-2])
-    # self._R = np.diag([1e-2, 1e-2])
-    self._R = np.diag([1e-5, 1e-5])
+    self._R = np.diag([1e-3, 1e-3])
 
   @property
   def state(self):

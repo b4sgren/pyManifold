@@ -56,10 +56,13 @@ if __name__=="__main__":
   fig, ax = plt.subplots(3,1)
   ax[0].plot(t_hist, state_hist[0])
   ax[0].plot(t_hist, est_hist[0])
+  ax[0].plot(t_hist, dr_hist[0])
   ax[1].plot(t_hist, state_hist[1])
   ax[1].plot(t_hist, est_hist[1])
+  ax[1].plot(t_hist, dr_hist[1])
   ax[2].plot(t_hist, state_hist[2])
   ax[2].plot(t_hist, est_hist[2])
+  ax[2].plot(t_hist, dr_hist[2])
 
   plt.figure(2)
   plt.plot(state_hist[0], state_hist[1])
