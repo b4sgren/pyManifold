@@ -99,10 +99,12 @@ class Quaternion:
         t = 2 * skew(v) @ qv
         vp = v - qw * t + skew(t) @ qv
         if not Jr is None:
-            J = -skew(self.R @ v)
+            # J = -skew(self.R @ v)
+            J = - self.R.T @ skew(v)
             return vp, J @ Jr
         elif not Jl is None:
-            J = - self.R @ skew(v)
+            # J = - self.R @ skew(v)
+            J = -skew(vp)
             return vp, J @ Jl
         else:
             return vp

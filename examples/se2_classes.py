@@ -50,10 +50,8 @@ class SE2_EKF:
     self._cov = np.zeros((3,3))
 
   def propogateDynamics(self, robot, u, dt):
-    # temp, F = robot.state.boxplusr(u*dt, Jr=np.eye(3))
-    # _, G = SE2.Exp(u*dt, Jr=np.eye(3))
-    F = np.linalg.inv(SE2.Exp(u*dt).Adj)
-    _, G = SE2.Exp(u*dt, Jr=np.eye(3))
+    U, G = SE2.Exp(u*dt, Jr=np.eye(3))
+    _, F = robot.state.compose(U, Jr=np.eye(3))
 
     self._cov = F @ self._cov @ F.T + G @ robot.odom_cov @ G.T
 
@@ -61,6 +59,7 @@ class SE2_EKF:
     for zi, lm in zip(z, lms):
       T_inv, J1 = robot.state.inv(Jr=np.eye(3))
       z_hat, J2 = T_inv.transa(lm, Jr=np.eye(3))
+      # Compose Jacobians according to chain rule
       H = J2 @ J1
 
       # Calculate Innovation
