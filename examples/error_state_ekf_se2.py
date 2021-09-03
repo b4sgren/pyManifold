@@ -9,9 +9,11 @@ if __name__=="__main__":
   t = 0.0
   tf = 60.0
   dt = 0.1
+  lms = [np.array([0, -5.0]), np.array([7.0, 0]), np.array([-5.0, -10.0])]
 
   true_robot = Robot()
   est_robot = Robot()
+  ekf = SE2_EKF()
 
   state_hist = []
   est_hist = []
@@ -26,6 +28,10 @@ if __name__=="__main__":
     u, u_hat = true_robot.getInputs(t)
     true_robot.propogateDynamics(u, dt)
     est_robot.propogateDynamics(u_hat, dt)
+    ekf.propogateDynamics(est_robot, u_hat, dt)
+
+    z = est_robot.measurements(lms)
+    est_robot = ekf.measurementUpdate(est_robot, z, lms)
 
     t += dt
     state_hist.append([true_robot.state.x, true_robot.state.y, \
