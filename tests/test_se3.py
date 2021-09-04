@@ -289,212 +289,212 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(T.T, T1.T)
 
-    # def test_right_jacobian_of_inversion(self):
-    #     T = SE3.random()
-    #     T_inv, Jr = T.inv(Jr=np.eye(6))
+    def test_right_jacobian_of_inversion(self):
+        T = SE3.random()
+        T_inv, Jr = T.inv(Jr=np.eye(6))
 
-    #     np.testing.assert_allclose(-T.Adj, Jr)
+        np.testing.assert_allclose(-T.Adj, Jr)
 
-    # def test_left_jacobian_of_inversion(self):
-    #     T = SE3.random()
-    #     T_inv, Jr = T.inv(Jr=np.eye(6))
-    #     _, Jl = T.inv(Jl=np.eye(6))
+    def test_left_jacobian_of_inversion(self):
+        T = SE3.random()
+        T_inv, Jr = T.inv(Jr=np.eye(6))
+        _, Jl = T.inv(Jl=np.eye(6))
 
-    #     Adj_T = T.Adj
-    #     Adj_Tinv = T_inv.Adj
+        Adj_T = T.Adj
+        Adj_Tinv = T_inv.Adj
 
-    #     Jl_true = Adj_Tinv @ Jr @ np.linalg.inv(Adj_T)
+        Jl_true = Adj_Tinv @ Jr @ np.linalg.inv(Adj_T)
 
-    #     np.testing.assert_allclose(Jl_true, Jl)
+        np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_right_jacobian_of_composition(self):
-    #     T1 = SE3.random()
-    #     T2 = SE3.random()
+    def test_right_jacobian_of_composition(self):
+        T1 = SE3.random()
+        T2 = SE3.random()
 
-    #     T3, Jr = T1.compose(T2, Jr=np.eye(6))
-    #     Jr_true = np.linalg.inv(T2.Adj)
+        T3, Jr = T1.compose(T2, Jr=np.eye(6))
+        Jr_true = np.linalg.inv(T2.Adj)
 
-    #     np.testing.assert_allclose(Jr_true, Jr)
+        np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_composition(self):
-    #     for i in range(100):
-    #         T1 = SE3.random()
-    #         T2 = SE3.random()
+    def test_left_jacobian_of_composition(self):
+        for i in range(100):
+            T1 = SE3.random()
+            T2 = SE3.random()
 
-    #         T3, Jr = T1.compose(T2, Jr=np.eye(6))
-    #         _, Jl = T1.compose(T2, Jl=np.eye(6))
+            T3, Jr = T1.compose(T2, Jr=np.eye(6))
+            _, Jl = T1.compose(T2, Jl=np.eye(6))
 
-    #         Jl_true = T3.Adj @ Jr @ T1.inv().Adj
+            Jl_true = T3.Adj @ Jr @ T1.inv().Adj
 
-    #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
-    # def test_jacobians_of_exponential(self):
-    #     for i in range(100):
-    #         rho = np.random.uniform(-10, 10, size=3)
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
-    #         tau = np.array([*rho, *theta])
+    def test_jacobians_of_exponential(self):
+        for i in range(100):
+            rho = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*rho, *theta])
 
-    #         T, Jr = SE3.Exp(tau, Jr=np.eye(6))
-    #         _, Jl = SE3.Exp(-tau, Jl=np.eye(6))
+            T, Jr = SE3.Exp(tau, Jr=np.eye(6))
+            _, Jl = SE3.Exp(-tau, Jl=np.eye(6))
 
-    #         np.testing.assert_allclose(Jr, Jl)
+            np.testing.assert_allclose(Jr, Jl)
 
-    # def test_left_jacobian_of_logarithm(self):
-    #     for i in range(100):
-    #         T = SE3.random()
-    #         logT, Jl_inv = SE3.Log(T, Jl=np.eye(6))
-    #         _, Jl = SE3.Exp(logT, Jl=np.eye(6))
+    def test_left_jacobian_of_logarithm(self):
+        for i in range(100):
+            T = SE3.random()
+            logT, Jl_inv = SE3.Log(T, Jl=np.eye(6))
+            _, Jl = SE3.Exp(logT, Jl=np.eye(6))
 
-    #         np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
-    # def test_right_jacobian_of_logarithm(self):
-    #     for i in range(100):
-    #         T = SE3.random()
-    #         logT, Jr_inv = SE3.Log(T, Jr=np.eye(6))
-    #         _, Jr = SE3.Exp(logT, Jr=np.eye(6))
+    def test_right_jacobian_of_logarithm(self):
+        for i in range(100):
+            T = SE3.random()
+            logT, Jr_inv = SE3.Log(T, Jr=np.eye(6))
+            _, Jr = SE3.Exp(logT, Jr=np.eye(6))
 
-    #         np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
-    # def test_right_jacobian_of_transformation(self):
-    #     for i in range(100):
-    #         T = SE3.random()
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_right_jacobian_of_transformation(self):
+        for i in range(100):
+            T = SE3.random()
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jr = T.transa(v, Jr=np.eye(6))
-    #         vx = np.array([[0, -v[2], v[1]],
-    #                        [v[2], 0, -v[0]],
-    #                        [-v[1], v[0], 0]])
-    #         Jr_true = np.block([T.R, -T.R @ vx])
+            vp, Jr = T.transa(v, Jr=np.eye(6))
+            vx = np.array([[0, -v[2], v[1]],
+                           [v[2], 0, -v[0]],
+                           [-v[1], v[0], 0]])
+            Jr_true = np.block([T.R.T, -T.R.T @ vx])
 
-    #         np.testing.assert_allclose(Jr_true, Jr)
+            np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_transformation(self):
-    #     for i in range(100):
-    #         T = SE3.random()
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_left_jacobian_of_transformation(self):
+        for i in range(100):
+            T = SE3.random()
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jl = T.transa(v, Jl=np.eye(6))
-    #         _, Jr = T.transa(v, Jr=np.eye(6))
+            vp, Jl = T.transa(v, Jl=np.eye(6))
+            _, Jr = T.transa(v, Jr=np.eye(6))
 
-    #         Jl_true = np.eye(3) @ Jr @ np.linalg.inv(T.Adj)
+            Jl_true = np.eye(3) @ Jr @ np.linalg.inv(T.Adj)
 
-    #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
-    # def test_jacobians_of_composition_second_element(self):
-    #     for i in range(100):
-    #         T1 = SE3.random()
-    #         T2 = SE3.random()
+    def test_jacobians_of_composition_second_element(self):
+        for i in range(100):
+            T1 = SE3.random()
+            T2 = SE3.random()
 
-    #         T3, Jr2 = T1.compose(T2, Jr2=np.eye(6))
-    #         _, Jl2 = T1.compose(T2, Jl2=np.eye(6))
+            T3, Jr2 = T1.compose(T2, Jr2=np.eye(6))
+            _, Jl2 = T1.compose(T2, Jl2=np.eye(6))
 
-    #         Jl2_true = T3.Adj @ Jr2 @ np.linalg.inv(T2.Adj)
+            Jl2_true = T3.Adj @ Jr2 @ np.linalg.inv(T2.Adj)
 
-    #         np.testing.assert_allclose(Jl2_true, Jl2)
+            np.testing.assert_allclose(Jl2_true, Jl2)
 
-    # def test_right_jacobian_of_transp(self):
-    #     for T in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_right_jacobian_of_transp(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jr = T.transp(v, Jr=np.eye(6))
-    #         Jr_true = np.block([-np.eye(3), skew(T.R.T @ (v - T.t))])
+            vp, Jr = T.transp(v, Jr=np.eye(6))
+            Jr_true = np.block([-np.eye(3), skew(vp)])
 
-    #         np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
+            np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
-    # def test_left_jacobian_of_transp(self):
-    #     for T in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_left_jacobian_of_transp(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jl = T.transp(v, Jl=np.eye(6))
-    #         vx = skew(v)
-    #         Jl_true = np.block([-T.R.T, T.R.T @ vx])
+            vp, Jl = T.transp(v, Jl=np.eye(6))
+            vx = skew(v)
+            Jl_true = np.block([-T.R, T.R @ vx])
 
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_right_jacobian_of_boxplusr(self):
-    #     for T in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
-    #         tau = np.array([*v, *theta])
+    def test_right_jacobian_of_boxplusr(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*v, *theta])
 
-    #         T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
-    #         _, Jr_true = SE3.Exp(tau, Jr=np.eye(6))
+            T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
+            _, Jr_true = SE3.Exp(tau, Jr=np.eye(6))
 
-    #         np.testing.assert_allclose(Jr_true, Jr)
+            np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_boxplusr(self):
-    #     for T in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
-    #         tau = np.array([*v, *theta])
+    def test_left_jacobian_of_boxplusr(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*v, *theta])
 
-    #         T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
-    #         _, Jl = T.boxplusr(tau, Jl=np.eye(6))
+            T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
+            _, Jl = T.boxplusr(tau, Jl=np.eye(6))
 
-    #         Jl_true = T2.Adj @ Jr @ np.eye(6)
+            Jl_true = T2.Adj @ Jr @ np.eye(6)
 
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_right_jacobians_of_boxminusr(self):
-    #     for T1 in self.transforms:
-    #         T2 = SE3.random()
+    def test_right_jacobians_of_boxminusr(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
 
-    #         tau, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
-    #         dT = T2.inv() * T1
-    #         _, Jr1_true = SE3.Log(dT, Jr=np.eye(6))
+            tau, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
+            dT = T2.inv() * T1
+            _, Jr1_true = SE3.Log(dT, Jr=np.eye(6))
 
-    #         _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
-    #         _, Jr2_true = SE3.Log(dT, Jl=np.eye(6))
+            _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
+            _, Jr2_true = SE3.Log(dT, Jl=np.eye(6))
 
-    #         np.testing.assert_allclose(Jr1_true, Jr1)
-    #         np.testing.assert_allclose(-Jr2_true, Jr2)
+            np.testing.assert_allclose(Jr1_true, Jr1)
+            np.testing.assert_allclose(-Jr2_true, Jr2)
 
-    # def test_left_jacobians_of_boxminusr(self):
-    #     for T1 in self.transforms:
-    #         T2 = SE3.random()
+    def test_left_jacobians_of_boxminusr(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
 
-    #         tau, Jl1 = T1.boxminusr(T2, Jl1=np.eye(6))
-    #         _, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
-    #         Jl1_true = np.eye(6) @ Jr1 @ np.linalg.inv(T1.Adj)
+            tau, Jl1 = T1.boxminusr(T2, Jl1=np.eye(6))
+            _, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
+            Jl1_true = np.eye(6) @ Jr1 @ np.linalg.inv(T1.Adj)
 
-    #         _, Jl2 = T1.boxminusr(T2, Jl2=np.eye(6))
-    #         _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
-    #         Jl2_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
+            _, Jl2 = T1.boxminusr(T2, Jl2=np.eye(6))
+            _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
+            Jl2_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
 
-    #         np.testing.assert_allclose(Jl1_true, Jl1)
-    #         np.testing.assert_allclose(Jl2_true, Jl2)
+            np.testing.assert_allclose(Jl1_true, Jl1)
+            np.testing.assert_allclose(Jl2_true, Jl2)
 
-    # def test_jacobians_of_boxplusl(self):
-    #     for T in self.transforms:
-    #         t = np.random.uniform(-10, 10, size=3)
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
-    #         tau = np.array([*t, *theta])
+    def test_jacobians_of_boxplusl(self):
+        for T in self.transforms:
+            t = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*t, *theta])
 
-    #         T2, Jr = T.boxplusl(tau, Jr=np.eye(6))
-    #         T2, Jl = T.boxplusl(tau, Jl=np.eye(6))
+            T2, Jr = T.boxplusl(tau, Jr=np.eye(6))
+            T2, Jl = T.boxplusl(tau, Jl=np.eye(6))
 
-    #         Jl_true = T2.Adj @ Jr @ np.eye(6)
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            Jl_true = T2.Adj @ Jr @ np.eye(6)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_jacobians_of_boxminusl(self):
-    #     for T1 in self.transforms:
-    #         T2 = SE3.random()
+    def test_jacobians_of_boxminusl(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
 
-    #         diff, Jr = T1.boxminusl(T2, Jr1=np.eye(6))
-    #         diff, Jl = T1.boxminusl(T2, Jl1=np.eye(6))
+            diff, Jr = T1.boxminusl(T2, Jr1=np.eye(6))
+            diff, Jl = T1.boxminusl(T2, Jl1=np.eye(6))
 
-    #         Jl_true = np.eye(6) @ Jr @ np.linalg.inv(T1.Adj)
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            Jl_true = np.eye(6) @ Jr @ np.linalg.inv(T1.Adj)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_jacobians_of_boxminusl_second_element(self):
-    #     for T1 in self.transforms:
-    #         T2 = SE3.random()
+    def test_jacobians_of_boxminusl_second_element(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
 
-    #         diff, Jr2 = T1.boxminusl(T2, Jr2=np.eye(6))
-    #         diff, Jl2 = T1.boxminusl(T2, Jl2=np.eye(6))
+            diff, Jr2 = T1.boxminusl(T2, Jr2=np.eye(6))
+            diff, Jl2 = T1.boxminusl(T2, Jl2=np.eye(6))
 
-    #         Jl_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
-    #         np.testing.assert_allclose(Jl_true, Jl2)
+            Jl_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
+            np.testing.assert_allclose(Jl_true, Jl2)
 
 if __name__=="__main__":
     unittest.main()
