@@ -183,6 +183,10 @@ class SE2:
         T = np.block([[R, t[:,None]], [np.zeros(2), 1]])
         return cls(T)
 
+    @classmethod
+    def fromXYTheta(cls, x, y, theta):
+        return SE2.fromAngleAndt(theta, np.array([x,y]))
+
     @staticmethod
     def Identity():
         return SE2(np.eye(3))
