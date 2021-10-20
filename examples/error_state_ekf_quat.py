@@ -6,14 +6,18 @@ import matplotlib.pyplot as plt
 from trajectory import QuadPrams, Trajectory
 
 class Quadrotor:
-    def __init__(self, quad_params):
+    def __init__(self, quad_params, traj):
         self.mass = quad_params.mass
         self.J = quad_params.J
 
+        p,v, _, R_i_from_b, _ = traj.calcStep(0)
         # Quadrotor state
-        self.position = np.array([3.0, 0, -5.0])
-        self.velocity = np.array([0, .62831853, 0])
-        self.q_i_from_b = Quat.Identity()
+        # self.position = np.array([3.0, 0, -5.0])
+        # self.velocity = np.array([0, .62831853, 0])
+        # self.q_i_from_b = Quat.Identity()
+        self.position = p
+        self.velocity = v
+        self.q_i_from_b = Quat.fromRotationMatrix(R_i_from_b.R)
 
         # Uncertainty
         self.P_ = np.zeros((9,9))
@@ -21,16 +25,15 @@ class Quadrotor:
         self.g = 9.81
 
     def propogateDynamics(self, ab, wb, dt):
-        e3 = np.array([0, 0, 1])
-        # xdot = self.q_i_from_b.rota(self.velocity)
-        # vdot = np.cross(v, wb) + ab[2] + self.q_i_from_b.rota(self.g*e3)
-
         xdot = self.velocity
         vdot = np.cross(v, wb) + ab
 
+        # Propagate state
         self.position += xdot * dt
         self.velocity += vdot * dt
         self.q_i_from_b = self.q_i_from_b.boxplusr(wb*dt)
+
+        # Propagate Uncertainty
 
 if __name__=="__main__":
     t0 = 0.0
@@ -39,7 +42,7 @@ if __name__=="__main__":
 
     params = QuadPrams(1.0)
     traj = Trajectory(params, True)
-    quad = Quadrotor(params)
+    quad = Quadrotor(params, traj)
 
     t_hist = np.arange(t0, tf, dt)
 
