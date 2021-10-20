@@ -7,6 +7,7 @@ from so3 import SO3
 class QuadPrams:
     def __init__(self, mass):
         self.mass = mass
+        self.J = np.eye(3) # Update this
 
 # Choose between circle or Figure 8 trajectory
 # Based on differential flatness in Minimum Snap Trajectory generation and control for quadrotors
@@ -35,7 +36,6 @@ class Trajectory:
             ax = -3 * w**2 * np.cos(w*t)
             ay = -3 * w**2 * np.sin(w*t)
             az = 0
-            t = np.array([ax, ay, az + g])
 
             # Jerk
             jx = 3 * w**3 * np.sin(w*t)
@@ -44,6 +44,7 @@ class Trajectory:
             ad = np.array([jx, jy, jz])
 
             # Get rotation
+            t = np.array([ax, ay, az + g])
             R_i_from_b = self.getRotation(t, psi)
 
             # Get angular rates
@@ -68,13 +69,13 @@ class Trajectory:
             ax = -3 * w**2 * np.cos(w*t)
             ay = 12 * w**2 * np.cos(w*t) * np.sin(w*t)
             az = 0.0
-            t = np.array([ax, ay, az+g])
 
             jx = 3 * w**3 * np.sin(w*t)
             jy = 12 * w**3 * (np.cos(w*t)**2 - np.sin(w*t)**2)
             jz = 0
             ad = np.array([jx, jy, jz])
 
+            t = np.array([ax, ay, az+g])
             R_i_from_b = self.getRotation(t, psi)
 
             # Get angular rates
@@ -85,7 +86,8 @@ class Trajectory:
             q = hw @ R_i_from_b[:,0]
             r = 0 # Because psi_dot is 0
 
-        return np.array([x, y, z]), np.array([vx, vy, vz]), R_i_from_b@np.array([ax, ay, az]), SO3(R_i_from_b), np.array([p, q, r])
+        return np.array([x, y, z]), np.array([vx, vy, vz]), R_i_from_b.T@np.array([ax, ay, az]), SO3(R_i_from_b), np.array([p, q, r])
+        # return np.array([x, y, z]), np.array([vx, vy, vz]), R_i_from_b@np.array([ax, ay, az]), SO3(R_i_from_b.T), R_i_from_b@np.array([p, q, r])
 
     def getRotation(self,t, psi):
         zB = t / np.linalg.norm(t)
@@ -98,8 +100,8 @@ class Trajectory:
 
 if __name__=="__main__":
     params = QuadPrams(1.0)
-    # traj = Trajectory(params, True)
-    traj = Trajectory(params, False)
+    traj = Trajectory(params, True)
+    # traj = Trajectory(params, False)
 
     t = np.linspace(0, 60, 1000)
 
