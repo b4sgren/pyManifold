@@ -32,8 +32,8 @@ class Quadrotor:
     def propogateDynamics(self, ab, wb, dt):
         e3 = np.array([0, 0, 1])
         xdot = self.velocity
-        vdot = np.cross(v, wb) + ab - self.g*e3
-        # vdot = ab - self.g * e3
+        # vdot = self.q_i_from_b.rota(ab) #- self.g * e3
+        vdot = self.q_i_from_b.rota(ab) - self.g * e3
 
         F, G = self.getOdomJacobians(ab, wb, dt)
 
@@ -47,9 +47,14 @@ class Quadrotor:
         self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
 
     def getOdomJacobians(self, ab, wb, dt):
+        _, Jr = self.q_i_from_b.rota(ab, Jr=np.eye(3))
         F = np.zeros((9,9))
-        F[3:6, :3] = np.eye(3)
+        F[:3, 3:6] = np.eye(3)
+        F[3:6, 6:] = Jr
+        F[6:, 6:] = Jr
         G = np.zeros((9,6))
+        G[3:6, :3] = self.q_i_from_b.R.T
+        G[6:, 3:] = self.q_i_from_b.R.T
 
         return F, G
 

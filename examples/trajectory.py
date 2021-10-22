@@ -86,8 +86,8 @@ class Trajectory:
             q = hw @ R_i_from_b[:,0]
             r = 0 # Because psi_dot is 0
 
-        return np.array([x, y, z]), np.array([vx, vy, vz]), R_i_from_b.T@np.array([ax, ay, az]), SO3(R_i_from_b), np.array([p, q, r])
-        # return np.array([x, y, z]), np.array([vx, vy, vz]), R_i_from_b@np.array([ax, ay, az]), SO3(R_i_from_b.T), R_i_from_b@np.array([p, q, r])
+        # return np.array([x, y, z]), np.array([vx, vy, vz]), R_i_from_b.T@np.array([ax, ay, az]), SO3(R_i_from_b), np.array([p, q, r])
+        return np.array([x, y, z]), np.array([vx, vy, vz]), R_i_from_b.T@np.array([ax, ay, az+g]), SO3(R_i_from_b), np.array([p, q, r])
 
     def getRotation(self,t, psi):
         zB = t / np.linalg.norm(t)
