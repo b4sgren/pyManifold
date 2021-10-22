@@ -4,6 +4,11 @@ sys.path.append("..")
 from quaternion import Quaternion as Quat
 import matplotlib.pyplot as plt
 from trajectory import QuadPrams, Trajectory
+import scipy.linalg as spl
+
+R_accel = np.diag([1e-3, 1e-3, 1e-3])
+R_gyro = np.diag([1e-3, 1e-3, 1e-3])
+Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4])
 
 class Quadrotor:
     def __init__(self, quad_params, traj):
@@ -25,20 +30,32 @@ class Quadrotor:
         self.g = 9.81
 
     def propogateDynamics(self, ab, wb, dt):
+        e3 = np.array([0, 0, 1])
         xdot = self.velocity
-        vdot = np.cross(v, wb) + ab
+        vdot = np.cross(v, wb) + ab - self.g*e3
+        # vdot = ab - self.g * e3
+
+        F, G = self.getOdomJacobians(ab, wb, dt)
 
         # Propagate state
         self.position += xdot * dt
         self.velocity += vdot * dt
         self.q_i_from_b = self.q_i_from_b.boxplusr(wb*dt)
 
-        # Propagate Uncertainty
+        # Propagate Uncertainy
+        R = spl.block_diag(R_accel, R_gyro)
+        self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
+
+    def getOdomJacobians(self, ab, wb, dt):
+        F = np.zeros((9,9))
+        F[3:6, :3] = np.eye(3)
+        G = np.zeros((9,6))
+
+        return F, G
 
 class EKF:
     def __init__(self):
-        self.R_accel = np.diag([1e-3, 1e-3, 1e-3])
-        self.R_gyro = np.diag([1e-3, 1e-3, 1e-3])
+        pass
 
 if __name__=="__main__":
     t0 = 0.0
@@ -59,8 +76,8 @@ if __name__=="__main__":
     dr_x_hist, dr_v_hist, dr_euler_hist = [], [], []
     for t in t_hist:
         pos, v, ab, R_i_from_b, wb = traj.calcStep(t)
-        eta_a = np.random.multivariate_normal(np.zeros(3), ekf.R_accel)
-        eta_g = np.random.multivariate_normal(np.zeros(3), ekf.R_gyro)
+        eta_a = np.random.multivariate_normal(np.zeros(3), R_accel)
+        eta_g = np.random.multivariate_normal(np.zeros(3), R_gyro)
         truth_quad.propogateDynamics(ab, wb, dt)
         quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
         dr_quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
