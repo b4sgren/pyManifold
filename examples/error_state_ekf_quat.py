@@ -38,9 +38,11 @@ class Quadrotor:
         F, G = self.getOdomJacobians(ab, wb, dt)
 
         # Propagate state
-        self.position += xdot * dt
-        self.velocity += vdot * dt
-        self.q_i_from_b = self.q_i_from_b.boxplusr(wb*dt)
+        dx = np.block([xdot, vdot, wb]) * dt
+        self.boxplusr(dx)
+        # self.position += xdot * dt
+        # self.velocity += vdot * dt
+        # self.q_i_from_b = self.q_i_from_b.boxplusr(wb*dt)
 
         # Propagate Uncertainy
         R = spl.block_diag(R_accel, R_gyro)
@@ -57,6 +59,11 @@ class Quadrotor:
         G[6:, 3:] = self.q_i_from_b.R.T
 
         return F, G
+
+    def boxplusr(self, dx):
+        self.position += dx[:3]
+        self.velocity += dx[3:6]
+        self.q_i_from_b = self.q_i_from_b.boxplusr(dx[6:])
 
 class EKF:
     def __init__(self):
