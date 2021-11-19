@@ -209,6 +209,7 @@ class Quaternion:
         q3 = np.sqrt(u[0]) * np.cos(2 * np.pi * u[2])
         return Quaternion(np.array([qw, q1, q2, q3]))
 
+    # Note: The argument R is R(q) (transpose of the rotation matrix that behaves the same as q)
     @classmethod
     def fromRotationMatrix(cls, R):
         d = np.trace(R)
@@ -224,7 +225,6 @@ class Quaternion:
         else:
             s = 2 * np.sqrt(1 + R[2,2] - R[0,0] - R[1,1])
             q = np.array([1/s * (R[0,1] - R[1,0]), 1/s * (R[2,0] + R[0,2]), 1/s * (R[2,1] + R[1,2]), s/4])
-        q[1:] *= -1
 
         return Quaternion(q)
 

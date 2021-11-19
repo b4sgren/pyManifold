@@ -62,9 +62,8 @@ class Quaternion_Testing(unittest.TestCase):
         for i in range(100):
             q = Quaternion.random()
             R = SO3.fromQuaternion(q.q)
-            q2 = Quaternion.fromRotationMatrix(R.R)
 
-            np.testing.assert_allclose(q.R, q2.R)
+            np.testing.assert_allclose(q.R.T, R.R)
 
     def testRota(self):
         v = np.array([1, 0, 0])
@@ -108,9 +107,8 @@ class Quaternion_Testing(unittest.TestCase):
             rpy = np.random.uniform(-np.pi, np.pi, size=3)
             R = SO3.fromRPY(rpy).R
             q = Quaternion.fromRPY(rpy)
-            q_true = Quaternion.fromRotationMatrix(R)
 
-            np.testing.assert_allclose(q_true.q, q.q)
+            np.testing.assert_allclose(R, q.R.T)
 
     def testFromAxisAngle(self):
         for i in range(100):
@@ -120,9 +118,8 @@ class Quaternion_Testing(unittest.TestCase):
 
             R = SO3.fromAxisAngle(vec).R
             q = Quaternion.fromAxisAngle(vec)
-            q_true = Quaternion.fromRotationMatrix(R)
 
-            np.testing.assert_allclose(q_true.q, q.q)
+            np.testing.assert_allclose(R, q.R.T)
 
     def testFromAxisAngleTaylor(self):
         for i in range(100): #Taylor series
@@ -132,9 +129,8 @@ class Quaternion_Testing(unittest.TestCase):
 
             R = SO3.fromAxisAngle(vec).R
             q = Quaternion.fromAxisAngle(vec)
-            q_true = Quaternion.fromRotationMatrix(R)
 
-            np.testing.assert_allclose(q_true.q, q.q)
+            np.testing.assert_allclose(R, q.R.T)
 
     def testHat(self):
         for i in range(100):
@@ -183,10 +179,9 @@ class Quaternion_Testing(unittest.TestCase):
             w = theta * v / np.linalg.norm(v)
 
             R = SO3.Exp(w)
-            q_true = Quaternion.fromRotationMatrix(R.R)
             q = Quaternion.Exp(w)
 
-            np.testing.assert_allclose(q_true.q, q.q)
+            np.testing.assert_allclose(R.R, q.R.T)
 
     def testAdj(self):
         for i in range(100):

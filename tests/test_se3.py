@@ -107,7 +107,7 @@ class SE3_Test(unittest.TestCase):
             T = SE3.fromRPYandt(eul, t)
 
             R = SO3.fromRPY(eul).R
-            q = Quaternion.fromRotationMatrix(R)
+            q = Quaternion.fromRotationMatrix(R.T)
 
             np.testing.assert_allclose(q.q, T.q_arr)
             np.testing.assert_allclose(t, T.t)
