@@ -1,13 +1,15 @@
 import numpy as np
 import sys
 sys.path.append("..")
-from quaternion import Quaternion as Quat
+from quaternion import Quaternion as Quat, skew
 import matplotlib.pyplot as plt
 from trajectory import QuadPrams, Trajectory
 import scipy.linalg as spl
 
 R_accel = np.diag([1e-3, 1e-3, 1e-3])
-R_gyro = np.diag([1e-3, 1e-3, 1e-3])
+R_gyro = np.diag([1e-4, 1e-4, 1e-4])
+R_alt = 1e-2
+R_gps = np.diag([.25, .25, 1.0])
 Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4])
 
 class Quadrotor:
@@ -16,13 +18,10 @@ class Quadrotor:
         self.J = quad_params.J
 
         p,v, _, R_i_from_b, _ = traj.calcStep(0)
-        # Quadrotor state
-        # self.position = np.array([3.0, 0, -5.0])
-        # self.velocity = np.array([0, .62831853, 0])
-        # self.q_i_from_b = Quat.Identity()
+        # Quadrotor state position, body frame vel, quat
         self.position = p
         self.velocity = v
-        self.q_i_from_b = Quat.fromRotationMatrix(R_i_from_b.R)
+        self.q_i_from_b = Quat.fromRotationMatrix(R_i_from_b.R.T)
 
         # Uncertainty
         self.P_ = np.zeros((9,9))
@@ -31,24 +30,23 @@ class Quadrotor:
 
     def propogateDynamics(self, ab, wb, dt):
         e3 = np.array([0, 0, 1])
-        xdot = self.velocity
-        # vdot = self.q_i_from_b.rota(ab) #- self.g * e3
-        vdot = self.q_i_from_b.rota(ab) - self.g * e3
+        xdot = self.q_i_from_b.rota(self.velocity)
+        # vdot = self.q_i_from_b.rota(ab) - self.g * e3
+        vdot = skew(self.velocity) @ wb + self.q_i_from_b.rotp(self.g*e3) + ab[2]*e3
 
-        F, G = self.getOdomJacobians(ab, wb, dt)
+        # F, G = self.getOdomJacobians(ab, wb, dt)
 
         # Propagate state
         dx = np.block([xdot, vdot, wb]) * dt
         self.boxplusr(dx)
-        # self.position += xdot * dt
-        # self.velocity += vdot * dt
-        # self.q_i_from_b = self.q_i_from_b.boxplusr(wb*dt)
 
-        # Propagate Uncertainy
-        R = spl.block_diag(R_accel, R_gyro)
-        self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
+        # # Propagate Uncertainy
+        # R = spl.block_diag(R_accel, R_gyro)
+        # self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
 
     def getOdomJacobians(self, ab, wb, dt):
+        # Wrong Jacobians. Need J of err state
+        # Derive err state
         _, Jr = self.q_i_from_b.rota(ab, Jr=np.eye(3))
         F = np.zeros((9,9))
         F[:3, 3:6] = np.eye(3)
@@ -65,14 +63,46 @@ class Quadrotor:
         self.velocity += dx[3:6]
         self.q_i_from_b = self.q_i_from_b.boxplusr(dx[6:])
 
+    def lmMeas(self, lm):
+        z, Jr = self.q_i_from_b.rotp(self.position - lm, Jr=np.eye(3))
+        return z, Jr
+
 class EKF:
     def __init__(self):
+        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4])
+        self.R_alt_ = 1e-2
+        self.R_gps_ = np.diag([.25, .25, .5])
+        self.R_lm_ = np.diag([1e-3, 1e-3, 1e-3])
+
+    def altUpdate(self, quad, z):
         pass
+
+    def gpsUpdate(self, quad, z):
+        pass
+
+    def lmUpdate(self, quad, zs, lms):
+        for z, lm in zip(zs, lms):
+            z_hat, Jr = quad.lmMeas(lm)
+
+            H = np.zeros((3,9))
+            # H[:, :3] = # positions jacobians
+            H[:, 6:] = Jr
+
+            y = z - z_hat
+            S = H @ quad.P_ @ H.T + self.R_lm_
+
+            K = quad.P_ @ H.T @ np.linalg.inv(S)
+
+            dx = K @ y
+            quad.boxplusr(dx)
+            quad.P_ -= K @ S @ K.T
 
 if __name__=="__main__":
     t0 = 0.0
     tf = 60.0
     dt = 0.01 # IMU update rate of 100Hz
+
+    lm_list = [np.array([10, 10, 10]), np.array([10, -10, 10]), np.array([-10, 10, 10]), np.array([-10, -10, 10])]
 
     params = QuadPrams(1.0)
     traj = Trajectory(params, True)
