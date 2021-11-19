@@ -21,6 +21,7 @@ class Quadrotor:
         # Quadrotor state position, body frame vel, quat
         self.position = p
         self.velocity = v
+        # Do .T on rotation matrix because the matrix that is passed in is R(q)
         self.q_i_from_b = Quat.fromRotationMatrix(R_i_from_b.R.T)
 
         # Uncertainty
@@ -31,30 +32,31 @@ class Quadrotor:
     def propogateDynamics(self, ab, wb, dt):
         e3 = np.array([0, 0, 1])
         xdot = self.q_i_from_b.rota(self.velocity)
-        # vdot = self.q_i_from_b.rota(ab) - self.g * e3
         vdot = skew(self.velocity) @ wb + self.q_i_from_b.rotp(self.g*e3) + ab[2]*e3
 
-        # F, G = self.getOdomJacobians(ab, wb, dt)
+        F, G = self.getOdomJacobians(ab, wb, dt)
 
         # Propagate state
         dx = np.block([xdot, vdot, wb]) * dt
         self.boxplusr(dx)
 
-        # # Propagate Uncertainy
-        # R = spl.block_diag(R_accel, R_gyro)
-        # self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
+        # Propagate Uncertainy
+        R = spl.block_diag(R_accel, R_gyro)
+        self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
 
     def getOdomJacobians(self, ab, wb, dt):
-        # Wrong Jacobians. Need J of err state
-        # Derive err state
-        _, Jr = self.q_i_from_b.rota(ab, Jr=np.eye(3))
+        e3 = np.array([0, 0, 1])
         F = np.zeros((9,9))
-        F[:3, 3:6] = np.eye(3)
-        F[3:6, 6:] = Jr
-        F[6:, 6:] = Jr
+        F[:3, 3:6] = self.q_i_from_b.R.T
+        F[:3, 6:] = self.q_i_from_b.R.T @ skew(self.velocity)
+        F[3:6, 3:6] = -skew(wb)
+        F[3:6, 6:] = skew(self.q_i_from_b.R @ (self.g*e3))
+        F[6:, 6:] = -skew(wb)
+
         G = np.zeros((9,6))
-        G[3:6, :3] = self.q_i_from_b.R.T
-        G[6:, 3:] = self.q_i_from_b.R.T
+        G[3:6, 2] = e3
+        G[3:6, 3:] = -skew(self.velocity)
+        G[6:, 3:] = -np.eye(3)
 
         return F, G
 
