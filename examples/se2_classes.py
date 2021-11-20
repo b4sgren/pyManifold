@@ -72,6 +72,7 @@ class SE2_EKF:
       # State correction
       dx = K @ y
       robot.state = robot.state.boxplusr(dx)
-      self._cov -= K @ S @ K.T
+      M = np.eye(3) - K @ H
+      self._cov = M @ self._cov @ M.T + K @ robot.meas_cov @ K.T
 
       return robot

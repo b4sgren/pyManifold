@@ -40,9 +40,14 @@ class Quadrotor:
         dx = np.block([xdot, vdot, wb]) * dt
         self.boxplusr(dx)
 
+        # Discretize matrices
+        Fd = np.eye(dx.size) + F*dt + F@F*(dt**2)/2
+        Gd = G*dt
+
         # Propagate Uncertainy
         R = spl.block_diag(R_accel, R_gyro)
-        self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
+        # self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
+        self.P_ = Fd @ self.P_ @ Fd.T + Q*dt**2 + Gd @ R @ Gd.T
 
     def getOdomJacobians(self, ab, wb, dt):
         e3 = np.array([0, 0, 1])
@@ -75,12 +80,45 @@ class EKF:
         self.R_alt_ = 1e-2
         self.R_gps_ = np.diag([.25, .25, .5])
         self.R_lm_ = np.diag([1e-3, 1e-3, 1e-3])
+        self.R_pos_ = np.diag([.1, .1, .1])
 
     def altUpdate(self, quad, z):
-        pass
+        z_hat = -quad.position[2]
+        H = np.zeros(9)
+        H[2] = -1
 
+        r = z - z_hat
+        S = H @ quad.P_ @ H.T + self.R_alt_
+
+        K = quad.P_ @ H.T / S
+
+        dx = K * r
+        quad.boxplusr(dx)
+        M = np.eye(9) - K @ H
+        quad.P_ = M @ quad.P_ @ M.T + np.outer((K*self.R_alt_), K)
+
+        return quad
+
+    # Uses a rotation and translation for ECEF frame
     def gpsUpdate(self, quad, z):
         pass
+
+    # Direct position update like mocap
+    def posUpdate(self, quad, z):
+        z_hat = quad.position.copy()
+        H = np.block([np.eye(3), np.zeros((3, 6))])
+
+        r = z - z_hat
+        S = H @ quad.P_ @ H.T + self.R_pos_
+
+        K = quad.P_ @ H.T @ np.linalg.inv(S)
+
+        dx = K @ r
+        quad.boxplusr(dx)
+        M = np.eye(9) - K @ H
+        quad.P_ = M @ quad.P_ @ M.T + K @ self.R_pos_ @ K.T
+
+        return quad
 
     def lmUpdate(self, quad, zs, lms):
         for z, lm in zip(zs, lms):
@@ -101,7 +139,8 @@ class EKF:
 
 if __name__=="__main__":
     t0 = 0.0
-    tf = 60.0
+    # tf = 60.0
+    tf = 20.0
     dt = 0.01 # IMU update rate of 100Hz
 
     lm_list = [np.array([10, 10, 10]), np.array([10, -10, 10]), np.array([-10, 10, 10]), np.array([-10, -10, 10])]
@@ -118,6 +157,7 @@ if __name__=="__main__":
     x_hist, v_hist, euler_hist = [], [], []
     truth_x_hist, truth_v_hist, truth_euler_hist = [], [], []
     dr_x_hist, dr_v_hist, dr_euler_hist = [], [], []
+    dt_alt, dt_pos, dt_gps = 0.0, 0.0, 0.0
     for t in t_hist:
         pos, v, ab, R_i_from_b, wb = traj.calcStep(t)
         eta_a = np.random.multivariate_normal(np.zeros(3), R_accel)
@@ -125,6 +165,23 @@ if __name__=="__main__":
         truth_quad.propogateDynamics(ab, wb, dt)
         quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
         dr_quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
+
+        # if dt_alt > params.t_alt:
+        #     z = truth_quad.position[2]
+        #     quad = ekf.altUpdate(quad, z)
+        #     dt_alt = 0.0
+
+        if dt_pos > params.t_pos:
+            z = truth_quad.position.copy()
+            quad = ekf.posUpdate(quad, z)
+            dt_pos = 0.0
+
+        # if dt_gps > params.t_gps:
+            # pass
+
+        dt_alt += dt
+        dt_pos += dt
+        # dt_gps += dt
 
         x_hist.append(quad.position.copy())
         v_hist.append(quad.velocity.copy())

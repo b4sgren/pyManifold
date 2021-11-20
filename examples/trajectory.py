@@ -9,6 +9,10 @@ class QuadPrams:
         self.mass = mass
         self.J = np.eye(3) # Update this
 
+        self.t_alt = .25
+        self.t_pos = .25
+        self.t_gps = 1.0
+
 # Choose between circle or Figure 8 trajectory
 # Based on differential flatness in Minimum Snap Trajectory generation and control for quadrotors
 class Trajectory:
