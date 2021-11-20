@@ -7,17 +7,17 @@ from trajectory import QuadPrams, Trajectory
 import scipy.linalg as spl
 
 R_accel = np.diag([1e-3, 1e-3, 1e-3])
-R_gyro = np.diag([1e-4, 1e-4, 1e-4])
+R_gyro = np.diag([1e-5, 1e-5, 1e-5])
 R_alt = 1e-2
 R_gps = np.diag([.25, .25, 1.0])
 Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4])
 
 class Quadrotor:
-    def __init__(self, quad_params, traj):
+    def __init__(self, quad_params, traj, t0=0.0):
         self.mass = quad_params.mass
         self.J = quad_params.J
 
-        p,v, _, R_i_from_b, _ = traj.calcStep(0)
+        p,v, _, R_i_from_b, _ = traj.calcStep(t0)
         # Quadrotor state position, body frame vel, quat
         self.position = p
         self.velocity = v
@@ -26,6 +26,7 @@ class Quadrotor:
 
         # Uncertainty
         self.P_ = np.zeros((9,9))
+        # self.P_ = np.diag([4, 4, .1, 1, 1, .1, .5, .5, .5])
 
         self.g = 9.81
 
@@ -76,7 +77,7 @@ class Quadrotor:
 
 class EKF:
     def __init__(self):
-        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4])
+        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4]) / 10
         self.R_alt_ = 1e-2
         self.R_gps_ = np.diag([.25, .25, .5])
         self.R_lm_ = np.diag([1e-3, 1e-3, 1e-3])
@@ -139,15 +140,16 @@ class EKF:
 
 if __name__=="__main__":
     t0 = 0.0
-    # tf = 60.0
-    tf = 20.0
+    tf = 60.0
+    # tf = 20.0
     dt = 0.01 # IMU update rate of 100Hz
 
     lm_list = [np.array([10, 10, 10]), np.array([10, -10, 10]), np.array([-10, 10, 10]), np.array([-10, -10, 10])]
 
     params = QuadPrams(1.0)
     traj = Trajectory(params, True)
-    quad = Quadrotor(params, traj)
+    # quad = Quadrotor(params, traj, 4.0)
+    quad = Quadrotor(params, traj, 0.0)
     truth_quad = Quadrotor(params, traj)
     dr_quad = Quadrotor(params, traj)
     ekf = EKF()
@@ -160,8 +162,10 @@ if __name__=="__main__":
     dt_alt, dt_pos, dt_gps = 0.0, 0.0, 0.0
     for t in t_hist:
         pos, v, ab, R_i_from_b, wb = traj.calcStep(t)
-        eta_a = np.random.multivariate_normal(np.zeros(3), R_accel)
-        eta_g = np.random.multivariate_normal(np.zeros(3), R_gyro)
+        # eta_a = np.random.multivariate_normal(np.zeros(3), R_accel)
+        # eta_g = np.random.multivariate_normal(np.zeros(3), R_gyro)
+        eta_a = np.zeros(3)
+        eta_g = np.zeros(3)
         truth_quad.propogateDynamics(ab, wb, dt)
         quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
         dr_quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
@@ -213,9 +217,9 @@ if __name__=="__main__":
     ax1[0].plot(t_hist, x_hist[0], label='Est')
     ax1[1].plot(t_hist, x_hist[1])
     ax1[2].plot(t_hist, x_hist[2])
-    ax1[0].plot(t_hist, dr_x_hist[0], label='DR')
-    ax1[1].plot(t_hist, dr_x_hist[1])
-    ax1[2].plot(t_hist, dr_x_hist[2])
+    # ax1[0].plot(t_hist, dr_x_hist[0], label='DR')
+    # ax1[1].plot(t_hist, dr_x_hist[1])
+    # ax1[2].plot(t_hist, dr_x_hist[2])
     ax1[0].set_title("Positions vs Time")
     ax1[0].legend()
 
@@ -226,9 +230,9 @@ if __name__=="__main__":
     ax2[0].plot(t_hist, v_hist[0], label='Est')
     ax2[1].plot(t_hist, v_hist[1])
     ax2[2].plot(t_hist, v_hist[2])
-    ax2[0].plot(t_hist, dr_v_hist[0], label='DR')
-    ax2[1].plot(t_hist, dr_v_hist[1])
-    ax2[2].plot(t_hist, dr_v_hist[2])
+    # ax2[0].plot(t_hist, dr_v_hist[0], label='DR')
+    # ax2[1].plot(t_hist, dr_v_hist[1])
+    # ax2[2].plot(t_hist, dr_v_hist[2])
     ax2[0].set_title("Velocity vs Time")
     ax2[0].legend()
 
@@ -239,16 +243,16 @@ if __name__=="__main__":
     ax3[0].plot(t_hist, euler_hist[0], label='Est')
     ax3[1].plot(t_hist, euler_hist[1])
     ax3[2].plot(t_hist, euler_hist[2])
-    ax3[0].plot(t_hist, dr_euler_hist[0], label='DR')
-    ax3[1].plot(t_hist, dr_euler_hist[1])
-    ax3[2].plot(t_hist, dr_euler_hist[2])
+    # ax3[0].plot(t_hist, dr_euler_hist[0], label='DR')
+    # ax3[1].plot(t_hist, dr_euler_hist[1])
+    # ax3[2].plot(t_hist, dr_euler_hist[2])
     ax3[0].set_title("Euler Angles vs Time")
     ax3[0].legend()
 
     fig4, ax4 = plt.subplots(nrows=1, ncols=1)
     ax4.plot(truth_x_hist[0], truth_x_hist[1], label='Truth')
     ax4.plot(x_hist[0], x_hist[1], label='Est')
-    ax4.plot(dr_x_hist[0], dr_x_hist[1], label='DR')
+    # ax4.plot(dr_x_hist[0], dr_x_hist[1], label='DR')
     ax4.legend()
 
     plt.show()
