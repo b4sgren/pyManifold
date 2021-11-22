@@ -305,6 +305,9 @@ class Quaternion:
     def exp(cls, W, Jr=None, Jl=None):
         vec = W[1:]
         theta = np.linalg.norm(vec)
+        if (abs(theta) < 1e-5):
+            return cls.Identity()
+
         v = vec / theta
 
         if np.abs(theta) > 1e-8:
