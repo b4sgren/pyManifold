@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from trajectory import QuadPrams, Trajectory
 import scipy.linalg as spl
 
+np.set_printoptions(linewidth=200, precision=4)
+
 R_accel = np.diag([1e-3, 1e-3, 1e-3])
 R_gyro = np.diag([1e-5, 1e-5, 1e-5])
 R_alt = 1e-2
@@ -25,15 +27,16 @@ class Quadrotor:
         self.q_i_from_b = Quat.fromRotationMatrix(R_i_from_b.R.T)
 
         # Uncertainty
-        self.P_ = np.zeros((9,9))
+        # self.P_ = np.zeros((9,9))
         # self.P_ = np.diag([4, 4, .1, 1, 1, .1, .5, .5, .5])
+        self.P_ = np.diag([.1, .1, .1, .1, .1, .1, .1, .1, .1])
 
         self.g = 9.81
 
     def propogateDynamics(self, ab, wb, dt):
         e3 = np.array([0, 0, 1])
         xdot = self.q_i_from_b.rota(self.velocity)
-        vdot = skew(self.velocity) @ wb + self.q_i_from_b.rotp(self.g*e3) + ab[2]*e3
+        vdot = skew(self.velocity) @ wb - self.q_i_from_b.rotp(self.g*e3) + ab[2]*e3
 
         F, G = self.getOdomJacobians(ab, wb, dt)
 
@@ -77,7 +80,7 @@ class Quadrotor:
 
 class EKF:
     def __init__(self):
-        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4]) / 10
+        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4])
         self.R_alt_ = 1e-2
         self.R_gps_ = np.diag([.25, .25, .5])
         self.R_lm_ = np.diag([1e-3, 1e-3, 1e-3])
@@ -140,14 +143,14 @@ class EKF:
 
 if __name__=="__main__":
     t0 = 0.0
-    tf = 60.0
-    # tf = 20.0
+    # tf = 60.0
+    tf = 20.0
     dt = 0.01 # IMU update rate of 100Hz
 
     lm_list = [np.array([10, 10, 10]), np.array([10, -10, 10]), np.array([-10, 10, 10]), np.array([-10, -10, 10])]
 
     params = QuadPrams(1.0)
-    traj = Trajectory(params, True)
+    traj = Trajectory(params, False)
     # quad = Quadrotor(params, traj, 4.0)
     quad = Quadrotor(params, traj, 0.0)
     truth_quad = Quadrotor(params, traj)
@@ -160,12 +163,13 @@ if __name__=="__main__":
     truth_x_hist, truth_v_hist, truth_euler_hist = [], [], []
     dr_x_hist, dr_v_hist, dr_euler_hist = [], [], []
     dt_alt, dt_pos, dt_gps = 0.0, 0.0, 0.0
+    pos_cov, vel_cov, att_cov = [], [], []
     for t in t_hist:
         pos, v, ab, R_i_from_b, wb = traj.calcStep(t)
-        # eta_a = np.random.multivariate_normal(np.zeros(3), R_accel)
-        # eta_g = np.random.multivariate_normal(np.zeros(3), R_gyro)
-        eta_a = np.zeros(3)
-        eta_g = np.zeros(3)
+        eta_a = np.random.multivariate_normal(np.zeros(3), R_accel)
+        eta_g = np.random.multivariate_normal(np.zeros(3), R_gyro)
+        # eta_a = np.zeros(3)
+        # eta_g = np.zeros(3)
         truth_quad.propogateDynamics(ab, wb, dt)
         quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
         dr_quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
@@ -196,6 +200,9 @@ if __name__=="__main__":
         dr_x_hist.append(dr_quad.position.copy())
         dr_v_hist.append(dr_quad.velocity.copy())
         dr_euler_hist.append(dr_quad.q_i_from_b.euler)
+        pos_cov.append(np.diag(quad.P_[:3, :3]))
+        vel_cov.append(np.diag(quad.P_[3:6, 3:6]))
+        att_cov.append(np.diag(quad.P_[-3:, -3:]))
 
 
 
@@ -208,34 +215,51 @@ if __name__=="__main__":
     dr_x_hist = np.array(dr_x_hist).T
     dr_v_hist = np.array(dr_v_hist).T
     dr_euler_hist = np.array(dr_euler_hist).T
+    pos_cov = 2 * np.sqrt(np.array(pos_cov).T)
+    vel_cov = 2 * np.sqrt(np.array(vel_cov).T)
+    att_cov = 2 * np.sqrt(np.array(att_cov).T)
 
 
     fig1, ax1 = plt.subplots(nrows=3, ncols=1)
-    ax1[0].plot(t_hist, truth_x_hist[0], label='Truth')
-    ax1[1].plot(t_hist, truth_x_hist[1])
-    ax1[2].plot(t_hist, truth_x_hist[2])
-    ax1[0].plot(t_hist, x_hist[0], label='Est')
-    ax1[1].plot(t_hist, x_hist[1])
-    ax1[2].plot(t_hist, x_hist[2])
+    ax1[0].plot(t_hist, truth_x_hist[0], 'g', label='Truth')
+    ax1[1].plot(t_hist, truth_x_hist[1], 'g')
+    ax1[2].plot(t_hist, truth_x_hist[2], 'g')
+    ax1[0].plot(t_hist, x_hist[0], 'b', label='Est')
+    ax1[1].plot(t_hist, x_hist[1], 'b')
+    ax1[2].plot(t_hist, x_hist[2], 'b')
     # ax1[0].plot(t_hist, dr_x_hist[0], label='DR')
     # ax1[1].plot(t_hist, dr_x_hist[1])
     # ax1[2].plot(t_hist, dr_x_hist[2])
+    ax1[0].plot(t_hist, pos_cov[0] + truth_x_hist[0], 'r', label='Cov')
+    ax1[1].plot(t_hist, pos_cov[1] + truth_x_hist[1], 'r')
+    ax1[2].plot(t_hist, pos_cov[2] + truth_x_hist[2], 'r')
+    ax1[0].plot(t_hist, -pos_cov[0] + truth_x_hist[0], 'r')
+    ax1[1].plot(t_hist, -pos_cov[1] + truth_x_hist[1], 'r')
+    ax1[2].plot(t_hist, -pos_cov[2] + truth_x_hist[2], 'r')
+
     ax1[0].set_title("Positions vs Time")
     ax1[0].legend()
 
     fig2, ax2 = plt.subplots(nrows=3, ncols=1)
-    ax2[0].plot(t_hist, truth_v_hist[0], label='Truth')
-    ax2[1].plot(t_hist, truth_v_hist[1])
-    ax2[2].plot(t_hist, truth_v_hist[2])
-    ax2[0].plot(t_hist, v_hist[0], label='Est')
-    ax2[1].plot(t_hist, v_hist[1])
-    ax2[2].plot(t_hist, v_hist[2])
+    ax2[0].plot(t_hist, truth_v_hist[0], 'g', label='Truth')
+    ax2[1].plot(t_hist, truth_v_hist[1], 'g')
+    ax2[2].plot(t_hist, truth_v_hist[2], 'g')
+    ax2[0].plot(t_hist, v_hist[0], 'b', label='Est')
+    ax2[1].plot(t_hist, v_hist[1], 'b')
+    ax2[2].plot(t_hist, v_hist[2], 'b')
     # ax2[0].plot(t_hist, dr_v_hist[0], label='DR')
     # ax2[1].plot(t_hist, dr_v_hist[1])
     # ax2[2].plot(t_hist, dr_v_hist[2])
+    ax2[0].plot(t_hist, vel_cov[0] + truth_v_hist[0], 'r', label='Cov')
+    ax2[1].plot(t_hist, vel_cov[1] + truth_v_hist[1], 'r')
+    ax2[2].plot(t_hist, vel_cov[2] + truth_v_hist[2], 'r')
+    ax2[0].plot(t_hist, -vel_cov[0] + truth_v_hist[0], 'r')
+    ax2[1].plot(t_hist, -vel_cov[1] + truth_v_hist[1], 'r')
+    ax2[2].plot(t_hist, -vel_cov[2] + truth_v_hist[2], 'r')
     ax2[0].set_title("Velocity vs Time")
     ax2[0].legend()
 
+    # Cov not in euler space. rethink plotting
     fig3, ax3 = plt.subplots(nrows=3, ncols=1)
     ax3[0].plot(t_hist, truth_euler_hist[0], label='Truth')
     ax3[1].plot(t_hist, truth_euler_hist[1])
