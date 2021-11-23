@@ -52,7 +52,8 @@ class Quadrotor:
         # Propagate Uncertainy
         R = spl.block_diag(R_accel, R_gyro)
         # self.P_ = F @ self.P_ @ F.T + Q + G @ R @ G.T
-        self.P_ = Fd @ self.P_ @ Fd.T + Q*dt**2 + Gd @ R @ Gd.T
+        # self.P_ = Fd @ self.P_ @ Fd.T + Q*dt**2 + Gd @ R @ Gd.T
+        self.P_ = Fd @ self.P_ @ Fd.T + Q + Gd @ R @ Gd.T
 
     def getOdomJacobians(self, ab, wb, dt):
         e3 = np.array([0, 0, 1])
@@ -81,11 +82,11 @@ class Quadrotor:
 
 class EKF:
     def __init__(self):
-        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4]) * 100
+        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4]) * 1
         self.R_alt_ = 1e-2
         self.R_gps_ = np.diag([.25, .25, .5])
         self.R_lm_ = np.diag([1e-3, 1e-3, 1e-3])
-        self.R_pos_ = np.diag([.1, .1, .1])
+        self.R_pos_ = np.diag([.01, .01, .01])
         self.R_att_ = np.diag([1e-4, 1e-4, 1e-4])
 
     # Direct position update like mocap
