@@ -9,8 +9,8 @@ class QuadPrams:
         self.mass = mass
         self.J = np.eye(3) # Update this
 
-        self.t_alt = .25
-        self.t_pos = .05
+        self.t_rot = .25
+        self.t_pos = .25
         # self.t_pos = .25
         self.t_gps = 1.0
 

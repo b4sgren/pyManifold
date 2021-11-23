@@ -2,6 +2,7 @@ import numpy as np
 import sys
 sys.path.append("..")
 from quaternion import Quaternion as Quat, skew
+from so3 import SO3
 import matplotlib.pyplot as plt
 from trajectory import QuadPrams, Trajectory
 import scipy.linalg as spl
@@ -85,27 +86,7 @@ class EKF:
         self.R_gps_ = np.diag([.25, .25, .5])
         self.R_lm_ = np.diag([1e-3, 1e-3, 1e-3])
         self.R_pos_ = np.diag([.1, .1, .1])
-
-    def altUpdate(self, quad, z):
-        z_hat = -quad.position[2]
-        H = np.zeros(9)
-        H[2] = -1
-
-        r = z - z_hat
-        S = H @ quad.P_ @ H.T + self.R_alt_
-
-        K = quad.P_ @ H.T / S
-
-        dx = K * r
-        quad.boxplusr(dx)
-        M = np.eye(9) - K @ H
-        quad.P_ = M @ quad.P_ @ M.T + np.outer((K*self.R_alt_), K)
-
-        return quad
-
-    # Uses a rotation and translation for ECEF frame
-    def gpsUpdate(self, quad, z):
-        pass
+        self.R_att_ = np.diag([1e-3, 1e-3, 1e-3])
 
     # Direct position update like mocap
     def posUpdate(self, quad, z):
@@ -121,6 +102,22 @@ class EKF:
         quad.boxplusr(dx)
         M = np.eye(9) - K @ H
         quad.P_ = M @ quad.P_ @ M.T + K @ self.R_pos_ @ K.T
+
+        return quad
+
+    def attUpdate(self, quad, z):
+        z_hat = quad.q_i_from_b.R
+        H = np.block([np.zeros((3, 6)), np.eye(3)])
+
+        r = SO3.vee(z_hat @ z)
+        S = H @ quad.P_ @ H.T + self.R_att_
+
+        K = quad.P_ @ H.T @ np.linalg.inv(S)
+
+        dx = K @ r
+        quad.boxplusr(dx)
+        M = np.eye(9) - K @ H
+        quad.P_ = M @ quad.P_ @ M.T + K @ self.R_att_ @ K.T
 
         return quad
 
@@ -144,7 +141,7 @@ class EKF:
 if __name__=="__main__":
     t0 = 0.0
     # tf = 60.0
-    tf = 20.0
+    tf = 60.0
     dt = 0.01 # IMU update rate of 100Hz
 
     lm_list = [np.array([10, 10, 10]), np.array([10, -10, 10]), np.array([-10, 10, 10]), np.array([-10, -10, 10])]
@@ -162,7 +159,7 @@ if __name__=="__main__":
     x_hist, v_hist, euler_hist = [], [], []
     truth_x_hist, truth_v_hist, truth_euler_hist = [], [], []
     dr_x_hist, dr_v_hist, dr_euler_hist = [], [], []
-    dt_alt, dt_pos, dt_gps = 0.0, 0.0, 0.0
+    dt_rot, dt_pos, dt_gps = 0.0, 0.0, 0.0
     pos_cov, vel_cov, att_cov = [], [], []
     for t in t_hist:
         pos, v, ab, R_i_from_b, wb = traj.calcStep(t)
@@ -174,20 +171,20 @@ if __name__=="__main__":
         quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
         dr_quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
 
-        # if dt_alt > params.t_alt:
-        #     z = truth_quad.position[2]
-        #     quad = ekf.altUpdate(quad, z)
-        #     dt_alt = 0.0
-
         if dt_pos > params.t_pos:
             z = truth_quad.position.copy()
             quad = ekf.posUpdate(quad, z)
             dt_pos = 0.0
 
+        if dt_rot > params.t_rot:
+            z = R_i_from_b.R.copy()
+            quad = ekf.attUpdate(quad, z)
+            dt_rot = 0
+
         # if dt_gps > params.t_gps:
             # pass
 
-        dt_alt += dt
+        dt_rot += dt
         dt_pos += dt
         # dt_gps += dt
 
