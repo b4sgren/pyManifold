@@ -81,12 +81,12 @@ class Quadrotor:
 
 class EKF:
     def __init__(self):
-        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4])
+        self.Q = np.diag([1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-4, 1e-4, 1e-4]) * 100
         self.R_alt_ = 1e-2
         self.R_gps_ = np.diag([.25, .25, .5])
         self.R_lm_ = np.diag([1e-3, 1e-3, 1e-3])
         self.R_pos_ = np.diag([.1, .1, .1])
-        self.R_att_ = np.diag([1e-3, 1e-3, 1e-3])
+        self.R_att_ = np.diag([1e-4, 1e-4, 1e-4])
 
     # Direct position update like mocap
     def posUpdate(self, quad, z):
@@ -172,12 +172,14 @@ if __name__=="__main__":
         dr_quad.propogateDynamics(ab+eta_a, wb+eta_g, dt)
 
         if dt_pos > params.t_pos:
-            z = truth_quad.position.copy()
+            eta = np.random.multivariate_normal(np.zeros(3), ekf.R_pos_)
+            z = truth_quad.position + eta
             quad = ekf.posUpdate(quad, z)
             dt_pos = 0.0
 
         if dt_rot > params.t_rot:
-            z = R_i_from_b.R.copy()
+            eta = np.random.multivariate_normal(np.zeros(3), ekf.R_att_)
+            z = R_i_from_b.boxplusr(eta).R
             quad = ekf.attUpdate(quad, z)
             dt_rot = 0
 
