@@ -107,7 +107,8 @@ class SE3_Test(unittest.TestCase):
             T = SE3.fromRPYandt(eul, t)
 
             R = SO3.fromRPY(eul).R
-            q = Quaternion.fromRotationMatrix(R.T)
+            # q = Quaternion.fromRotationMatrix(R.T)
+            q = Quaternion.fromRotationMatrix(R)
 
             np.testing.assert_allclose(q.q, T.q_arr)
             np.testing.assert_allclose(t, T.t)
@@ -228,7 +229,7 @@ class SE3_Test(unittest.TestCase):
             R_true = T_true[:3,:3]
             t_true = T_true[:3,3]
 
-            np.testing.assert_allclose(R_true, T.R.T)
+            np.testing.assert_allclose(R_true, T.R.T, rtol=1e-4, atol=1e-4)
             np.testing.assert_allclose(t_true, T.t, rtol=1e-4, atol=1e-4)
 
     def test_adjoint(self):

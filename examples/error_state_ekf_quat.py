@@ -25,7 +25,8 @@ class Quadrotor:
         self.position = p
         self.velocity = v
         # Do .T on rotation matrix because the matrix that is passed in is R(q)
-        self.q_i_from_b = Quat.fromRotationMatrix(R_i_from_b.R.T)
+        # self.q_i_from_b = Quat.fromRotationMatrix(R_i_from_b.R.T)
+        self.q_i_from_b = Quat.fromRotationMatrix(R_i_from_b.R)
 
         # Uncertainty
         # self.P_ = np.zeros((9,9))

@@ -226,6 +226,8 @@ class Quaternion:
             s = 2 * np.sqrt(1 + R[2,2] - R[0,0] - R[1,1])
             q = np.array([1/s * (R[0,1] - R[1,0]), 1/s * (R[2,0] + R[0,2]), 1/s * (R[2,1] + R[1,2]), s/4])
 
+        q[1:] *= -1
+
         return Quaternion(q)
 
     @classmethod
