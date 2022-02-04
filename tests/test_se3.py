@@ -497,5 +497,15 @@ class SE3_Test(unittest.TestCase):
             Jl_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
             np.testing.assert_allclose(Jl_true, Jl2)
 
+    def test_matrix(self):
+        for T1 in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+            vh = np.concatenate((v, np.array([1])))
+
+            vp = T1.transa(v)
+            vp2 = T1.matrix @ vh
+
+            np.testing.assert_allclose(vp, vp2[:-1])
+
 if __name__=="__main__":
     unittest.main()

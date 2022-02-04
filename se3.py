@@ -80,6 +80,12 @@ class SE3:
         return arr
 
     @property
+    def matrix(self):
+        arr = np.block([[self.R.T, self.t[:,None]],
+                        [np.array([0, 0, 0, 1])]])
+        return arr
+
+    @property
     def x(self):
         return self.t[0]
 
