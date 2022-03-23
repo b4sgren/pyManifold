@@ -350,17 +350,17 @@ class Quaternion_Testing(unittest.TestCase):
 
     #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
-    # def test_jacobians_of_composition_second_element(self):
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         q2 = Quaternion.random()
+    def test_jacobians_of_composition_second_element(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
 
-    #         q3, Jr2 = q1.compose(q2, Jr2=np.eye(3))
-    #         _, Jl2 = q1.compose(q2, Jl2=np.eye(3))
+            q3, Jr2 = q1.compose(q2, Jr2=np.eye(3))
+            _, Jl2 = q1.compose(q2, Jl2=np.eye(3))
 
-    #         Jl2_true = q3.Adj @ Jr2 @ np.linalg.inv(q2.Adj)
+            Jl2_true = q3.Adj @ Jr2 @ np.linalg.inv(q2.Adj)
 
-    #         np.testing.assert_allclose(Jl2_true, Jl2)
+            np.testing.assert_allclose(Jl2_true, Jl2)
 
     # def test_right_jacobian_of_rotp(self):
     #     for i in range(100):
