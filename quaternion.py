@@ -44,7 +44,8 @@ class Quaternion:
 
     @property
     def R(self): # This produces R(q) = R.T
-        return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
+        # return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
+        return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property
     def euler(self) -> np.ndarray:
@@ -64,7 +65,8 @@ class Quaternion:
 
     @property
     def Adj(self): # This produces R(q).T (R(q).T = R)
-        return self.R.T
+        # return self.R.T
+        return self.R
 
     def __mul__(self, q): # this seems to actually be doing q * self even though the order is self * q
         return self.otimes(q)
@@ -76,6 +78,7 @@ class Quaternion:
         return f'[{self.qw} + {self.qx}i + {self.qy}j + {self.qz}k]'
 
     def otimes(self, q): # Does this do the wrong thing? R1*R2 = q2 * q1 if I'm not mistaken for quaternions
+        # Ql in Quat Kinematics for Err St Kalman Filter
         Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]])
         return Quaternion(Q @ q.q)
 
