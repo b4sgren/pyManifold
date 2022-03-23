@@ -327,28 +327,28 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
-    # def test_right_jacobian_of_rotation(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_right_jacobian_of_rotation(self):
+        for i in range(100):
+            q = Quaternion.random()
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jr = q.rota(v, Jr=np.eye(3))
-    #         Jr_true = -q.R.T @ skew(v) # James equation missing a transpose.
-    #         # Confirmed by testing against numerical differentiation
+            vp, Jr = q.rota(v, Jr=np.eye(3))
+            Jr_true = -q.R @ skew(v) # James equation missing a transpose.
+            # Confirmed by testing against numerical differentiation
 
-    #         np.testing.assert_allclose(Jr_true, Jr)
+            np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_rotation(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_left_jacobian_of_rotation(self):
+        for i in range(100):
+            q = Quaternion.random()
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jl = q.rota(v, Jl=np.eye(3))
-    #         _, Jr = q.rota(v, Jr=np.eye(3))
+            vp, Jl = q.rota(v, Jl=np.eye(3))
+            _, Jr = q.rota(v, Jr=np.eye(3))
 
-    #         Jl_true = np.eye(3) @ Jr @ np.linalg.inv(q.Adj)
+            Jl_true = np.eye(3) @ Jr @ np.linalg.inv(q.Adj)
 
-    #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
     def test_jacobians_of_composition_second_element(self):
         for i in range(100):
