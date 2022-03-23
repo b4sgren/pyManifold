@@ -362,31 +362,27 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
-    # def test_right_jacobian_of_rotp(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_right_jacobian_of_rotp(self):
+        for i in range(100):
+            q = Quaternion.random()
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jr = q.rotp(v, Jr=np.eye(3))
-    #         vx = np.array([[0, -v[2], v[1]],
-    #                         [v[2], 0, -v[0]],
-    #                         [-v[1], v[0], 0]])
-    #         Jr_true = skew(q.R @ v) # left jacobian in james table...?
+            vp, Jr = q.rotp(v, Jr=np.eye(3))
+            Jr_true = skew(vp)
 
-    #         np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
+            np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
-    # # Rotating a vector isn't consistent across different ways
-    # def test_left_jacobian_of_rotp(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_left_jacobian_of_rotp(self):
+        for i in range(100):
+            q = Quaternion.random()
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jl = q.rotp(v, Jl=np.eye(3))
-    #         _, Jr = q.rotp(v, Jr=np.eye(3))
+            vp, Jl = q.rotp(v, Jl=np.eye(3))
+            _, Jr = q.rotp(v, Jr=np.eye(3))
 
-    #         Jl_true = np.eye(3) @ Jr @ np.linalg.inv(q.Adj)
+            Jl_true = np.eye(3) @ Jr @ np.linalg.inv(q.Adj)
 
-    #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
     # def test_jacobians_of_boxplusr(self):
     #     for i in range(100):
