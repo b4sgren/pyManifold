@@ -63,11 +63,10 @@ class Quaternion:
         return np.array([phi, theta, psi])
 
     @property
-    def Adj(self): # This produces R(q).T (R(q).T = R)
-        # return self.R.T
+    def Adj(self):
         return self.R
 
-    def __mul__(self, q): # this seems to actually be doing q * self even though the order is self * q
+    def __mul__(self, q):
         return self.otimes(q)
 
     def __str__(self):
@@ -93,8 +92,8 @@ class Quaternion:
             return q_inv, -q_inv.Adj @ Jl
         return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
 
-    # I don't understand something still. To get the relationship to work that Jl = Ad_f(x) * Jr * Ad_x^-1 I need to swap the left and right jacobians. Is this a product of the opposite order of multiplying the jacobians? If so why does it not affect composition?
-    def rota(self, v, Jr=None, Jl=None): # q * v * q.inv()
+    # Does q*v*q.inv()
+    def rota(self, v, Jr=None, Jl=None):
         qw = self.qw
         qv = self.qv
 
@@ -111,7 +110,7 @@ class Quaternion:
         else:
             return vp
 
-    def rotp(self, v, Jr=None, Jl=None): # q.inv * v * q
+    def rotp(self, v, Jr=None, Jl=None):
         if not Jr is None:
             q_inv, J = self.inv(Jr=Jr)
             vp, J = q_inv.rota(v, Jr=J)
@@ -203,7 +202,9 @@ class Quaternion:
             return res
 
     @classmethod
-    def random(cls): #Method found at planning.cs.uiuc.edu/node198.html (SO how to generate a random quaternion quickly)
+    def random(cls):
+        # Method found at planning.cs.uiuc.edu/node198.html (SO how to generate
+        # a random quaternion quickly)
         u = np.random.uniform(0.0, 1.0, size=3)
         qw = np.sin(2 * np.pi * u[1]) * np.sqrt(1 - u[0])
         q1 = np.cos(2 * np.pi * u[1]) * np.sqrt(1 - u[0])
@@ -244,7 +245,7 @@ class Quaternion:
         cpsi = np.cos(psi/2)
         spsi = np.sin(psi/2)
 
-        qw = cpsi * ct * cp + spsi * st * sp  #The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
+        qw = cpsi * ct * cp + spsi * st * sp  # The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
         qx = cpsi * ct * sp - spsi * st * cp
         qy = cpsi * st * cp + spsi * ct * sp
         qz = spsi * ct * cp - cpsi * st * sp
