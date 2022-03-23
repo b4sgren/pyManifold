@@ -81,7 +81,7 @@ class SE3:
 
     @property
     def matrix(self):
-        arr = np.block([[self.R.T, self.t[:,None]],
+        arr = np.block([[self.R, self.t[:,None]],
                         [np.array([0, 0, 0, 1])]])
         return arr
 

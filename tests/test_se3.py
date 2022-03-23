@@ -411,104 +411,104 @@ class SE3_Test(unittest.TestCase):
 
             vp, Jl = T.transp(v, Jl=np.eye(6))
             vx = skew(v)
-            Jl_true = np.block([-T.R.T, T.R.T @ vx])  # Second part is wrong
+            Jl_true = np.block([-T.R.T, T.R.T @ vx])
 
             np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_right_jacobian_of_boxplusr(self):
-    #     for T in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
-    #         tau = np.array([*v, *theta])
+    def test_right_jacobian_of_boxplusr(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*v, *theta])
 
-    #         T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
-    #         _, Jr_true = SE3.Exp(tau, Jr=np.eye(6))
+            T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
+            _, Jr_true = SE3.Exp(tau, Jr=np.eye(6))
 
-    #         np.testing.assert_allclose(Jr_true, Jr)
+            np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_boxplusr(self):
-    #     for T in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
-    #         tau = np.array([*v, *theta])
+    def test_left_jacobian_of_boxplusr(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*v, *theta])
 
-    #         T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
-    #         _, Jl = T.boxplusr(tau, Jl=np.eye(6))
+            T2, Jr = T.boxplusr(tau, Jr=np.eye(6))
+            _, Jl = T.boxplusr(tau, Jl=np.eye(6))
 
-    #         Jl_true = T2.Adj @ Jr @ np.eye(6)
+            Jl_true = T2.Adj @ Jr @ np.eye(6)
 
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_right_jacobians_of_boxminusr(self):
-    #     for T1 in self.transforms:
-    #         T2 = SE3.random()
+    def test_right_jacobians_of_boxminusr(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
 
-    #         tau, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
-    #         dT = T2.inv() * T1
-    #         _, Jr1_true = SE3.Log(dT, Jr=np.eye(6))
+            tau, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
+            dT = T2.inv() * T1
+            _, Jr1_true = SE3.Log(dT, Jr=np.eye(6))
 
-    #         _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
-    #         _, Jr2_true = SE3.Log(dT, Jl=np.eye(6))
+            _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
+            _, Jr2_true = SE3.Log(dT, Jl=np.eye(6))
 
-    #         np.testing.assert_allclose(Jr1_true, Jr1)
-    #         np.testing.assert_allclose(-Jr2_true, Jr2)
+            np.testing.assert_allclose(Jr1_true, Jr1)
+            np.testing.assert_allclose(-Jr2_true, Jr2)
 
-    # def test_left_jacobians_of_boxminusr(self):
-    #     for T1 in self.transforms:
-    #         T2 = SE3.random()
+    def test_left_jacobians_of_boxminusr(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
 
-    #         tau, Jl1 = T1.boxminusr(T2, Jl1=np.eye(6))
-    #         _, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
-    #         Jl1_true = np.eye(6) @ Jr1 @ np.linalg.inv(T1.Adj)
+            tau, Jl1 = T1.boxminusr(T2, Jl1=np.eye(6))
+            _, Jr1 = T1.boxminusr(T2, Jr1=np.eye(6))
+            Jl1_true = np.eye(6) @ Jr1 @ np.linalg.inv(T1.Adj)
 
-    #         _, Jl2 = T1.boxminusr(T2, Jl2=np.eye(6))
-    #         _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
-    #         Jl2_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
+            _, Jl2 = T1.boxminusr(T2, Jl2=np.eye(6))
+            _, Jr2 = T1.boxminusr(T2, Jr2=np.eye(6))
+            Jl2_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
 
-    #         np.testing.assert_allclose(Jl1_true, Jl1)
-    #         np.testing.assert_allclose(Jl2_true, Jl2)
+            np.testing.assert_allclose(Jl1_true, Jl1)
+            np.testing.assert_allclose(Jl2_true, Jl2)
 
-    # def test_jacobians_of_boxplusl(self):
-    #     for T in self.transforms:
-    #         t = np.random.uniform(-10, 10, size=3)
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
-    #         tau = np.array([*t, *theta])
+    def test_jacobians_of_boxplusl(self):
+        for T in self.transforms:
+            t = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*t, *theta])
 
-    #         T2, Jr = T.boxplusl(tau, Jr=np.eye(6))
-    #         T2, Jl = T.boxplusl(tau, Jl=np.eye(6))
+            T2, Jr = T.boxplusl(tau, Jr=np.eye(6))
+            T2, Jl = T.boxplusl(tau, Jl=np.eye(6))
 
-    #         Jl_true = T2.Adj @ Jr @ np.eye(6)
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            Jl_true = T2.Adj @ Jr @ np.eye(6)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_jacobians_of_boxminusl(self):
-    #     for T1 in self.transforms:
-    #         T2 = SE3.random()
+    def test_jacobians_of_boxminusl(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
 
-    #         diff, Jr = T1.boxminusl(T2, Jr1=np.eye(6))
-    #         diff, Jl = T1.boxminusl(T2, Jl1=np.eye(6))
+            diff, Jr = T1.boxminusl(T2, Jr1=np.eye(6))
+            diff, Jl = T1.boxminusl(T2, Jl1=np.eye(6))
 
-    #         Jl_true = np.eye(6) @ Jr @ np.linalg.inv(T1.Adj)
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            Jl_true = np.eye(6) @ Jr @ np.linalg.inv(T1.Adj)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_jacobians_of_boxminusl_second_element(self):
-    #     for T1 in self.transforms:
-    #         T2 = SE3.random()
+    def test_jacobians_of_boxminusl_second_element(self):
+        for T1 in self.transforms:
+            T2 = SE3.random()
 
-    #         diff, Jr2 = T1.boxminusl(T2, Jr2=np.eye(6))
-    #         diff, Jl2 = T1.boxminusl(T2, Jl2=np.eye(6))
+            diff, Jr2 = T1.boxminusl(T2, Jr2=np.eye(6))
+            diff, Jl2 = T1.boxminusl(T2, Jl2=np.eye(6))
 
-    #         Jl_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
-    #         np.testing.assert_allclose(Jl_true, Jl2)
+            Jl_true = np.eye(6) @ Jr2 @ np.linalg.inv(T2.Adj)
+            np.testing.assert_allclose(Jl_true, Jl2)
 
-    # def test_matrix(self):
-    #     for T1 in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vh = np.concatenate((v, np.array([1])))
+    def test_matrix(self):
+        for T1 in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
+            vh = np.concatenate((v, np.array([1])))
 
-    #         vp = T1.transa(v)
-    #         vp2 = T1.matrix @ vh
+            vp = T1.transa(v)
+            vp2 = T1.matrix @ vh
 
-    #         np.testing.assert_allclose(vp, vp2[:-1])
+            np.testing.assert_allclose(vp, vp2[:-1])
 
 if __name__=="__main__":
     unittest.main()
