@@ -282,26 +282,26 @@ class Quaternion_Testing(unittest.TestCase):
 
         np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_right_jacobian_of_composition(self):
-    #     q1 = Quaternion.random()
-    #     q2 = Quaternion.random()
+    def test_right_jacobian_of_composition(self):
+        q1 = Quaternion.random()
+        q2 = Quaternion.random()
 
-    #     q3, Jr = q1.compose(q2, Jr=np.eye(3))
-    #     Jr_true = np.linalg.inv(q2.Adj)
+        q3, Jr = q1.compose(q2, Jr=np.eye(3))
+        Jr_true = np.linalg.inv(q2.Adj)
 
-    #     np.testing.assert_allclose(Jr_true, Jr)
+        np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_composition(self):
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         q2 = Quaternion.random()
+    def test_left_jacobian_of_composition(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
 
-    #         q3, Jr = q1.compose(q2, Jr=np.eye(3))
-    #         _, Jl = q1. compose(q2, Jl=np.eye(3))
+            q3, Jr = q1.compose(q2, Jr=np.eye(3))
+            _, Jl = q1. compose(q2, Jl=np.eye(3))
 
-    #         Jl_true = q3.Adj @ Jr @ q1.inv().Adj
+            Jl_true = q3.Adj @ Jr @ q1.inv().Adj
 
-    #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
     # def test_jacobians_of_exponential(self):
     #     for i in range(100):
