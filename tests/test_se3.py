@@ -10,7 +10,7 @@ from se3 import SE3
 from so3 import SO3
 from quaternion import Quaternion, skew
 
-from IPython.core.debugger import Pdb
+np.set_printoptions(linewidth=200)
 
 class SE3_Test(unittest.TestCase):
     def setUp(self):
@@ -288,44 +288,44 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(T.T, T1.T)
 
-    # def test_right_jacobian_of_inversion(self):
-    #     T = SE3.random()
-    #     T_inv, Jr = T.inv(Jr=np.eye(6))
+    def test_right_jacobian_of_inversion(self):
+        T = SE3.random()
+        T_inv, Jr = T.inv(Jr=np.eye(6))
 
-    #     np.testing.assert_allclose(-T.Adj, Jr)
+        np.testing.assert_allclose(-T.Adj, Jr)
 
-    # def test_left_jacobian_of_inversion(self):
-    #     T = SE3.random()
-    #     T_inv, Jr = T.inv(Jr=np.eye(6))
-    #     _, Jl = T.inv(Jl=np.eye(6))
+    def test_left_jacobian_of_inversion(self):
+        T = SE3.random()
+        T_inv, Jr = T.inv(Jr=np.eye(6))
+        _, Jl = T.inv(Jl=np.eye(6))
 
-    #     Adj_T = T.Adj
-    #     Adj_Tinv = T_inv.Adj
+        Adj_T = T.Adj
+        Adj_Tinv = T_inv.Adj
 
-    #     Jl_true = Adj_Tinv @ Jr @ np.linalg.inv(Adj_T)
+        Jl_true = Adj_Tinv @ Jr @ np.linalg.inv(Adj_T)
 
-    #     np.testing.assert_allclose(Jl_true, Jl)
+        np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_right_jacobian_of_composition(self):
-    #     T1 = SE3.random()
-    #     T2 = SE3.random()
+    def test_right_jacobian_of_composition(self):
+        T1 = SE3.random()
+        T2 = SE3.random()
 
-    #     T3, Jr = T1.compose(T2, Jr=np.eye(6))
-    #     Jr_true = np.linalg.inv(T2.Adj)
+        T3, Jr = T1.compose(T2, Jr=np.eye(6))
+        Jr_true = np.linalg.inv(T2.Adj)
 
-    #     np.testing.assert_allclose(Jr_true, Jr)
+        np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_composition(self):
-    #     for i in range(100):
-    #         T1 = SE3.random()
-    #         T2 = SE3.random()
+    def test_left_jacobian_of_composition(self):
+        for i in range(100):
+            T1 = SE3.random()
+            T2 = SE3.random()
 
-    #         T3, Jr = T1.compose(T2, Jr=np.eye(6))
-    #         _, Jl = T1.compose(T2, Jl=np.eye(6))
+            T3, Jr = T1.compose(T2, Jr=np.eye(6))
+            _, Jl = T1.compose(T2, Jl=np.eye(6))
 
-    #         Jl_true = T3.Adj @ Jr @ T1.inv().Adj
+            Jl_true = T3.Adj @ Jr @ T1.inv().Adj
 
-    #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
     # def test_jacobians_of_exponential(self):
     #     for i in range(100):
@@ -379,17 +379,17 @@ class SE3_Test(unittest.TestCase):
 
     #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
-    # def test_jacobians_of_composition_second_element(self):
-    #     for i in range(100):
-    #         T1 = SE3.random()
-    #         T2 = SE3.random()
+    def test_jacobians_of_composition_second_element(self):
+        for i in range(100):
+            T1 = SE3.random()
+            T2 = SE3.random()
 
-    #         T3, Jr2 = T1.compose(T2, Jr2=np.eye(6))
-    #         _, Jl2 = T1.compose(T2, Jl2=np.eye(6))
+            T3, Jr2 = T1.compose(T2, Jr2=np.eye(6))
+            _, Jl2 = T1.compose(T2, Jl2=np.eye(6))
 
-    #         Jl2_true = T3.Adj @ Jr2 @ np.linalg.inv(T2.Adj)
+            Jl2_true = T3.Adj @ Jr2 @ np.linalg.inv(T2.Adj)
 
-    #         np.testing.assert_allclose(Jl2_true, Jl2)
+            np.testing.assert_allclose(Jl2_true, Jl2)
 
     # def test_right_jacobian_of_transp(self):
     #     for T in self.transforms:
