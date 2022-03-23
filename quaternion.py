@@ -43,8 +43,7 @@ class Quaternion:
         return self.arr
 
     @property
-    def R(self): # This produces R(q) = R.T
-        # return (2 * self.qw**2 - 1) * np.eye(3) - 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
+    def R(self):
         return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property

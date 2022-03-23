@@ -34,10 +34,9 @@ class Quaternion_Testing(unittest.TestCase):
     def testR(self):
         for i in range(100):
             q = Quaternion.random()
-            R = SO3.fromQuaternion(q.q)
+            R = (q.qw**2 - q.qv@q.qv)*np.eye(3) + 2*np.outer(q.qv, q.qv) +2*q.qw*skew(q.qv)
 
-            # np.testing.assert_allclose(q.R, R.R.T)
-            np.testing.assert_allclose(q.R, R.R)
+            np.testing.assert_allclose(q.R, R)
 
     def testQuaternionMultiply(self):
         for i in range(100):
@@ -70,42 +69,42 @@ class Quaternion_Testing(unittest.TestCase):
 
     #         np.testing.assert_allclose(q.R.T, R.R)
 
-    # def testRota(self):
-    #     v = np.array([1, 0, 0])
-    #     q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi/2)
-    #     vp = q.rota(v)
-    #     vp_true = np.array([0, 1, 0])
+    def testRota(self):
+        v = np.array([1, 0, 0])
+        q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi/2)
+        vp = q.rota(v)
+        vp_true = np.array([0, 1, 0])
 
-    #     np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+        np.testing.assert_allclose(vp_true, vp, atol=1e-10)
 
-    # def testRotp(self):
-    #     v = np.array([1, 0, 0])
-    #     q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi/2)
-    #     vp = q.rotp(v)
-    #     vp_true = np.array([0, -1, 0])
+    def testRotp(self):
+        v = np.array([1, 0, 0])
+        q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi/2)
+        vp = q.rotp(v)
+        vp_true = np.array([0, -1, 0])
 
-    #     np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+        np.testing.assert_allclose(vp_true, vp, atol=1e-10)
 
-    # def testRotatingVector(self):
-    #     for i in range(100):
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+    def testRotatingVector(self):
+        for i in range(100):
+            v = np.random.uniform(-10, 10, size=3)
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
 
-    #         vp_true = R.rota(v)
-    #         vp = q.rota(v)
+            vp_true = R.rota(v)
+            vp = q.rota(v)
 
-    #         np.testing.assert_allclose(vp_true, vp)
+            np.testing.assert_allclose(vp_true, vp)
 
-    #     for i in range(100):
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+        # for i in range(100):
+        #     v = np.random.uniform(-10, 10, size=3)
+        #     q = Quaternion.random()
+        #     R = SO3.fromQuaternion(q.q)
 
-    #         vp_true = R.rotp(v)
-    #         vp = q.rotp(v)
+        #     vp_true = R.rotp(v)
+        #     vp = q.rotp(v)
 
-    #         np.testing.assert_allclose(vp_true, vp)
+        #     np.testing.assert_allclose(vp_true, vp)
 
     # def testFromRPY(self):
     #     for i in range(100):
