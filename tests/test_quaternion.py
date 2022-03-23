@@ -134,7 +134,14 @@ class Quaternion_Testing(unittest.TestCase):
             R = SO3.fromAxisAngle(vec).R
             q = Quaternion.fromAxisAngle(vec)
 
-            np.testing.assert_allclose(R, q.R.T, atol=1e-5)
+            np.testing.assert_allclose(R, q.R, atol=1e-5)
+
+    def testFromRotationMatrix(self):
+        for i in range(100):
+            R = SO3.random()
+            q = Quaternion.fromRotationMatrix(R.R)
+
+            np.testing.assert_allclose(R.R, q.R)
 
     # def testHat(self):
     #     for i in range(100):
