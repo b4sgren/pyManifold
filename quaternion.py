@@ -75,7 +75,7 @@ class Quaternion:
     def __repr__(self):
         return f'[{self.w} + {self.x}i + {self.y}j + {self.z}k]'
 
-    def otimes(self, q): # Does this do the wrong thing? R1*R2 = q2 * q1 if I'm not mistaken for quaternions
+    def otimes(self, q):
         # Ql in Quat Kinematics for Err St Kalman Filter
         Q = np.block([[self.w, -self.qv], [self.qv[:,None], self.w * np.eye(3) + self.skew()]])
         return Quaternion(Q @ q.q)
