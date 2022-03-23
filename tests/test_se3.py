@@ -327,32 +327,32 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
-    # def test_jacobians_of_exponential(self):
-    #     for i in range(100):
-    #         rho = np.random.uniform(-10, 10, size=3)
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
-    #         tau = np.array([*rho, *theta])
+    def test_jacobians_of_exponential(self):
+        for i in range(100):
+            rho = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
+            tau = np.array([*rho, *theta])
 
-    #         T, Jr = SE3.Exp(tau, Jr=np.eye(6))
-    #         _, Jl = SE3.Exp(-tau, Jl=np.eye(6))
+            T, Jr = SE3.Exp(tau, Jr=np.eye(6))
+            _, Jl = SE3.Exp(-tau, Jl=np.eye(6))
 
-    #         np.testing.assert_allclose(Jr, Jl)
+            np.testing.assert_allclose(Jr, Jl)
 
-    # def test_left_jacobian_of_logarithm(self):
-    #     for i in range(100):
-    #         T = SE3.random()
-    #         logT, Jl_inv = SE3.Log(T, Jl=np.eye(6))
-    #         _, Jl = SE3.Exp(logT, Jl=np.eye(6))
+    def test_left_jacobian_of_logarithm(self):
+        for i in range(100):
+            T = SE3.random()
+            logT, Jl_inv = SE3.Log(T, Jl=np.eye(6))
+            _, Jl = SE3.Exp(logT, Jl=np.eye(6))
 
-    #         np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
-    # def test_right_jacobian_of_logarithm(self):
-    #     for i in range(100):
-    #         T = SE3.random()
-    #         logT, Jr_inv = SE3.Log(T, Jr=np.eye(6))
-    #         _, Jr = SE3.Exp(logT, Jr=np.eye(6))
+    def test_right_jacobian_of_logarithm(self):
+        for i in range(100):
+            T = SE3.random()
+            logT, Jr_inv = SE3.Log(T, Jr=np.eye(6))
+            _, Jr = SE3.Exp(logT, Jr=np.eye(6))
 
-    #         np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
     # def test_right_jacobian_of_transformation(self):
     #     for i in range(100):
