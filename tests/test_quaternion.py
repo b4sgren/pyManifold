@@ -114,16 +114,16 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(R, q.R)
 
-    # def testFromAxisAngle(self):
-    #     for i in range(100):
-    #         theta = np.random.uniform(0, np.pi)
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vec = theta * v/np.linalg.norm(v)
+    def testFromAxisAngle(self):
+        for i in range(100):
+            theta = np.random.uniform(0, np.pi)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v/np.linalg.norm(v)
 
-    #         R = SO3.fromAxisAngle(vec).R
-    #         q = Quaternion.fromAxisAngle(vec)
+            R = SO3.fromAxisAngle(vec).R
+            q = Quaternion.fromAxisAngle(vec)
 
-    #         np.testing.assert_allclose(R, q.R.T)
+            np.testing.assert_allclose(R, q.R)
 
     # def testFromAxisAngleTaylor(self):
     #     for i in range(100): #Taylor series
