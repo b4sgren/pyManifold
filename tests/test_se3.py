@@ -241,52 +241,52 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(T1.T, T2.T)
 
-    # def test_normalize(self):
-    #     T = SE3.Identity()
-    #     T2 = self.transforms[30]
-    #     for i in range(1000):
-    #         T = T * T2
-    #     T.normalize()
-    #     self.assertTrue(T.isValidTransform())
+    def test_normalize(self):
+        T = SE3.Identity()
+        T2 = self.transforms[30]
+        for i in range(1000):
+            T = T * T2
+        T.normalize()
+        self.assertTrue(T.isValidTransform())
 
-    # def test_boxplusr(self):
-    #     v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-    #     for (T, v, w) in zip(self.transforms, v_list, w_list):
-    #         vec = np.array([*v, *w])
-    #         T2 = T.boxplusr(vec)
+    def test_boxplusr(self):
+        v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
+        for (T, v, w) in zip(self.transforms, v_list, w_list):
+            vec = np.array([*v, *w])
+            T2 = T.boxplusr(vec)
 
-    #         temp = SE3.Exp(vec)
-    #         T2_true = T * temp
+            temp = SE3.Exp(vec)
+            T2_true = T * temp
 
-    #         np.testing.assert_allclose(T2_true.T, T2.T)
+            np.testing.assert_allclose(T2_true.T, T2.T)
 
-    # def test_boxminusr(self):
-    #     transforms2 = [SE3.random() for i in range(100)]
-    #     for (T1, T2) in zip(self.transforms, transforms2):
-    #         diffT = T1.boxminusr(T2)
-    #         T = T2.boxplusr(diffT)
+    def test_boxminusr(self):
+        transforms2 = [SE3.random() for i in range(100)]
+        for (T1, T2) in zip(self.transforms, transforms2):
+            diffT = T1.boxminusr(T2)
+            T = T2.boxplusr(diffT)
 
-    #         np.testing.assert_allclose(T.T, T1.T)
+            np.testing.assert_allclose(T.T, T1.T)
 
-    # def test_boxplusl(self):
-    #     v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-    #     for (T,v,w) in zip(self.transforms, v_list, w_list):
-    #         vec = np.array([*v, *w])
-    #         T2 = T.boxplusl(vec)
+    def test_boxplusl(self):
+        v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
+        for (T,v,w) in zip(self.transforms, v_list, w_list):
+            vec = np.array([*v, *w])
+            T2 = T.boxplusl(vec)
 
-    #         T2_true = SE3.Exp(vec) * T
+            T2_true = SE3.Exp(vec) * T
 
-    #         np.testing.assert_allclose(T2_true.T, T2.T)
+            np.testing.assert_allclose(T2_true.T, T2.T)
 
-    # def test_boxminusl(self):
-    #     transforms2 = [SE3.random() for i in range(100)]
-    #     for (T1,T2) in zip(self.transforms, transforms2):
-    #         v = T1.boxminusl(T2)
-    #         T = T2.boxplusl(v)
+    def test_boxminusl(self):
+        transforms2 = [SE3.random() for i in range(100)]
+        for (T1,T2) in zip(self.transforms, transforms2):
+            v = T1.boxminusl(T2)
+            T = T2.boxplusl(v)
 
-    #         np.testing.assert_allclose(T.T, T1.T)
+            np.testing.assert_allclose(T.T, T1.T)
 
     # def test_right_jacobian_of_inversion(self):
     #     T = SE3.random()
