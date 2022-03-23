@@ -15,10 +15,10 @@ e3 = np.array([0, 0, d])
 
 def quatMultiply(q1, q2):
     q3 = np.array([
-            q1.qw*q2.qw - q1.qx*q2.qx - q1.qy*q2.qy - q1.qz*q2.qz,
-            q1.qw*q2.qx + q1.qx*q2.qw + q1.qy*q2.qz - q1.qz*q2.qy,
-            q1.qw*q2.qy - q1.qx*q2.qz + q1.qy*q2.qw + q1.qz*q2.qx,
-            q1.qw*q2.qz + q1.qx*q2.qy - q1.qy*q2.qx + q1.qz*q2.qw
+            q1.w*q2.w - q1.x*q2.x - q1.y*q2.y - q1.z*q2.z,
+            q1.w*q2.x + q1.x*q2.w + q1.y*q2.z - q1.z*q2.y,
+            q1.w*q2.y - q1.x*q2.z + q1.y*q2.w + q1.z*q2.x,
+            q1.w*q2.z + q1.x*q2.y - q1.y*q2.x + q1.z*q2.w
             ])
 
     return q3
@@ -34,7 +34,7 @@ class Quaternion_Testing(unittest.TestCase):
     def testR(self):
         for i in range(100):
             q = Quaternion.random()
-            R = (q.qw**2 - q.qv@q.qv)*np.eye(3) + 2*np.outer(q.qv, q.qv) +2*q.qw*skew(q.qv)
+            R = (q.w**2 - q.qv@q.qv)*np.eye(3) + 2*np.outer(q.qv, q.qv) +2*q.w*skew(q.qv)
 
             np.testing.assert_allclose(q.R, R)
 

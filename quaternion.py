@@ -19,19 +19,19 @@ class Quaternion:
             raise ValueError("Input must be a numpy array of length 4")
 
     @property
-    def qw(self):
+    def w(self):
         return self.arr[0]
 
     @property
-    def qx(self):
+    def x(self):
         return self.arr[1]
 
     @property
-    def qy(self):
+    def y(self):
         return self.arr[2]
 
     @property
-    def qz(self):
+    def z(self):
         return self.arr[3]
 
     @property
@@ -44,20 +44,20 @@ class Quaternion:
 
     @property
     def R(self):
-        return (2 * self.qw**2 - 1) * np.eye(3) + 2 * self.qw * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
+        return (2 * self.w**2 - 1) * np.eye(3) + 2 * self.w * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
 
     @property
     def euler(self) -> np.ndarray:
-        t0 = 2 * (self.qw*self.qx + self.qy*self.qz)
-        t1 = 1 - 2 * (self.qx**2 + self.qy**2)
+        t0 = 2 * (self.w*self.x + self.y*self.z)
+        t1 = 1 - 2 * (self.x**2 + self.y**2)
         phi = np.arctan2(t0, t1)
 
-        t2 = 2 * (self.qw*self.qy - self.qz*self.qx)
+        t2 = 2 * (self.w*self.y - self.z*self.x)
         t2 = 1.0 * np.sign(t2) if np.abs(t2) > 1.0 else t2
         theta = np.arcsin(t2)
 
-        t3 = 2.0 * (self.qw*self.qz + self.qx*self.qy)
-        t4 = 1 - 2.0 * (self.qy**2 + self.qz**2)
+        t3 = 2.0 * (self.w*self.z + self.x*self.y)
+        t4 = 1 - 2.0 * (self.y**2 + self.z**2)
         psi = np.arctan2(t3, t4)
 
         return np.array([phi, theta, psi])
@@ -73,11 +73,11 @@ class Quaternion:
         return str(self.q)
 
     def __repr__(self):
-        return f'[{self.qw} + {self.qx}i + {self.qy}j + {self.qz}k]'
+        return f'[{self.w} + {self.x}i + {self.y}j + {self.z}k]'
 
     def otimes(self, q): # Does this do the wrong thing? R1*R2 = q2 * q1 if I'm not mistaken for quaternions
         # Ql in Quat Kinematics for Err St Kalman Filter
-        Q = np.block([[self.qw, -self.qv], [self.qv[:,None], self.qw * np.eye(3) + self.skew()]])
+        Q = np.block([[self.w, -self.qv], [self.qv[:,None], self.w * np.eye(3) + self.skew()]])
         return Quaternion(Q @ q.q)
 
     def skew(self):
@@ -86,15 +86,15 @@ class Quaternion:
 
     def inv(self, Jr=None, Jl=None):
         if not Jr is None:
-            return Quaternion(np.array([self.qw, *(-self.qv)])), -self.Adj @ Jr
+            return Quaternion(np.array([self.w, *(-self.qv)])), -self.Adj @ Jr
         elif not Jl is None:
-            q_inv = Quaternion(np.array([self.qw, *(-self.qv)]))
+            q_inv = Quaternion(np.array([self.w, *(-self.qv)]))
             return q_inv, -q_inv.Adj @ Jl
-        return Quaternion(np.array([self.qw, -self.qx, -self.qy, -self.qz]))
+        return Quaternion(np.array([self.w, -self.x, -self.y, -self.z]))
 
     # Does q*v*q.inv()
     def rota(self, v, Jr=None, Jl=None):
-        qw = self.qw
+        qw = self.w
         qv = self.qv
 
         t = 2 * skew(v) @ qv
@@ -267,7 +267,7 @@ class Quaternion:
 
     @staticmethod
     def log(q, Jr=None, Jl=None):
-        qw = q.qw
+        qw = q.w
         qv = q.qv
         theta = np.linalg.norm(qv)
 
