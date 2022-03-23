@@ -264,23 +264,23 @@ class Quaternion_Testing(unittest.TestCase):
             q2 = Quaternion.fromRPY(rpy)
             np.testing.assert_allclose(q1.q, q2.q)
 
-    # def test_right_jacobian_of_inversion(self):
-    #     q = Quaternion.random()
-    #     q_inv, Jr = q.inv(Jr=np.eye(3))
-    #     Jr_true = -q.Adj
+    def test_right_jacobian_of_inversion(self):
+        q = Quaternion.random()
+        q_inv, Jr = q.inv(Jr=np.eye(3))
+        Jr_true = -q.Adj
 
-    #     np.testing.assert_allclose(Jr_true, Jr)
+        np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_inversion(self):
-    #     q = Quaternion.random()
-    #     q_inv, Jr = q.inv(Jr=np.eye(3))
-    #     _, Jl = q.inv(Jl=np.eye(3))
+    def test_left_jacobian_of_inversion(self):
+        q = Quaternion.random()
+        q_inv, Jr = q.inv(Jr=np.eye(3))
+        _, Jl = q.inv(Jl=np.eye(3))
 
-    #     Adj_q = q.Adj
-    #     Adj_qinv = q_inv.Adj
-    #     Jl_true = Adj_qinv @ Jr @ np.linalg.inv(Adj_q)
+        Adj_q = q.Adj
+        Adj_qinv = q_inv.Adj
+        Jl_true = Adj_qinv @ Jr @ np.linalg.inv(Adj_q)
 
-    #     np.testing.assert_allclose(Jl_true, Jl)
+        np.testing.assert_allclose(Jl_true, Jl)
 
     # def test_right_jacobian_of_composition(self):
     #     q1 = Quaternion.random()
