@@ -303,29 +303,29 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
-    # def test_jacobians_of_exponential(self):
-    #     for i in range(100):
-    #         tau = np.random.uniform(-np.pi, np.pi, size=3)
-    #         q, Jr = Quaternion.Exp(tau, Jr=np.eye(3))
-    #         _, Jl = Quaternion.Exp(-tau, Jl=np.eye(3))
+    def test_jacobians_of_exponential(self):
+        for i in range(100):
+            tau = np.random.uniform(-np.pi, np.pi, size=3)
+            q, Jr = Quaternion.Exp(tau, Jr=np.eye(3))
+            _, Jl = Quaternion.Exp(-tau, Jl=np.eye(3))
 
-    #         np.testing.assert_allclose(Jl, Jr)
+            np.testing.assert_allclose(Jl, Jr)
 
-    # def test_right_jacobian_of_logarithm(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         logq, Jr_inv = Quaternion.Log(q, Jr=np.eye(3))
-    #         _, Jr = Quaternion.Exp(logq, Jr=np.eye(3))
+    def test_right_jacobian_of_logarithm(self):
+        for i in range(100):
+            q = Quaternion.random()
+            logq, Jr_inv = Quaternion.Log(q, Jr=np.eye(3))
+            _, Jr = Quaternion.Exp(logq, Jr=np.eye(3))
 
-    #         np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
-    # def test_left_jacobian_or_logarithm(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         logq, Jl_inv = Quaternion.Log(q, Jl=np.eye(3))
-    #         _, Jl = Quaternion.Exp(logq, Jl=np.eye(3))
+    def test_left_jacobian_or_logarithm(self):
+        for i in range(100):
+            q = Quaternion.random()
+            logq, Jl_inv = Quaternion.Log(q, Jl=np.eye(3))
+            _, Jl = Quaternion.Exp(logq, Jl=np.eye(3))
 
-    #         np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
     # def test_right_jacobian_of_rotation(self):
     #     for i in range(100):
