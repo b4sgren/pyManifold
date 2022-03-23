@@ -12,6 +12,11 @@ from quaternion import Quaternion, skew
 
 np.set_printoptions(linewidth=200)
 
+def e(i):
+    v = np.zeros(6)
+    v[i] = 1e-4
+    return v
+
 class SE3_Test(unittest.TestCase):
     def setUp(self):
         self.transforms = [SE3.random() for i in range(100)]
@@ -354,30 +359,30 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
-    # def test_right_jacobian_of_transformation(self):
-    #     for i in range(100):
-    #         T = SE3.random()
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_right_jacobian_of_transformation(self):
+        for i in range(100):
+            T = SE3.random()
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jr = T.transa(v, Jr=np.eye(6))
-    #         vx = np.array([[0, -v[2], v[1]],
-    #                        [v[2], 0, -v[0]],
-    #                        [-v[1], v[0], 0]])
-    #         Jr_true = np.block([T.R.T, -T.R.T @ vx])
+            vp, Jr = T.transa(v, Jr=np.eye(6))
+            vx = np.array([[0, -v[2], v[1]],
+                           [v[2], 0, -v[0]],
+                           [-v[1], v[0], 0]])
+            Jr_true = np.block([T.R, -T.R @ vx])
 
-    #         np.testing.assert_allclose(Jr_true, Jr)
+            np.testing.assert_allclose(Jr_true, Jr)
 
-    # def test_left_jacobian_of_transformation(self):
-    #     for i in range(100):
-    #         T = SE3.random()
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_left_jacobian_of_transformation(self):
+        for i in range(100):
+            T = SE3.random()
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jl = T.transa(v, Jl=np.eye(6))
-    #         _, Jr = T.transa(v, Jr=np.eye(6))
+            vp, Jl = T.transa(v, Jl=np.eye(6))
+            _, Jr = T.transa(v, Jr=np.eye(6))
 
-    #         Jl_true = np.eye(3) @ Jr @ np.linalg.inv(T.Adj)
+            Jl_true = np.eye(3) @ Jr @ np.linalg.inv(T.Adj)
 
-    #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
+            np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
     def test_jacobians_of_composition_second_element(self):
         for i in range(100):
@@ -391,24 +396,24 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
-    # def test_right_jacobian_of_transp(self):
-    #     for T in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_right_jacobian_of_transp(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jr = T.transp(v, Jr=np.eye(6))
-    #         Jr_true = np.block([-np.eye(3), skew(vp)])
+            vp, Jr = T.transp(v, Jr=np.eye(6))
+            Jr_true = np.block([-np.eye(3), skew(vp)])
 
-    #         np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
+            np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
-    # def test_left_jacobian_of_transp(self):
-    #     for T in self.transforms:
-    #         v = np.random.uniform(-10, 10, size=3)
+    def test_left_jacobian_of_transp(self):
+        for T in self.transforms:
+            v = np.random.uniform(-10, 10, size=3)
 
-    #         vp, Jl = T.transp(v, Jl=np.eye(6))
-    #         vx = skew(v)
-    #         Jl_true = np.block([-T.R, T.R @ vx])
+            vp, Jl = T.transp(v, Jl=np.eye(6))
+            vx = skew(v)
+            Jl_true = np.block([-T.R.T, T.R.T @ vx])  # Second part is wrong
 
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            np.testing.assert_allclose(Jl_true, Jl)
 
     # def test_right_jacobian_of_boxplusr(self):
     #     for T in self.transforms:

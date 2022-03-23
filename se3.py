@@ -134,7 +134,7 @@ class SE3:
     def transa(self, v, Jr=None, Jl=None):
         vp = self.t + self.q.rota(v)
         if Jr is not None:
-            J = np.block([self.R.T, -self.R.T @ skew(v)])
+            J = np.block([self.R, -self.R @ skew(v)])
             return vp, J @ Jr
         elif Jl is not None:
             J = np.block([np.eye(3), -skew(vp)])
