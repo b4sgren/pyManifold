@@ -384,77 +384,77 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl, atol=1e-10)
 
-    # def test_jacobians_of_boxplusr(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
+    def test_jacobians_of_boxplusr(self):
+        for i in range(100):
+            q = Quaternion.random()
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
 
-    #         q2, Jr = q.boxplusr(theta, Jr=np.eye(3))
-    #         _, Jl = q.boxplusr(theta, Jl=np.eye(3))
+            q2, Jr = q.boxplusr(theta, Jr=np.eye(3))
+            _, Jl = q.boxplusr(theta, Jl=np.eye(3))
 
-    #         Jl_true = q2.Adj @ Jr @ np.eye(3)
+            Jl_true = q2.Adj @ Jr @ np.eye(3)
 
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_right_jacobians_of_boxminusr(self):
-    #     for i in range(100):
-    #         q1, q2 = Quaternion.random(), Quaternion.random()
+    def test_right_jacobians_of_boxminusr(self):
+        for i in range(100):
+            q1, q2 = Quaternion.random(), Quaternion.random()
 
-    #         theta, Jr1 = q1.boxminusr(q2, Jr1=np.eye(3))
-    #         dq = q2.inv() * q1
-    #         _, Jr1_true = Quaternion.Log(dq, Jr=np.eye(3))
+            theta, Jr1 = q1.boxminusr(q2, Jr1=np.eye(3))
+            dq = q2.inv() * q1
+            _, Jr1_true = Quaternion.Log(dq, Jr=np.eye(3))
 
-    #         _, Jr2 = q1.boxminusr(q2, Jr2=np.eye(3))
-    #         _, Jr2_true = Quaternion.Log(dq, Jl=np.eye(3))
+            _, Jr2 = q1.boxminusr(q2, Jr2=np.eye(3))
+            _, Jr2_true = Quaternion.Log(dq, Jl=np.eye(3))
 
-    #         np.testing.assert_allclose(Jr1_true, Jr1)
-    #         np.testing.assert_allclose(-Jr2_true, Jr2)
+            np.testing.assert_allclose(Jr1_true, Jr1)
+            np.testing.assert_allclose(-Jr2_true, Jr2)
 
-    # def test_left_jacobians_of_boxminusr(self):
-    #     for i in range(100):
-    #         q1, q2 = Quaternion.random(), Quaternion.random()
+    def test_left_jacobians_of_boxminusr(self):
+        for i in range(100):
+            q1, q2 = Quaternion.random(), Quaternion.random()
 
-    #         theta, Jl1 = q1.boxminusr(q2, Jl1=np.eye(3))
-    #         _, Jr1 = q1.boxminusr(q2, Jr1=np.eye(3))
-    #         Jl1_true = np.eye(3) @ Jr1 @ q1.Adj.T
+            theta, Jl1 = q1.boxminusr(q2, Jl1=np.eye(3))
+            _, Jr1 = q1.boxminusr(q2, Jr1=np.eye(3))
+            Jl1_true = np.eye(3) @ Jr1 @ q1.Adj.T
 
-    #         _, Jl2 = q1.boxminusr(q2, Jl2=np.eye(3))
-    #         _, Jr2 = q1.boxminusr(q2, Jr2=np.eye(3))
-    #         Jl2_true = np.eye(3) @ Jr2 @ q2.Adj.T
+            _, Jl2 = q1.boxminusr(q2, Jl2=np.eye(3))
+            _, Jr2 = q1.boxminusr(q2, Jr2=np.eye(3))
+            Jl2_true = np.eye(3) @ Jr2 @ q2.Adj.T
 
-    #         np.testing.assert_allclose(Jl1_true, Jl1)
-    #         np.testing.assert_allclose(Jl2_true, Jl2)
+            np.testing.assert_allclose(Jl1_true, Jl1)
+            np.testing.assert_allclose(Jl2_true, Jl2)
 
-    # def test_jacobians_of_boxplusl(self):
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
+    def test_jacobians_of_boxplusl(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            theta = np.random.uniform(-np.pi, np.pi, size=3)
 
-    #         q2, Jr = q1.boxplusl(theta, Jr=np.eye(3))
-    #         _, Jl = q1.boxplusl(theta, Jl=np.eye(3))
+            q2, Jr = q1.boxplusl(theta, Jr=np.eye(3))
+            _, Jl = q1.boxplusl(theta, Jl=np.eye(3))
 
-    #         Jl_true = q2.Adj @ Jr @ np.eye(3)
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            Jl_true = q2.Adj @ Jr @ np.eye(3)
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_jacobians_of_boxminusl(self):
-    #     for i in range(100):
-    #         q1, q2 = Quaternion.random(), Quaternion.random()
+    def test_jacobians_of_boxminusl(self):
+        for i in range(100):
+            q1, q2 = Quaternion.random(), Quaternion.random()
 
-    #         theta, Jr = q1.boxminusl(q2, Jr1=np.eye(3))
-    #         _, Jl = q1.boxminusl(q2, Jl1=np.eye(3))
+            theta, Jr = q1.boxminusl(q2, Jr1=np.eye(3))
+            _, Jl = q1.boxminusl(q2, Jl1=np.eye(3))
 
-    #         Jl_true = np.eye(3) @ Jr @ q1.Adj.T
-    #         np.testing.assert_allclose(Jl_true, Jl)
+            Jl_true = np.eye(3) @ Jr @ q1.Adj.T
+            np.testing.assert_allclose(Jl_true, Jl)
 
-    # def test_jacobian_of_boxminusl_second_element(self):
-    #     for i in range(100):
-    #         q1, q2 = Quaternion.random(), Quaternion.random()
+    def test_jacobian_of_boxminusl_second_element(self):
+        for i in range(100):
+            q1, q2 = Quaternion.random(), Quaternion.random()
 
-    #         theta, Jr2 = q1.boxminusl(q2, Jr2=np.eye(3))
-    #         _, Jl2 = q1.boxminusl(q2, Jl2=np.eye(3))
+            theta, Jr2 = q1.boxminusl(q2, Jr2=np.eye(3))
+            _, Jl2 = q1.boxminusl(q2, Jl2=np.eye(3))
 
-    #         Jl_true = np.eye(3) @ Jr2 @ q2.Adj.T
-    #         np.testing.assert_allclose(Jl_true, Jl2)
+            Jl_true = np.eye(3) @ Jr2 @ q2.Adj.T
+            np.testing.assert_allclose(Jl_true, Jl2)
 
 
 if __name__=="__main__":

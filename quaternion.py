@@ -103,7 +103,6 @@ class Quaternion:
             J = - self.R @ skew(v)
             return vp, J @ Jr
         elif not Jl is None:
-            # J = - self.R @ skew(v)
             J = -skew(vp)
             return vp, J @ Jl
         else:
