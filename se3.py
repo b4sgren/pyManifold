@@ -39,24 +39,24 @@ class SE3:
         return cls(q,t)
 
     @property
-    def qw(self):
-        return self.q_.qw
+    def w(self):
+        return self.q_.w
 
     @property
     def qv(self):
         return self.q_.qv
 
     @property
-    def qx(self):
-        return self.q_.qx
+    def x(self):
+        return self.q_.x
 
     @property
-    def qy(self):
-        return self.q_.qy
+    def y(self):
+        return self.q_.y
 
     @property
-    def qz(self):
-        return self.q_.qz
+    def z(self):
+        return self.q_.z
 
     @property
     def q(self):
