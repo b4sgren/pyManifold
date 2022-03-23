@@ -46,189 +46,189 @@ class SE3_Test(unittest.TestCase):
             np.testing.assert_allclose(T3_true.q_arr, T3.q_arr)
             np.testing.assert_allclose(T3_true.t, T3.t)
 
-    # def test_inverse(self):
-    #     for T in self.transforms:
-    #         T_inv = T.inv()
+    def test_inverse(self):
+        for T in self.transforms:
+            T_inv = T.inv()
 
-    #         I = T_inv * T
+            I = T_inv * T
 
-    #         np.testing.assert_allclose(I.q_arr, np.array([1, 0, 0, 0]))
-    #         np.testing.assert_allclose(I.t, np.zeros(3))
+            np.testing.assert_allclose(I.q_arr, np.array([1, 0, 0, 0]))
+            np.testing.assert_allclose(I.t, np.zeros(3))
 
-    # def test_from_rot_and_trans(self):
-    #     rots = [SO3.random().R for i in range(100)]
-    #     trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     for (R,t) in zip(rots, trans):
-    #         T = SE3.fromRAndt(R,t)
+    def test_from_rot_and_trans(self):
+        rots = [SO3.random().R for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (R,t) in zip(rots, trans):
+            T = SE3.fromRAndt(R,t)
 
-    #         q_true = Quaternion.fromRotationMatrix(R)
+            q_true = Quaternion.fromRotationMatrix(R)
 
-    #         np.testing.assert_allclose(q_true.q, T.q_arr)
-    #         np.testing.assert_allclose(t, T.t)
+            np.testing.assert_allclose(q_true.q, T.q_arr)
+            np.testing.assert_allclose(t, T.t)
 
-    # def test_transforma(self):
-    #     pt = np.array([1, 0, 0])
-    #     T = SE3.fromAxisAngleAndt(np.pi/2 * np.array([0, 0, 1]), np.array([0, 1, 0]))
-    #     pt_p = T.transa(pt)
-    #     pt_true = np.array([0, 2, 0])
-    #     np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
+    def test_transforma(self):
+        pt = np.array([1, 0, 0])
+        T = SE3.fromAxisAngleAndt(np.pi/2 * np.array([0, 0, 1]), np.array([0, 1, 0]))
+        pt_p = T.transa(pt)
+        pt_true = np.array([0, 2, 0])
+        np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
 
-    # def test_transformp(self):
-    #     pt = np.array([1, 0, 0])
-    #     T = SE3.fromAxisAngleAndt(np.pi/2 * np.array([0, 0, 1]), np.array([0, 1, 0]))
-    #     pt_p = T.transp(pt)
-    #     pt_true = np.array([-1, -1, 0])
-    #     np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
+    def test_transformp(self):
+        pt = np.array([1, 0, 0])
+        T = SE3.fromAxisAngleAndt(np.pi/2 * np.array([0, 0, 1]), np.array([0, 1, 0]))
+        pt_p = T.transp(pt)
+        pt_true = np.array([-1, -1, 0])
+        np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
 
-    # def test_active_transforming_a_point(self):
-    #     pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
-    #     for (T,pt) in zip(self.transforms, pts):
-    #         pt_p = T.transa(pt)
+    def test_active_transforming_a_point(self):
+        pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
+        for (T,pt) in zip(self.transforms, pts):
+            pt_p = T.transa(pt)
 
-    #         pt_p_true = T.t + T.R.T @ pt
+            pt_p_true = T.t + T.R @ pt
 
-    #         np.testing.assert_allclose(pt_p_true, pt_p)
+            np.testing.assert_allclose(pt_p_true, pt_p)
 
-    # def test_passive_transforming_a_point(self):
-    #     pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
-    #     for(T,pt) in zip(self.transforms, pts):
-    #         pt_p = T.transp(pt)
+    def test_passive_transforming_a_point(self):
+        pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
+        for(T,pt) in zip(self.transforms, pts):
+            pt_p = T.transp(pt)
+            T_inv = T.inv()
 
-    #         pt_p_true = -T.R @ T.t + T.R @ pt
+            pt_p_true = T_inv.t + T_inv.R@pt
 
-    #         np.testing.assert_allclose(pt_p_true, pt_p)
+            np.testing.assert_allclose(pt_p_true, pt_p)
 
-    # def test_from_RPY_and_trans(self):
-    #     rpy = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-    #     trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     for (eul, t) in zip(rpy, trans):
-    #         T = SE3.fromRPYandt(eul, t)
+    def test_from_RPY_and_trans(self):
+        rpy = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (eul, t) in zip(rpy, trans):
+            T = SE3.fromRPYandt(eul, t)
 
-    #         R = SO3.fromRPY(eul).R
-    #         # q = Quaternion.fromRotationMatrix(R.T)
-    #         q = Quaternion.fromRotationMatrix(R)
+            R = SO3.fromRPY(eul).R
+            q = Quaternion.fromRotationMatrix(R)
 
-    #         np.testing.assert_allclose(q.q, T.q_arr)
-    #         np.testing.assert_allclose(t, T.t)
+            np.testing.assert_allclose(q.q, T.q_arr)
+            np.testing.assert_allclose(t, T.t)
 
-    # def test_from_axis_angle(self):
-    #     angle = [np.random.uniform(0.0, np.pi) for i in range(100)]
-    #     axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     for (v, phi, t) in zip(axis, angle, trans):
-    #         v = v / np.linalg.norm(v) * phi
-    #         T = SE3.fromAxisAngleAndt(v,t)
+    def test_from_axis_angle(self):
+        angle = [np.random.uniform(0.0, np.pi) for i in range(100)]
+        axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (v, phi, t) in zip(axis, angle, trans):
+            v = v / np.linalg.norm(v) * phi
+            T = SE3.fromAxisAngleAndt(v,t)
 
-    #         q = Quaternion.fromAxisAngle(v)
+            q = Quaternion.fromAxisAngle(v)
 
-    #         np.testing.assert_allclose(q.q, T.q_arr)
-    #         np.testing.assert_allclose(t, T.t)
+            np.testing.assert_allclose(q.q, T.q_arr)
+            np.testing.assert_allclose(t, T.t)
 
-    # def test_from_axis_angle_taylor_series(self):
-    #     angle = [np.random.uniform(0.0, 1e-3) for i in range(100)]
-    #     axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     for (v, phi, t) in zip(axis, angle, trans):
-    #         v = v / np.linalg.norm(v) * phi
-    #         T = SE3.fromAxisAngleAndt(v,t)
+    def test_from_axis_angle_taylor_series(self):
+        angle = [np.random.uniform(0.0, 1e-3) for i in range(100)]
+        axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (v, phi, t) in zip(axis, angle, trans):
+            v = v / np.linalg.norm(v) * phi
+            T = SE3.fromAxisAngleAndt(v,t)
 
-    #         q = Quaternion.fromAxisAngle(v)
+            q = Quaternion.fromAxisAngle(v)
 
-    #         np.testing.assert_allclose(q.q, T.q_arr)
-    #         np.testing.assert_allclose(t, T.t)
+            np.testing.assert_allclose(q.q, T.q_arr)
+            np.testing.assert_allclose(t, T.t)
 
-    # def test_from_7_vec(self):
-    #     for T in self.transforms:
-    #         arr = np.array([*T.t, *T.q_arr])
-    #         T2 = SE3.from7vec(arr)
+    def test_from_7_vec(self):
+        for T in self.transforms:
+            arr = np.array([*T.t, *T.q_arr])
+            T2 = SE3.from7vec(arr)
 
-    #         np.testing.assert_allclose(T.q_arr, T2.q_arr)
-    #         np.testing.assert_allclose(T.t, T2.t)
+            np.testing.assert_allclose(T.q_arr, T2.q_arr)
+            np.testing.assert_allclose(T.t, T2.t)
 
-    # def test_hat(self):
-    #     algebras = [np.random.uniform(-3.0, 3.0, size=6) for i in range(100)]
-    #     for vec in algebras:
-    #         logT = SE3.hat(vec)
-    #         logT_true = np.array([vec[0], vec[1], vec[2], 0, vec[3], vec[4], vec[5]])
+    def test_hat(self):
+        algebras = [np.random.uniform(-3.0, 3.0, size=6) for i in range(100)]
+        for vec in algebras:
+            logT = SE3.hat(vec)
+            logT_true = np.array([vec[0], vec[1], vec[2], 0, vec[3], vec[4], vec[5]])
 
-    #         np.testing.assert_allclose(logT_true, logT)
+            np.testing.assert_allclose(logT_true, logT)
 
-    # def test_vee(self):
-    #     vec = [np.random.uniform(-3.0, 3.0, size=7) for i in range(100)]
-    #     for v in vec:
-    #         res = SE3.vee(v)
-    #         res_true = np.array([v[0], v[1], v[2], v[4], v[5], v[6]])
+    def test_vee(self):
+        vec = [np.random.uniform(-3.0, 3.0, size=7) for i in range(100)]
+        for v in vec:
+            res = SE3.vee(v)
+            res_true = np.array([v[0], v[1], v[2], v[4], v[5], v[6]])
 
-    #         np.testing.assert_allclose(res_true, res)
+            np.testing.assert_allclose(res_true, res)
 
-    # def test_logarithmic_map(self):
-    #     for T in self.transforms:
-    #         logT = SE3.log(T)
+    def test_logarithmic_map(self):
+        for T in self.transforms:
+            logT = SE3.log(T)
 
-    #         R = T.R.T
-    #         t = T.t
-    #         T2 = np.block([[R, t[:,None]], [np.zeros((1,3)), 1]])
-    #         temp = sp.linalg.logm(T2)
-    #         logT_true = np.array([temp[0,3], temp[1,3], temp[2,3], 0, temp[2,1], temp[0,2], temp[1,0]])
+            R = T.R
+            t = T.t
+            T2 = np.block([[R, t[:,None]], [np.zeros((1,3)), 1]])
+            temp = sp.linalg.logm(T2)
+            logT_true = np.array([temp[0,3], temp[1,3], temp[2,3], 0, temp[2,1], temp[0,2], temp[1,0]])
 
-    #         np.testing.assert_allclose(logT_true, logT)
+            np.testing.assert_allclose(logT_true, logT)
 
-    # def test_logarithmic_map_taylor_series(self):
-    #     angle = [np.random.uniform(0.0, 1e-8) for i in range(100)]
-    #     axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     for (v, phi, t) in zip(axis, angle, trans):
-    #         v = v / np.linalg.norm(v) * phi
-    #         T = SE3.fromAxisAngleAndt(v,t)
+    def test_logarithmic_map_taylor_series(self):
+        angle = [np.random.uniform(0.0, 1e-8) for i in range(100)]
+        axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        for (v, phi, t) in zip(axis, angle, trans):
+            v = v / np.linalg.norm(v) * phi
+            T = SE3.fromAxisAngleAndt(v,t)
 
-    #         logT = SE3.log(T)
+            logT = SE3.log(T)
 
-    #         R = T.R.T
-    #         t = T.t
-    #         T2 = np.block([[R, t[:,None]], [np.zeros((1,3)), 1]])
-    #         temp = sp.linalg.logm(T2)
-    #         logT_true = np.array([temp[0,3], temp[1,3], temp[2,3], 0, temp[2,1], temp[0,2], temp[1,0]])
+            R = T.R
+            t = T.t
+            T2 = np.block([[R, t[:,None]], [np.zeros((1,3)), 1]])
+            temp = sp.linalg.logm(T2)
+            logT_true = np.array([temp[0,3], temp[1,3], temp[2,3], 0, temp[2,1], temp[0,2], temp[1,0]])
 
-    #         np.testing.assert_allclose(logT_true, logT, atol=1e-3, rtol=1e-3)
+            np.testing.assert_allclose(logT_true, logT, atol=1e-3, rtol=1e-3)
 
-    # def test_exponential_map(self):
-    #     v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-    #     for (v,w) in zip(v_list, w_list):
-    #         vec = np.array([*v, *w])
-    #         T = SE3.Exp(vec)
+    def test_exponential_map(self):
+        v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
+        for (v,w) in zip(v_list, w_list):
+            vec = np.array([*v, *w])
+            T = SE3.Exp(vec)
 
-    #         logT = np.array([[0, -w[2], w[1], v[0]],
-    #                          [w[2], 0, -w[0], v[1]],
-    #                          [-w[1], w[0], 0, v[2]],
-    #                          [0, 0, 0, 0]])
-    #         T_true = sp.linalg.expm(logT)
-    #         R_true = T_true[:3,:3]
-    #         t_true = T_true[:3,3]
+            logT = np.array([[0, -w[2], w[1], v[0]],
+                             [w[2], 0, -w[0], v[1]],
+                             [-w[1], w[0], 0, v[2]],
+                             [0, 0, 0, 0]])
+            T_true = sp.linalg.expm(logT)
+            R_true = T_true[:3,:3]
+            t_true = T_true[:3,3]
 
-    #         np.testing.assert_allclose(R_true, T.R.T)
-    #         np.testing.assert_allclose(t_true, T.t)
+            np.testing.assert_allclose(R_true, T.R)
+            np.testing.assert_allclose(t_true, T.t)
 
-    # def test_exponential_map_taylor_series(self):
-    #     axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-    #     angles = [np.random.uniform(0, 1e-8) for i in range(100)]
-    #     for (a,v,psi) in zip(axis, v_list, angles):
-    #         w = a / np.linalg.norm(a) * psi
-    #         vec = np.array([*v, *w])
+    def test_exponential_map_taylor_series(self):
+        axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
+        angles = [np.random.uniform(0, 1e-8) for i in range(100)]
+        for (a,v,psi) in zip(axis, v_list, angles):
+            w = a / np.linalg.norm(a) * psi
+            vec = np.array([*v, *w])
 
-    #         T = SE3.Exp(vec)
+            T = SE3.Exp(vec)
 
-    #         logT = np.array([[0, -w[2], w[1], v[0]],
-    #                          [w[2], 0, -w[0], v[1]],
-    #                          [-w[1], w[0], 0, v[2]],
-    #                          [0, 0, 0, 0]])
-    #         T_true = sp.linalg.expm(logT)
-    #         R_true = T_true[:3,:3]
-    #         t_true = T_true[:3,3]
+            logT = np.array([[0, -w[2], w[1], v[0]],
+                             [w[2], 0, -w[0], v[1]],
+                             [-w[1], w[0], 0, v[2]],
+                             [0, 0, 0, 0]])
+            T_true = sp.linalg.expm(logT)
+            R_true = T_true[:3,:3]
+            t_true = T_true[:3,3]
 
-    #         np.testing.assert_allclose(R_true, T.R.T, rtol=1e-4, atol=1e-4)
-    #         np.testing.assert_allclose(t_true, T.t, rtol=1e-4, atol=1e-4)
+            np.testing.assert_allclose(R_true, T.R, rtol=1e-4, atol=1e-4)
+            np.testing.assert_allclose(t_true, T.t, rtol=1e-4, atol=1e-4)
 
     # def test_adjoint(self):
     #     v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
