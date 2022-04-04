@@ -1,5 +1,5 @@
 import numpy as np
-from quaternion import Quaternion, skew # move skew to a different file
+from .quaternion import Quaternion, skew # move skew to a different file
 
 class SE3:
     def __init__(self, q, t):
@@ -76,7 +76,9 @@ class SE3:
 
     @property
     def T(self):
-        arr = np.array([*self.t,*self.q_arr])
+        # arr = np.array([*self.t,*self.q_arr])
+        arr = np.block([[self.R, self.t[:,None]],
+                        [np.array([0, 0, 0, 1])]])
         return arr
 
     @property
