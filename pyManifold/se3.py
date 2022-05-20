@@ -76,7 +76,9 @@ class SE3:
 
     @property
     def T(self):
-        arr = np.array([*self.t,*self.q_arr])
+        # arr = np.array([*self.t,*self.q_arr])
+        arr = np.block([[self.R, self.t[:,None]],
+                        [np.array([0, 0, 0, 1])]])
         return arr
 
     @property
