@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 sys.path.append("..")
-from se2 import SE2
+from pyManifold.se2 import SE2
 from se2_classes import Robot, SE2_EKF
 import matplotlib.pyplot as plt
 

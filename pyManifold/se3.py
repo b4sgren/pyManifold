@@ -1,5 +1,5 @@
 import numpy as np
-from quaternion import Quaternion, skew # move skew to a different file
+from .quaternion import Quaternion, skew # move skew to a different file
 
 class SE3:
     def __init__(self, q, t):

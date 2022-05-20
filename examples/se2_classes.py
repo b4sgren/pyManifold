@@ -3,7 +3,7 @@ import sys
 
 from numpy.random import multivariate_normal
 sys.path.append("..")
-from se2 import SE2
+from pyManifold.se2 import SE2
 
 class Robot:
   def __init__(self):
