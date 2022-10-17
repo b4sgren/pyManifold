@@ -3,11 +3,13 @@ import scipy as sp
 from scipy.spatial.transform import Rotation
 import unittest
 import sys
+
 sys.path.append("..")
-from so3 import SO3
-from quaternion import Quaternion
+from pyManifold.so3 import SO3
+from pyManifold.quaternion import Quaternion
 
 from IPython.core.debugger import Pdb
+
 
 class SO3_testing(unittest.TestCase):
     def testConstructor(self):
@@ -27,14 +29,16 @@ class SO3_testing(unittest.TestCase):
             sps = np.sin(angles[2])
             R3 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
 
-            R_true = Rotation.from_euler('ZYX', [angles[2], angles[1], angles[0]]).as_matrix()
+            R_true = Rotation.from_euler(
+                "ZYX", [angles[2], angles[1], angles[0]]
+            ).as_matrix()
 
             R_ex2 = SO3(R_true)
 
             np.testing.assert_allclose(R_true, R_ex.arr)
             np.testing.assert_allclose(R_true, R_ex2.arr)
 
-    def testLog(self): #This has issues sometimes. It is infrequent though
+    def testLog(self):  # This has issues sometimes. It is infrequent though
         for i in range(100):
             temp = Rotation.random().as_matrix()
             R = SO3(temp)
@@ -42,7 +46,7 @@ class SO3_testing(unittest.TestCase):
             logR = SO3.log(R)
             logR_true = sp.linalg.logm(temp)
 
-            if np.linalg.norm(logR_true - logR, ord='fro') > 1e-3:
+            if np.linalg.norm(logR_true - logR, ord="fro") > 1e-3:
                 Pdb().set_trace()
                 debug = 1
                 temp = SO3.log(R)
@@ -50,7 +54,7 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(logR_true, logR, atol=1e-10)
 
     def testTaylorLog(self):
-        for i in range(100):  #Around 0
+        for i in range(100):  # Around 0
             vec = np.random.uniform(-3.0, 3.0, size=3)
             vec = vec / np.linalg.norm(vec)
             ang = np.random.uniform(-1e-8, 1e-3)
@@ -60,15 +64,14 @@ class SO3_testing(unittest.TestCase):
             logR = SO3.log(R)
             logR_true = sp.linalg.logm(R.R)
 
-            if np.linalg.norm(logR_true - logR, ord='fro') > 1e-8:
+            if np.linalg.norm(logR_true - logR, ord="fro") > 1e-8:
                 Pdb().set_trace()
                 debug = 1
                 temp = SO3.log(R)
 
-
             np.testing.assert_allclose(logR_true, logR, atol=1e-10)
 
-        for i in range(100): #Around pi
+        for i in range(100):  # Around pi
             vec = np.random.uniform(-1.0, 1.0, size=3)
             ang = np.random.uniform(-0, 1e-8)
             vec = vec / np.linalg.norm(vec) * (np.pi - ang)
@@ -79,43 +82,54 @@ class SO3_testing(unittest.TestCase):
             logR_true = sp.linalg.logm(R.R)
 
             # if np.linalg.norm(logR_true - logR, ord='fro') > 1e-8:
-                # Pdb().set_trace()
-                # debug = 1
-                # temp = SO3.log(R)
+            # Pdb().set_trace()
+            # debug = 1
+            # temp = SO3.log(R)
 
             # np.testing.assert_allclose(logR_true, logR, atol=1e-10)
-            #This test has issues. Same with this part in SE3
+            # This test has issues. Same with this part in SE3
 
     def testExp(self):
         for i in range(100):
             logR_vec = np.random.uniform(-np.pi, np.pi, size=3)
-            logR = np.array([[0, -logR_vec[2], logR_vec[1]],
-                        [logR_vec[2], 0, -logR_vec[0]],
-                        [-logR_vec[1], logR_vec[0], 0]])
+            logR = np.array(
+                [
+                    [0, -logR_vec[2], logR_vec[1]],
+                    [logR_vec[2], 0, -logR_vec[0]],
+                    [-logR_vec[1], logR_vec[0], 0],
+                ]
+            )
 
             R = SO3.exp(logR)
             R_true = sp.linalg.expm(logR)
 
             np.testing.assert_allclose(R_true, R.arr)
 
-        for i in range(100): #Test taylor series
+        for i in range(100):  # Test taylor series
             logR_vec = np.random.uniform(0.0, 1e-8, size=3)
-            logR = np.array([[0, -logR_vec[2], logR_vec[1]],
-                        [logR_vec[2], 0, -logR_vec[0]],
-                        [-logR_vec[1], logR_vec[0], 0]])
+            logR = np.array(
+                [
+                    [0, -logR_vec[2], logR_vec[1]],
+                    [logR_vec[2], 0, -logR_vec[0]],
+                    [-logR_vec[1], logR_vec[0], 0],
+                ]
+            )
 
             R = SO3.exp(logR)
             R_true = sp.linalg.expm(logR)
 
             np.testing.assert_allclose(R_true, R.arr, atol=1e-7)
 
-
     def testVee(self):
         for i in range(100):
             omega_true = np.random.uniform(-np.pi, np.pi, size=3)
-            logR = np.array([[0, -omega_true[2], omega_true[1]],
-                            [omega_true[2], 0, -omega_true[0]],
-                            [-omega_true[1], omega_true[0], 0]])
+            logR = np.array(
+                [
+                    [0, -omega_true[2], omega_true[1]],
+                    [omega_true[2], 0, -omega_true[0]],
+                    [-omega_true[1], omega_true[0], 0],
+                ]
+            )
 
             omega = SO3.vee(logR)
             np.testing.assert_allclose(omega_true, omega)
@@ -124,9 +138,13 @@ class SO3_testing(unittest.TestCase):
         for i in range(100):
             omega = np.random.uniform(-np.pi, np.pi, size=3)
 
-            logR_true = np.array([[0, -omega[2], omega[1]],
-                                [omega[2], 0, -omega[0]],
-                                [-omega[1], omega[0], 0]])
+            logR_true = np.array(
+                [
+                    [0, -omega[2], omega[1]],
+                    [omega[2], 0, -omega[0]],
+                    [-omega[1], omega[0], 0],
+                ]
+            )
 
             logR = SO3.hat(omega)
 
@@ -144,14 +162,14 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(R_inv_true, R_inv.R)
             np.testing.assert_allclose(R_inv_true, R_T.R)
 
-    def testFromAxisEuler(self):
+    def testFromAxisAngle(self):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
             vec = np.random.uniform(-1, 1, size=3)
             vec = vec / np.linalg.norm(vec)
 
             R = SO3.fromAxisAngle(theta * vec)
-            R_true = Rotation.from_rotvec(vec*theta).as_matrix()
+            R_true = Rotation.from_rotvec(vec * theta).as_matrix()
 
             np.testing.assert_allclose(R_true, R.arr)
 
@@ -169,7 +187,7 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(R3_true, R3.arr)
 
     def testRotatingVector(self):
-        for i in range(100): #Active rotation
+        for i in range(100):  # Active rotation
             rot1 = Rotation.random().as_matrix()
 
             R = SO3(rot1)
@@ -268,7 +286,7 @@ class SO3_testing(unittest.TestCase):
         for i in range(100):
             theta = np.random.uniform(-np.pi, np.pi)
             vec = np.random.uniform(-10.0, 10.0, size=3)
-            vec = vec/np.linalg.norm(vec)
+            vec = vec / np.linalg.norm(vec)
 
             q = Quaternion.fromAxisAngle(vec * theta)
 
@@ -349,9 +367,9 @@ class SO3_testing(unittest.TestCase):
             v = np.random.uniform(-10, 10, size=3)
 
             vp, Jr = R.rota(v, Jr=np.eye(3))
-            vx = np.array([[0, -v[2], v[1]],
-                           [v[2], 0, -v[0]],
-                           [-v[1], v[0], 0]])
+            vx = np.array(
+                [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]]
+            )
             Jr_true = -R.R @ vx
 
             np.testing.assert_allclose(Jr_true, Jr)
@@ -387,9 +405,9 @@ class SO3_testing(unittest.TestCase):
             v = np.random.uniform(-10, 10, size=3)
 
             vp, Jr = R.rotp(v, Jr=np.eye(3))
-            Jr_true = np.array([[0, -vp[2], vp[1]],
-                                [vp[2], 0, -vp[0]],
-                                [-vp[1], vp[0], 0]])
+            Jr_true = np.array(
+                [[0, -vp[2], vp[1]], [vp[2], 0, -vp[0]], [-vp[1], vp[0], 0]]
+            )
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
@@ -399,9 +417,9 @@ class SO3_testing(unittest.TestCase):
             v = np.random.uniform(-10, 10, size=3)
 
             vp, Jl = R.rotp(v, Jl=np.eye(3))
-            vx = np.array([[0, -v[2], v[1]],
-                            [v[2], 0, -v[0]],
-                            [-v[1], v[0], 0]])
+            vx = np.array(
+                [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]]
+            )
             Jl_true = R.R.T @ vx
 
             np.testing.assert_allclose(Jl_true, Jl)
@@ -486,5 +504,5 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(R1.R, R2.R, rtol=1e-5)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     unittest.main()
