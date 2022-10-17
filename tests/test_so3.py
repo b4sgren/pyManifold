@@ -1,14 +1,14 @@
+import sys
+import unittest
+
 import numpy as np
 import scipy as sp
 from scipy.spatial.transform import Rotation
-import unittest
-import sys
 
-sys.path.append("..")
-from pyManifold.so3 import SO3
-from pyManifold.quaternion import Quaternion
-
+sys.path.append("../pyManifold")
 from IPython.core.debugger import Pdb
+from quaternion import Quaternion
+from so3 import SO3
 
 
 class SO3_testing(unittest.TestCase):
@@ -501,6 +501,7 @@ class SO3_testing(unittest.TestCase):
             R1 = SO3.random()
             rpy = R1.euler
             R2 = SO3.fromRPY(rpy)
+            # Pdb.set_trace()
             np.testing.assert_allclose(R1.R, R2.R, rtol=1e-5)
 
 

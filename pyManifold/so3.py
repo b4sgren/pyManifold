@@ -325,24 +325,24 @@ class SO3:
     @property
     def euler(self) -> np.ndarray:
         """Returns the RPY angles for the rotation matrix"""
-        # if 1 - np.abs(self.R[2, 0]) > 1e-8:
-        #     phi = np.arctan2(self.R[2, 1], self.R[2, 2])
-        #     theta = np.arcsin(-self.R[2, 0])
-        #     psi = np.arctan2(self.R[1, 0], self.R[0, 0])
-        # else:
-        #     phi = 0
-        #     if np.sign(self.R[2, 0]) > 0:
-        #         theta = np.pi / 2
-        #         psi = -np.arctan2(-self.R[1, 2], self.R[1, 1])
-        #     else:
-        #         theta = -np.pi / 2
-        #         psi = np.arctan2(-self.R[1, 2], self.R[1, 1])
-        # return np.array([phi, theta, psi])
-        phi = np.arctan2(self.R[2, 0], self.R[2, 1])
-        theta = np.arccos(self.R[2, 2])
-        psi = np.arctan2(selfR[0, 2], self.R[1, 2])
-
+        if 1 - np.abs(self.R[2, 0]) > 1e-8:
+            phi = np.arctan2(self.R[2, 1], self.R[2, 2])
+            theta = np.arcsin(-self.R[2, 0])
+            psi = np.arctan2(self.R[1, 0], self.R[0, 0])
+        else:
+            phi = 0
+            if np.sign(self.R[2, 0]) > 0:
+                theta = np.pi / 2
+                psi = -np.arctan2(-self.R[1, 2], self.R[1, 1])
+            else:
+                theta = -np.pi / 2
+                psi = np.arctan2(-self.R[1, 2], self.R[1, 1])
         return np.array([phi, theta, psi])
+        # phi = np.arctan2(self.R[2, 0], self.R[2, 1])
+        # theta = np.arccos(self.R[2, 2])
+        # psi = np.arctan2(self.R[0, 2], self.R[1, 2])
+
+        # return np.array([phi, theta, psi])
 
     # Not sure that this does what I want. It may need to be reversed R3*R2*R1
     @classmethod
@@ -372,8 +372,8 @@ class SO3:
         sp = np.sin(phi)
         R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
 
-        # return cls(R1 @ R2 @ R3)
-        return cls(R3 @ R2 @ R1)
+        return cls(R1 @ R2 @ R3)
+        # return cls(R3 @ R2 @ R1)
 
     @classmethod
     def fromAxisAngle(cls, w: np.ndarray) -> "SO3":
