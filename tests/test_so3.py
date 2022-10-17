@@ -30,7 +30,9 @@ class SO3_testing(unittest.TestCase):
             R3 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
 
             R_true = Rotation.from_euler(
-                "ZYX", [angles[2], angles[1], angles[0]]
+                # "ZYX", [angles[2], angles[1], angles[0]]
+                "XYZ",
+                [angles[0], angles[1], angles[2]],
             ).as_matrix()
 
             R_ex2 = SO3(R_true)
@@ -501,7 +503,6 @@ class SO3_testing(unittest.TestCase):
             R1 = SO3.random()
             rpy = R1.euler
             R2 = SO3.fromRPY(rpy)
-            # Pdb.set_trace()
             np.testing.assert_allclose(R1.R, R2.R, rtol=1e-5)
 
 
