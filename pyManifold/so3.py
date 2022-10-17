@@ -562,9 +562,12 @@ class SO3:
 
         if not Jr is None:  # Possibly add taylor series logic
             wx = skew(w)
-            a = (1 - np.cos(theta)) / theta**2
-            b = (theta - np.sin(theta)) / theta**3
-            J = np.eye(3) - a * wx + b * (wx @ wx)
+            if theta > 1e-8:
+                a = (1 - np.cos(theta)) / theta**2
+                b = (theta - np.sin(theta)) / theta**3
+                J = np.eye(3) - a * wx + b * (wx @ wx)
+            else:
+                J = np.eye(3) - 0.5 * wx + 1 / 6 * (wx @ wx)
             return cls(R), J @ Jr
         elif not Jl is None:
             wx = skew(w)

@@ -1,15 +1,23 @@
 import numpy as np
 
-def skew(qv):
-    return np.array([[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]])
+# TODO: the euler function may not be working. It is working in SO3
 
-'''
+
+def skew(qv):
+    return np.array(
+        [[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]]
+    )
+
+
+"""
 The way this class is written it behaves like a rotation matrix. May want to change this in the future. TO fix would require fixing stuff in R, Adj and otimes as well as the unit tests and maybe stuff in SE3
-'''
+"""
+
+
 class Quaternion:
     def __init__(self, q):
         if isinstance(q, np.ndarray):
-            if q.shape == (4,) or q.shape == (4,1) or q.shape == (1,4):
+            if q.shape == (4,) or q.shape == (4, 1) or q.shape == (1, 4):
                 self.arr = q.squeeze()
                 if self.arr[0] < 0:
                     self.arr *= -1
@@ -44,19 +52,23 @@ class Quaternion:
 
     @property
     def R(self):
-        return (2 * self.w**2 - 1) * np.eye(3) + 2 * self.w * skew(self.qv) + 2 * np.outer(self.qv, self.qv)
+        return (
+            (2 * self.w**2 - 1) * np.eye(3)
+            + 2 * self.w * skew(self.qv)
+            + 2 * np.outer(self.qv, self.qv)
+        )
 
     @property
     def euler(self) -> np.ndarray:
-        t0 = 2 * (self.w*self.x + self.y*self.z)
+        t0 = 2 * (self.w * self.x + self.y * self.z)
         t1 = 1 - 2 * (self.x**2 + self.y**2)
         phi = np.arctan2(t0, t1)
 
-        t2 = 2 * (self.w*self.y - self.z*self.x)
+        t2 = 2 * (self.w * self.y - self.z * self.x)
         t2 = 1.0 * np.sign(t2) if np.abs(t2) > 1.0 else t2
         theta = np.arcsin(t2)
 
-        t3 = 2.0 * (self.w*self.z + self.x*self.y)
+        t3 = 2.0 * (self.w * self.z + self.x * self.y)
         t4 = 1 - 2.0 * (self.y**2 + self.z**2)
         psi = np.arctan2(t3, t4)
 
@@ -73,11 +85,16 @@ class Quaternion:
         return str(self.q)
 
     def __repr__(self):
-        return f'[{self.w} + {self.x}i + {self.y}j + {self.z}k]'
+        return f"[{self.w} + {self.x}i + {self.y}j + {self.z}k]"
 
     def otimes(self, q):
         # Ql in Quat Kinematics for Err St Kalman Filter
-        Q = np.block([[self.w, -self.qv], [self.qv[:,None], self.w * np.eye(3) + self.skew()]])
+        Q = np.block(
+            [
+                [self.w, -self.qv],
+                [self.qv[:, None], self.w * np.eye(3) + self.skew()],
+            ]
+        )
         return Quaternion(Q @ q.q)
 
     def skew(self):
@@ -100,7 +117,7 @@ class Quaternion:
         t = 2 * skew(v) @ qv
         vp = v - qw * t + skew(t) @ qv
         if not Jr is None:
-            J = - self.R @ skew(v)
+            J = -self.R @ skew(v)
             return vp, J @ Jr
         elif not Jl is None:
             J = -skew(vp)
@@ -215,16 +232,44 @@ class Quaternion:
         d = np.trace(R)
         if d > 0:
             s = 2 * np.sqrt(d + 1)
-            q = np.array([s/4, 1/s * (R[1,2] - R[2,1]), 1/s * (R[2,0] - R[0,2]), 1/s * (R[0,1] - R[1,0])])
-        elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
-            s = 2 * np.sqrt(1 + R[0,0] - R[1,1] - R[2,2])
-            q = np.array([1/s * (R[1,2] - R[2,1]), s/4, 1/s * (R[1,0] + R[0,1]), 1/s * (R[2,0] + R[0,2])])
-        elif R[1,1] > R[2,2]:
-            s = 2 * np.sqrt(1 + R[1,1] - R[0,0] - R[2,2])
-            q = np.array([1/s * (R[2,0] - R[0,2]), 1/s * (R[1,0] + R[0,1]), s/4, 1/s * (R[2,1] + R[1,2])])
+            q = np.array(
+                [
+                    s / 4,
+                    1 / s * (R[1, 2] - R[2, 1]),
+                    1 / s * (R[2, 0] - R[0, 2]),
+                    1 / s * (R[0, 1] - R[1, 0]),
+                ]
+            )
+        elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
+            s = 2 * np.sqrt(1 + R[0, 0] - R[1, 1] - R[2, 2])
+            q = np.array(
+                [
+                    1 / s * (R[1, 2] - R[2, 1]),
+                    s / 4,
+                    1 / s * (R[1, 0] + R[0, 1]),
+                    1 / s * (R[2, 0] + R[0, 2]),
+                ]
+            )
+        elif R[1, 1] > R[2, 2]:
+            s = 2 * np.sqrt(1 + R[1, 1] - R[0, 0] - R[2, 2])
+            q = np.array(
+                [
+                    1 / s * (R[2, 0] - R[0, 2]),
+                    1 / s * (R[1, 0] + R[0, 1]),
+                    s / 4,
+                    1 / s * (R[2, 1] + R[1, 2]),
+                ]
+            )
         else:
-            s = 2 * np.sqrt(1 + R[2,2] - R[0,0] - R[1,1])
-            q = np.array([1/s * (R[0,1] - R[1,0]), 1/s * (R[2,0] + R[0,2]), 1/s * (R[2,1] + R[1,2]), s/4])
+            s = 2 * np.sqrt(1 + R[2, 2] - R[0, 0] - R[1, 1])
+            q = np.array(
+                [
+                    1 / s * (R[0, 1] - R[1, 0]),
+                    1 / s * (R[2, 0] + R[0, 2]),
+                    1 / s * (R[2, 1] + R[1, 2]),
+                    s / 4,
+                ]
+            )
 
         q[1:] *= -1
 
@@ -236,14 +281,16 @@ class Quaternion:
         theta = rpy[1]
         psi = rpy[2]
 
-        cp = np.cos(phi/2)
-        sp = np.sin(phi/2)
-        ct = np.cos(theta/2)
-        st = np.sin(theta/2)
-        cpsi = np.cos(psi/2)
-        spsi = np.sin(psi/2)
+        cp = np.cos(phi / 2)
+        sp = np.sin(phi / 2)
+        ct = np.cos(theta / 2)
+        st = np.sin(theta / 2)
+        cpsi = np.cos(psi / 2)
+        spsi = np.sin(psi / 2)
 
-        qw = cpsi * ct * cp + spsi * st * sp  # The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
+        qw = (
+            cpsi * ct * cp + spsi * st * sp
+        )  # The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
         qx = cpsi * ct * sp - spsi * st * cp
         qy = cpsi * st * cp + spsi * ct * sp
         qz = spsi * ct * cp - cpsi * st * sp
@@ -272,21 +319,33 @@ class Quaternion:
         theta = np.linalg.norm(qv)
 
         if np.abs(theta) > 1e-8:
-            w = 2 * np.arctan(theta/qw) * qv/theta
+            w = 2 * np.arctan(theta / qw) * qv / theta
         else:
-            temp = 1/qw - theta**2 / (3 * qw**3) + theta**4/(5 * qw**5)
+            temp = (
+                1 / qw - theta**2 / (3 * qw**3) + theta**4 / (5 * qw**5)
+            )
             w = 2 * temp * qv
         logq = np.array([0, *w])
 
         if not Jr is None:
             wx = skew(w)
             phi = np.linalg.norm(w)
-            J = np.eye(3) + 0.5 * wx + (1/phi**2 - (1 + np.cos(phi))/(2 * phi * np.sin(phi))) * (wx @ wx)
+            J = (
+                np.eye(3)
+                + 0.5 * wx
+                + (1 / phi**2 - (1 + np.cos(phi)) / (2 * phi * np.sin(phi)))
+                * (wx @ wx)
+            )
             return logq, J @ Jr
         elif not Jl is None:
             wx = skew(w)
             phi = np.linalg.norm(w)
-            J = np.eye(3) - 0.5 * wx + (1/phi**2 - (1 + np.cos(phi))/(2 * phi * np.sin(phi))) * (wx @ wx)
+            J = (
+                np.eye(3)
+                - 0.5 * wx
+                + (1 / phi**2 - (1 + np.cos(phi)) / (2 * phi * np.sin(phi)))
+                * (wx @ wx)
+            )
             return logq, J @ Jl
         else:
             return logq
@@ -307,27 +366,35 @@ class Quaternion:
     def exp(cls, W, Jr=None, Jl=None):
         vec = W[1:]
         theta = np.linalg.norm(vec)
-        if (abs(theta) < 1e-5):
+        if abs(theta) < 1e-5:
             return cls.Identity()
 
         v = vec / theta
 
         if np.abs(theta) > 1e-8:
-            qw = np.cos(theta/2)
-            qv = v * np.sin(theta/2)
+            qw = np.cos(theta / 2)
+            qv = v * np.sin(theta / 2)
         else:
-            qw = 1 - theta**2/8 + theta**4/46080
-            temp = 1/2 - theta**2/48 + theta**4/3840
+            qw = 1 - theta**2 / 8 + theta**4 / 46080
+            temp = 1 / 2 - theta**2 / 48 + theta**4 / 3840
             qv = vec * temp
         q = cls(np.array([qw, *qv]))
 
         if not Jr is None:
             thetax = skew(vec)
-            J = np.eye(3) - (1 - np.cos(theta))/theta**2 * thetax + (theta - np.sin(theta))/theta**3 * (thetax @ thetax)
+            J = (
+                np.eye(3)
+                - (1 - np.cos(theta)) / theta**2 * thetax
+                + (theta - np.sin(theta)) / theta**3 * (thetax @ thetax)
+            )
             return q, J @ Jr
         elif not Jl is None:
             thetax = skew(vec)
-            J = np.eye(3) + (1 - np.cos(theta))/theta**2 * thetax + (theta - np.sin(theta))/theta**3 * (thetax @ thetax)
+            J = (
+                np.eye(3)
+                + (1 - np.cos(theta)) / theta**2 * thetax
+                + (theta - np.sin(theta)) / theta**3 * (thetax @ thetax)
+            )
             return q, J @ Jl
         else:
             return q
