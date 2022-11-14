@@ -558,7 +558,7 @@ class SO3:
                 + (1 - np.cos(theta)) / (theta**2) * (logR @ logR)
             )
         else:  # Do taylor series expansion for small thetas
-            R = np.eye(3)
+            R = np.eye(3) + skew(logR)
 
         if not Jr is None:  # Possibly add taylor series logic
             wx = skew(w)
