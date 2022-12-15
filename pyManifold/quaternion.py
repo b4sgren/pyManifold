@@ -1,5 +1,8 @@
 import numpy as np
 
+# Get rid of this eventually
+from scipy.spatial.transform import Rotation as Rot
+
 # TODO: the euler function may not be working. It is working in SO3
 
 
@@ -60,19 +63,22 @@ class Quaternion:
 
     @property
     def euler(self) -> np.ndarray:
-        t0 = 2 * (self.w * self.x + self.y * self.z)
-        t1 = 1 - 2 * (self.x**2 + self.y**2)
-        phi = np.arctan2(t0, t1)
+        # t0 = 2 * (self.w * self.x + self.y * self.z)
+        # t1 = 1 - 2 * (self.x**2 + self.y**2)
+        # phi = np.arctan2(t0, t1)
 
-        t2 = 2 * (self.w * self.y - self.z * self.x)
-        t2 = 1.0 * np.sign(t2) if np.abs(t2) > 1.0 else t2
-        theta = np.arcsin(t2)
+        # t2 = 2 * (self.w * self.y - self.z * self.x)
+        # t2 = 1.0 * np.sign(t2) if np.abs(t2) > 1.0 else t2
+        # theta = np.arcsin(t2)
 
-        t3 = 2.0 * (self.w * self.z + self.x * self.y)
-        t4 = 1 - 2.0 * (self.y**2 + self.z**2)
-        psi = np.arctan2(t3, t4)
+        # t3 = 2.0 * (self.w * self.z + self.x * self.y)
+        # t4 = 1 - 2.0 * (self.y**2 + self.z**2)
+        # psi = np.arctan2(t3, t4)
 
-        return np.array([phi, theta, psi])
+        # return np.array([phi, theta, psi])
+
+        # Find what the correct equation is for this
+        return Rot.from_matrix(self.R).as_euler("XYZ")
 
     @property
     def Adj(self):
@@ -281,20 +287,26 @@ class Quaternion:
         theta = rpy[1]
         psi = rpy[2]
 
-        cp = np.cos(phi / 2)
-        sp = np.sin(phi / 2)
-        ct = np.cos(theta / 2)
-        st = np.sin(theta / 2)
-        cpsi = np.cos(psi / 2)
-        spsi = np.sin(psi / 2)
+        q1 = cls(np.array([np.cos(psi / 2), 0, 0, np.sin(psi / 2)]))
+        q2 = cls(np.array([np.cos(theta / 2), 0, np.sin(theta / 2), 0]))
+        q3 = cls(np.array([np.cos(phi / 2), np.sin(phi / 2), 0, 0]))
 
-        qw = (
-            cpsi * ct * cp + spsi * st * sp
-        )  # The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
-        qx = cpsi * ct * sp - spsi * st * cp
-        qy = cpsi * st * cp + spsi * ct * sp
-        qz = spsi * ct * cp - cpsi * st * sp
-        return cls(np.array([qw, qx, qy, qz]))
+        return q3 * q2 * q1
+
+        # cp = np.cos(phi / 2)
+        # sp = np.sin(phi / 2)
+        # ct = np.cos(theta / 2)
+        # st = np.sin(theta / 2)
+        # cpsi = np.cos(psi / 2)
+        # spsi = np.sin(psi / 2)
+
+        # qw = (
+        #     cpsi * ct * cp + spsi * st * sp
+        # )  # The sign on the last three are opposite the UAV book b/c we are generating an active quaternion
+        # qx = cpsi * ct * sp - spsi * st * cp
+        # qy = cpsi * st * cp + spsi * ct * sp
+        # qz = spsi * ct * cp - cpsi * st * sp
+        # return cls(np.array([qw, qx, qy, qz]))
 
     @classmethod
     def fromAxisAngle(cls, vec):
