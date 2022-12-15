@@ -63,17 +63,16 @@ class Quaternion:
 
     @property
     def euler(self) -> np.ndarray:
-        # t0 = 2 * (self.w * self.x + self.y * self.z)
-        # t1 = 1 - 2 * (self.x**2 + self.y**2)
-        # phi = np.arctan2(t0, t1)
+        # # DOesn't quite work
+        # num = 2 * (self.w * self.x + self.y * self.z)
+        # den = self.z**2 - self.x**2 - self.y**2 + self.w**2
+        # phi = np.arctan2(num, den)
 
-        # t2 = 2 * (self.w * self.y - self.z * self.x)
-        # t2 = 1.0 * np.sign(t2) if np.abs(t2) > 1.0 else t2
-        # theta = np.arcsin(t2)
+        # theta = np.arcsin(2 * (self.w * self.y - self.x * self.z))
 
-        # t3 = 2.0 * (self.w * self.z + self.x * self.y)
-        # t4 = 1 - 2.0 * (self.y**2 + self.z**2)
-        # psi = np.arctan2(t3, t4)
+        # num = 2 * (self.w * self.z + self.x * self.y)
+        # den = self.x**2 - self.y**2 - self.z**2 + self.w**2
+        # psi = np.arctan2(num, den)
 
         # return np.array([phi, theta, psi])
 
