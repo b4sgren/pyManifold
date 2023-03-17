@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation
 import sys
 
 from test_quaternion import quatMultiply
-sys.path.append('..')
+sys.path.append('../pyManifold')
 from se3 import SE3
 from so3 import SO3
 from quaternion import Quaternion, skew
