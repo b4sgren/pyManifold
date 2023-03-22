@@ -301,9 +301,9 @@ class Quaternion:
     def fromAxisAngle(cls, vec):
         return cls.Exp(vec)
 
-    #     @staticmethod
-    #     def Identity():
-    #         return Quaternion(np.array([1.0, 0.0, 0.0, 0.0]))
+    @staticmethod
+    def Identity():
+        return Quaternion(np.array([1.0, 0.0, 0.0, 0.0]))
 
     @staticmethod
     def hat(w):
