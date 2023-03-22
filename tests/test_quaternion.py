@@ -133,23 +133,12 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(vp_true, vp, atol=1e-10)
 
-    # def testRotationMatrixFromQuaternion(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+    def testRotationMatrixFromQuaternion(self):
+        for i in range(100):
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
 
-    #         np.testing.assert_allclose(q.R, R.R)
-
-    # def testRotatingVector(self):
-    #     for i in range(100):
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
-
-    #         vp_true = R.rota(v)
-    #         vp = q.rota(v)
-
-    #         np.testing.assert_allclose(vp_true, vp)
+            np.testing.assert_allclose(q.R, R.R)
 
     #     for i in range(100):
     #         v = np.random.uniform(-10, 10, size=3)

@@ -417,17 +417,12 @@ class SO3:
         Returns:
         An instance of SO3
         """
-        qw = q[0]
-        qv = q[1:]
-        qv_skew = np.array(
-            [[0, -qv[2], qv[1]], [qv[2], 0, -qv[0]], [-qv[1], qv[0], 0]]
-        )
+        w = q[0]
+        v = q[1:]
+        v_skew = skew(v)
 
-        R = (
-            (2 * qw**2 - 1) * np.eye(3)
-            + 2 * qw * qv_skew
-            + 2 * np.outer(qv, qv)
-        )
+        R = (w**2 - v @ v) * np.eye(3) + 2 * np.outer(v, v) + 2 * w * v_skew
+
         return cls(R)
 
     @classmethod
