@@ -217,24 +217,24 @@ class Quaternion_Testing(unittest.TestCase):
 
             # np.testing.assert_allclose(vec, w, atol=1e-8)
 
-    # def testAdj(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         w = np.random.uniform(-np.pi, np.pi, size=3)
+    def testAdj(self):
+        for i in range(100):
+            q = Quaternion.random()
+            w = np.random.uniform(-np.pi, np.pi, size=3)
 
-    #         p_true = q * Quaternion.Exp(w)
-    #         p = Quaternion.Exp(q.Adj @ w) * q
+            p_true = q * Quaternion.Exp(w)
+            p = Quaternion.Exp(q.Adj @ w) * q
 
-    #         np.testing.assert_allclose(p_true.q, p.q)
+            np.testing.assert_allclose(p_true.q, p.q)
 
-    # def testNorm(self):
-    #     for i in range(10):
-    #         q = Quaternion.random()
-    #         for i in range(10):
-    #             q = q * q
-    #         q.normalize()
+    def testNorm(self):
+        for i in range(10):
+            q = Quaternion.random()
+            for i in range(10):
+                q = q * q
+            q.normalize()
 
-    #         np.testing.assert_allclose(1, q.norm())
+            np.testing.assert_allclose(1, q.norm())
 
     # def testBoxPlusR(self):
     #     for i in range(100):

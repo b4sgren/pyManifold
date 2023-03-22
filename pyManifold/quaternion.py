@@ -79,9 +79,9 @@ class Quaternion:
         #         # Find what the correct equation is for this
         #         # return Rot.from_matrix(self.R).as_euler("XYZ")
 
-        #     @property
-        #     def Adj(self):
-        #         return self.R
+    @property
+    def Adj(self):
+        return self.R
 
     def __mul__(self, q):
         return self.otimes(q)
@@ -142,11 +142,11 @@ class Quaternion:
         else:
             return self.inv().rota(v)
 
-    #     def normalize(self):
-    #         self.arr = self.q / self.norm()
+    def normalize(self):
+        self.arr = self.q / self.norm()
 
-    #     def norm(self):
-    #         return np.linalg.norm(self.q)
+    def norm(self):
+        return np.linalg.norm(self.q)
 
     #     def boxplusr(self, w, Jr=None, Jl=None):
     #         assert w.size == 3
