@@ -349,7 +349,6 @@ class SO3:
 
         return np.array([phi, theta, psi])
 
-    # Not sure that this does what I want. It may need to be reversed R3*R2*R1
     @classmethod
     def fromRPY(cls, angles: np.ndarray) -> "SO3":
         """
@@ -361,9 +360,7 @@ class SO3:
         Returns:
         An instance of SO3
         """
-        phi = angles[0]
-        theta = angles[1]
-        psi = angles[2]
+        phi, theta, psi = angles
 
         cps = np.cos(psi)
         sps = np.sin(psi)

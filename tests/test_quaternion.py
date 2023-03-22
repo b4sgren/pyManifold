@@ -140,24 +140,13 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(q.R, R.R)
 
-    #     for i in range(100):
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+    def testFromRPY(self):
+        for i in range(100):
+            rpy = np.random.uniform(-np.pi, np.pi, size=3)
+            R = SO3.fromRPY(rpy).R
+            q = Quaternion.fromRPY(rpy)
 
-    #         vp_true = R.rotp(v)
-    #         vp = q.rotp(v)
-
-    #         np.testing.assert_allclose(vp_true, vp)
-
-    # def testFromRPY(self):
-    #     for i in range(100):
-    #         rpy = np.random.uniform(-np.pi, np.pi, size=3)
-    #         R = SO3.fromRPY(rpy).R
-    #         q = Quaternion.fromRPY(rpy)
-    #         q2 = from_euler(rpy)
-
-    #         np.testing.assert_allclose(R, q.R)
+            np.testing.assert_allclose(R, q.R)
 
     # def testFromAxisAngle(self):
     #     for i in range(100):

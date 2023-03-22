@@ -280,69 +280,30 @@ class Quaternion:
 
         #         return Quaternion(q)
 
-        #     @classmethod
-        #     def fromRPY(cls, rpy):
-        #         # phi, theta, psi = rpy / 2
+    @classmethod
+    def fromRPY(cls, rpy):
+        cp, ct, cps = np.cos(rpy / 2)
+        sp, st, sps = np.sin(rpy / 2)
 
-        #         # cp, sp = np.cos(phi), np.sin(phi)
-        #         # ct, st = np.cos(theta), np.sin(theta)
-        #         # cps, sps = np.cos(psi), np.sin(psi)
+        qx = -(sp * ct * cps - cp * st * sps)
+        qy = -(cp * st * cps + sp * ct * sps)
+        qz = -(cp * ct * sps - sp * st * cps)
+        qw = cp * ct * cps + sp * st * sps
+        return cls(np.array([qw, qx, qy, qz]))
 
-        #         # q = np.zeros(4)
-        #         # q[0] = cp * ct * cps - sp * st * sps
-        #         # q[1] = sp * ct * cps + cp * st * sps
-        #         # q[2] = cp * st * cps - sp * ct * sps
-        #         # q[3] = cp * ct * sps + sp * st * cps
-        #         # q = q / np.linalg.norm(q)
+        # q1 = cls.Exp(np.array([-rpy[0], 0, 0]))
+        # q2 = cls.Exp(np.array([0, -rpy[1], 0]))
+        # q3 = cls.Exp(np.array([0, 0, -rpy[2]]))
 
-        #         # return cls(q)
+        # return q1 * q2 * q3
 
-        #         # phi = rpy[0]
-        #         # theta = rpy[1]
-        #         # psi = rpy[2]
+    #     @classmethod
+    #     def fromAxisAngle(cls, vec):
+    #         return cls.Exp(vec)
 
-        #         # q1 = cls(np.array([np.cos(psi / 2), 0, 0, np.sin(psi / 2)]))
-        #         # q2 = cls(np.array([np.cos(theta / 2), 0, np.sin(theta / 2), 0]))
-        #         # q3 = cls(np.array([np.cos(phi / 2), np.sin(phi / 2), 0, 0]))
-
-        #         # return q3 * q2 * q1
-
-        #         # phi, theta, psi = rpy / 2
-
-        #         # cp, sp = np.cos(phi), np.sin(phi)
-        #         # ct, st = np.cos(theta), np.sin(theta)
-        #         # cps, sps = np.cos(psi), np.sin(psi)
-
-        #         # q = np.zeros(4)
-        #         # q[0] = cp * ct * cps - sp * st * sps
-        #         # q[1] = sp * ct * cps + cp * st * sps
-        #         # q[2] = cp * st * cps - sp * ct * sps
-        #         # q[3] = cp * ct * sps + sp * st * cps
-        #         # q = q / np.linalg.norm(q)
-
-        #         # return cls(q)
-
-        #         phi, theta, psi = rpy / 2
-        #         cp = np.cos(phi)
-        #         sp = np.sin(phi)
-        #         ct = np.cos(theta)
-        #         st = np.sin(theta)
-        #         cpsi = np.cos(psi)
-        #         spsi = np.sin(psi)
-
-        #         qw = cpsi * ct * cp + spsi * st * sp
-        #         qx = cpsi * ct * sp - spsi * st * cp
-        #         qy = cpsi * st * cp + spsi * ct * sp
-        #         qz = spsi * ct * cp - cpsi * st * sp
-        #         return cls(np.array([qw, qx, qy, qz]))
-
-        #     @classmethod
-        #     def fromAxisAngle(cls, vec):
-        #         return cls.Exp(vec)
-
-        #     @staticmethod
-        #     def Identity():
-        #         return Quaternion(np.array([1.0, 0.0, 0.0, 0.0]))
+    #     @staticmethod
+    #     def Identity():
+    #         return Quaternion(np.array([1.0, 0.0, 0.0, 0.0]))
 
     @staticmethod
     def hat(w):
