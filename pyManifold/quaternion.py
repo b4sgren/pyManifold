@@ -148,35 +148,35 @@ class Quaternion:
     def norm(self):
         return np.linalg.norm(self.q)
 
-    #     def boxplusr(self, w, Jr=None, Jl=None):
-    #         assert w.size == 3
-    #         if not Jr is None:
-    #             q, J = Quaternion.Exp(w, Jr=Jr)
-    #             return self.compose(q, Jr2=J)
-    #         elif not Jl is None:
-    #             q, J = Quaternion.Exp(w, Jl=Jl)
-    #             return self.compose(q, Jl2=J)
-    #         else:
-    #             return self * Quaternion.Exp(w)
+    def boxplusr(self, w, Jr=None, Jl=None):
+        assert w.size == 3
+        if not Jr is None:
+            q, J = Quaternion.Exp(w, Jr=Jr)
+            return self.compose(q, Jr2=J)
+        elif not Jl is None:
+            q, J = Quaternion.Exp(w, Jl=Jl)
+            return self.compose(q, Jl2=J)
+        else:
+            return self * Quaternion.Exp(w)
 
-    #     def boxminusr(self, q, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
-    #         assert isinstance(q, Quaternion)
-    #         if Jr1 is not None:
-    #             dq, J = q.inv().compose(self, Jr2=Jr1)
-    #             return Quaternion.Log(dq, Jr=J)
-    #         elif Jl1 is not None:
-    #             dq, J = q.inv().compose(self, Jl2=Jl1)
-    #             return Quaternion.Log(dq, Jl=J)
-    #         elif Jr2 is not None:
-    #             q_inv, J = q.inv(Jr=Jr2)
-    #             dq, J = q_inv.compose(self, Jr=J)
-    #             return Quaternion.Log(dq, Jr=J)
-    #         elif Jl2 is not None:
-    #             q_inv, J = q.inv(Jl=Jl2)
-    #             dq, J = q_inv.compose(self, Jl=J)
-    #             return Quaternion.Log(dq, Jl=J)
-    #         else:
-    #             return Quaternion.Log(q.inv() * self)
+    def boxminusr(self, q, Jr1=None, Jl1=None, Jr2=None, Jl2=None):
+        assert isinstance(q, Quaternion)
+        if Jr1 is not None:
+            dq, J = q.inv().compose(self, Jr2=Jr1)
+            return Quaternion.Log(dq, Jr=J)
+        elif Jl1 is not None:
+            dq, J = q.inv().compose(self, Jl2=Jl1)
+            return Quaternion.Log(dq, Jl=J)
+        elif Jr2 is not None:
+            q_inv, J = q.inv(Jr=Jr2)
+            dq, J = q_inv.compose(self, Jr=J)
+            return Quaternion.Log(dq, Jr=J)
+        elif Jl2 is not None:
+            q_inv, J = q.inv(Jl=Jl2)
+            dq, J = q_inv.compose(self, Jl=J)
+            return Quaternion.Log(dq, Jl=J)
+        else:
+            return Quaternion.Log(q.inv() * self)
 
     #     def boxplusl(self, w, Jr=None, Jl=None):
     #         assert w.size == 3
