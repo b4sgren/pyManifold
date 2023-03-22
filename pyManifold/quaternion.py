@@ -61,23 +61,20 @@ class Quaternion:
             (w**2 - v @ v) * np.eye(3) + 2 * np.outer(v, v) + 2 * w * skew(v)
         )
 
-        #     @property
-        #     def euler(self) -> np.ndarray:
-        #         # Doesn't quite work
-        #         num = 2 * (self.w * self.x + self.y * self.z)
-        #         den = self.z**2 - self.x**2 - self.y**2 + self.w**2
-        #         phi = np.arctan2(num, den)
+    @property
+    def euler(self) -> np.ndarray:
+        q = self.inv()
+        num = 2 * (q.w * q.x + q.y * q.z)
+        den = q.z**2 - q.x**2 - q.y**2 + q.w**2
+        phi = np.arctan2(num, den)
 
-        #         theta = np.arcsin(2 * (self.w * self.y - self.x * self.z))
+        theta = np.arcsin(2 * (q.w * q.y - q.x * q.z))
 
-        #         num = 2 * (self.w * self.z + self.x * self.y)
-        #         den = self.x**2 - self.y**2 - self.z**2 + self.w**2
-        #         psi = np.arctan2(num, den)
+        num = 2 * (q.w * q.z + q.x * q.y)
+        den = q.x**2 - q.y**2 - q.z**2 + q.w**2
+        psi = np.arctan2(num, den)
 
-        #         return np.array([phi, theta, psi])
-
-        #         # Find what the correct equation is for this
-        #         # return Rot.from_matrix(self.R).as_euler("XYZ")
+        return np.array([phi, theta, psi])
 
     @property
     def Adj(self):

@@ -280,12 +280,14 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(q1.q, q.q)
 
-    # def test_euler(self):
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         rpy = q1.euler
-    #         q2 = Quaternion.fromRPY(rpy)
-    #         # np.testing.assert_allclose(q1.q, q2.q)
+    def test_euler(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            R1 = SO3.fromQuaternion(q1.q)
+            rpy1 = q1.euler
+            rpy2 = R1.euler
+
+            np.testing.assert_allclose(rpy2, rpy1)
 
     # def test_right_jacobian_of_inversion(self):
     #     q = Quaternion.random()
