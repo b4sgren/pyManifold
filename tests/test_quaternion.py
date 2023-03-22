@@ -82,6 +82,16 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(q3_true, q3.q)
 
+    def testInverse(self):
+        for i in range(100):
+            q = Quaternion.random()
+            q_inv = q.inv()
+
+            I = q * q_inv
+            I_true = np.array([1.0, 0.0, 0.0, 0.0])
+
+            np.testing.assert_allclose(I_true, I.q)
+
     # def testExp(self):
     #     for i in range(100):
     #         theta = np.random.uniform(-np.pi, np.pi)
@@ -92,16 +102,6 @@ class Quaternion_Testing(unittest.TestCase):
     #         q = Quaternion.Exp(w)
 
     #         np.testing.assert_allclose(R.R, q.R)
-
-    # def testInverse(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         q_inv = q.inv()
-
-    #         I = q * q_inv
-    #         I_true = np.array([1.0, 0.0, 0.0, 0.0])
-
-    #         np.testing.assert_allclose(I_true, I.q)
 
     # def testRotationMatrixFromQuaternion(self):
     #     for i in range(100):
