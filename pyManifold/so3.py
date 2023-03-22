@@ -325,22 +325,27 @@ class SO3:
     @property
     def euler(self) -> np.ndarray:
         """Returns the RPY angles for the rotation matrix"""
-        # if 1 - np.abs(self.R[2, 0]) > 1e-8:
-        #     phi = np.arctan2(self.R[2, 1], self.R[2, 2])
-        #     theta = np.arcsin(-self.R[2, 0])
-        #     psi = np.arctan2(self.R[1, 0], self.R[0, 0])
-        # else:
-        #     phi = 0
-        #     if np.sign(self.R[2, 0]) > 0:
-        #         theta = np.pi / 2
-        #         psi = -np.arctan2(-self.R[1, 2], self.R[1, 1])
-        #     else:
-        #         theta = -np.pi / 2
-        #         psi = np.arctan2(-self.R[1, 2], self.R[1, 1])
-        # return np.array([phi, theta, psi])
-        theta = np.arcsin(self.R[0, 2])
-        phi = np.arctan2(-self.R[1, 2], self.R[2, 2])
-        psi = np.arctan2(-self.R[0, 1], self.R[0, 0])
+        if 1 - np.abs(self.R[2, 0]) > 1e-8:
+            phi = np.arctan2(self.R[1, 2], self.R[2, 2])
+            theta = np.arcsin(-self.R[0, 2])
+            psi = np.arctan2(self.R[0, 1], self.R[0, 0])
+        else:
+            phi = 0
+            if np.sign(self.R[2, 0]) > 0:
+                theta = np.pi / 2
+                psi = -np.arctan2(-self.R[1, 2], self.R[1, 1])
+            else:
+                theta = -np.pi / 2
+                psi = np.arctan2(-self.R[1, 2], self.R[1, 1])
+        return np.array([phi, theta, psi])
+
+        # theta = np.arcsin(self.R[0, 2])
+        # phi = np.arctan2(-self.R[1, 2], self.R[2, 2])
+        # psi = np.arctan2(-self.R[0, 1], self.R[0, 0])
+
+        # psi = np.arctan2(self.R[0, 1], self.R[0, 0])
+        # theta = -np.arcsin(self.R[0, 2])
+        # phi = np.arctan2(self.R[1, 2], self.R[2, 2])
 
         return np.array([phi, theta, psi])
 
@@ -362,18 +367,17 @@ class SO3:
 
         cps = np.cos(psi)
         sps = np.sin(psi)
-        R1 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
+        R3 = np.array([[cps, sps, 0], [-sps, cps, 0], [0, 0, 1]])
 
         ct = np.cos(theta)
         st = np.sin(theta)
-        R2 = np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
+        R2 = np.array([[ct, 0, -st], [0, 1, 0], [st, 0, ct]])
 
         cp = np.cos(phi)
         sp = np.sin(phi)
-        R3 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
+        R1 = np.array([[1, 0, 0], [0, cp, sp], [0, -sp, cp]])
 
-        # return cls(R1 @ R2 @ R3)
-        return cls(R3 @ R2 @ R1)
+        return cls(R1 @ R2 @ R3)
 
     @classmethod
     def fromAxisAngle(cls, w: np.ndarray) -> "SO3":
