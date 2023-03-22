@@ -104,18 +104,34 @@ class Quaternion_Testing(unittest.TestCase):
             np.testing.assert_allclose(R.R, q.R)
 
     def testRota(self):
-        vec = np.random.uniform(-10, 10, size=3)
-        theta = np.random.uniform(-np.pi, np.pi)
-        v = np.random.uniform(-1.0, 1.0, size=3)
-        w = theta * v / np.linalg.norm(v)
-        q = Quaternion.Exp(w)
-        R = SO3.Exp(w)
+        for i in range(100):
+            vec = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi)
+            v = np.random.uniform(-1.0, 1.0, size=3)
+            w = theta * v / np.linalg.norm(v)
+            q = Quaternion.Exp(w)
+            R = SO3.Exp(w)
 
-        vp = q.rota(vec)
-        # vp = q.R @ vec
-        vp_true = R.rota(vec)
+            vp = q.rota(vec)
+            # vp = q.R @ vec
+            vp_true = R.rota(vec)
 
-        np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+            np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+
+    def testRotp(self):
+        for i in range(100):
+            vec = np.random.uniform(-10, 10, size=3)
+            theta = np.random.uniform(-np.pi, np.pi)
+            v = np.random.uniform(-1.0, 1.0, size=3)
+            w = theta * v / np.linalg.norm(v)
+            q = Quaternion.Exp(w)
+            R = SO3.Exp(w)
+
+            vp = q.rotp(vec)
+            # vp = q.R @ vec
+            vp_true = R.rotp(vec)
+
+            np.testing.assert_allclose(vp_true, vp, atol=1e-10)
 
     # def testRotationMatrixFromQuaternion(self):
     #     for i in range(100):
@@ -123,14 +139,6 @@ class Quaternion_Testing(unittest.TestCase):
     #         R = SO3.fromQuaternion(q.q)
 
     #         np.testing.assert_allclose(q.R, R.R)
-
-    # def testRotp(self):
-    #     v = np.array([1, 0, 0])
-    #     q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi / 2)
-    #     vp = q.rotp(v)
-    #     vp_true = np.array([0, -1, 0])
-
-    #     np.testing.assert_allclose(vp_true, vp, atol=1e-10)
 
     # def testRotatingVector(self):
     #     for i in range(100):

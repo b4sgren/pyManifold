@@ -130,17 +130,17 @@ class Quaternion:
         else:
             return vp
 
-    #     def rotp(self, v, Jr=None, Jl=None):
-    #         if not Jr is None:
-    #             q_inv, J = self.inv(Jr=Jr)
-    #             vp, J = q_inv.rota(v, Jr=J)
-    #             return vp, J
-    #         elif not Jl is None:
-    #             q_inv, J = self.inv(Jl=Jl)
-    #             vp, J = q_inv.rota(v, Jl=J)
-    #             return vp, J
-    #         else:
-    #             return self.inv().rota(v)
+    def rotp(self, v, Jr=None, Jl=None):
+        if not Jr is None:
+            q_inv, J = self.inv(Jr=Jr)
+            vp, J = q_inv.rota(v, Jr=J)
+            return vp, J
+        elif not Jl is None:
+            q_inv, J = self.inv(Jl=Jl)
+            vp, J = q_inv.rota(v, Jl=J)
+            return vp, J
+        else:
+            return self.inv().rota(v)
 
     #     def normalize(self):
     #         self.arr = self.q / self.norm()
