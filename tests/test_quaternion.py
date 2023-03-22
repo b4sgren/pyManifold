@@ -259,26 +259,26 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(w1, w2)
 
-    # def test_boxplusl(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
-    #         w = np.random.uniform(-np.pi, np.pi, size=3)
+    def test_boxplusl(self):
+        for i in range(100):
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
+            w = np.random.uniform(-np.pi, np.pi, size=3)
 
-    #         q2 = q.boxplusl(w)
-    #         R2 = R.boxplusl(w)
+            q2 = q.boxplusl(w)
+            R2 = R.boxplusl(w)
 
-    #         np.testing.assert_allclose(R2.R, q2.R)
+            np.testing.assert_allclose(R2.R, q2.R)
 
-    # def test_boxminusl(self):
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         q2 = Quaternion.random()
+    def test_boxminusl(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
 
-    #         w = q1.boxminusl(q2)
-    #         q = q2.boxplusl(w)
+            w = q1.boxminusl(q2)
+            q = q2.boxplusl(w)
 
-    #         np.testing.assert_allclose(q1.q, q.q)
+            np.testing.assert_allclose(q1.q, q.q)
 
     # def test_euler(self):
     #     for i in range(100):
