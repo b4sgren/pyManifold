@@ -68,6 +68,20 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(q.R, R)
 
+    def testQuaternionMultiply(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
+
+            q3 = q1 * q2
+
+            q3_true = quatMultiply(q1, q2)
+
+            if q3_true[0] < 0:
+                q3_true *= -1
+
+            np.testing.assert_allclose(q3_true, q3.q)
+
     # def testExp(self):
     #     for i in range(100):
     #         theta = np.random.uniform(-np.pi, np.pi)
@@ -78,20 +92,6 @@ class Quaternion_Testing(unittest.TestCase):
     #         q = Quaternion.Exp(w)
 
     #         np.testing.assert_allclose(R.R, q.R)
-
-    # def testQuaternionMultiply(self):
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         q2 = Quaternion.random()
-
-    #         q3 = q1 * q2
-
-    #         q3_true = quatMultiply(q1, q2)
-
-    #         if q3_true[0] < 0:
-    #             q3_true *= -1
-
-    #         np.testing.assert_allclose(q3_true, q3.q)
 
     # def testInverse(self):
     #     for i in range(100):

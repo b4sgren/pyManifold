@@ -61,50 +61,50 @@ class Quaternion:
             (w**2 - v @ v) * np.eye(3) + 2 * np.outer(v, v) + 2 * w * skew(v)
         )
 
-    #     @property
-    #     def euler(self) -> np.ndarray:
-    #         # Doesn't quite work
-    #         num = 2 * (self.w * self.x + self.y * self.z)
-    #         den = self.z**2 - self.x**2 - self.y**2 + self.w**2
-    #         phi = np.arctan2(num, den)
+        #     @property
+        #     def euler(self) -> np.ndarray:
+        #         # Doesn't quite work
+        #         num = 2 * (self.w * self.x + self.y * self.z)
+        #         den = self.z**2 - self.x**2 - self.y**2 + self.w**2
+        #         phi = np.arctan2(num, den)
 
-    #         theta = np.arcsin(2 * (self.w * self.y - self.x * self.z))
+        #         theta = np.arcsin(2 * (self.w * self.y - self.x * self.z))
 
-    #         num = 2 * (self.w * self.z + self.x * self.y)
-    #         den = self.x**2 - self.y**2 - self.z**2 + self.w**2
-    #         psi = np.arctan2(num, den)
+        #         num = 2 * (self.w * self.z + self.x * self.y)
+        #         den = self.x**2 - self.y**2 - self.z**2 + self.w**2
+        #         psi = np.arctan2(num, den)
 
-    #         return np.array([phi, theta, psi])
+        #         return np.array([phi, theta, psi])
 
-    #         # Find what the correct equation is for this
-    #         # return Rot.from_matrix(self.R).as_euler("XYZ")
+        #         # Find what the correct equation is for this
+        #         # return Rot.from_matrix(self.R).as_euler("XYZ")
 
-    #     @property
-    #     def Adj(self):
-    #         return self.R
+        #     @property
+        #     def Adj(self):
+        #         return self.R
 
-    #     def __mul__(self, q):
-    #         return self.otimes(q)
+    def __mul__(self, q):
+        return self.otimes(q)
 
-    #     def __str__(self):
-    #         return str(self.q)
+    def __str__(self):
+        return str(self.q)
 
-    #     def __repr__(self):
-    #         return f"[{self.w} + {self.x}i + {self.y}j + {self.z}k]"
+    def __repr__(self):
+        return f"[{self.w} + {self.x}i + {self.y}j + {self.z}k]"
 
-    #     def otimes(self, q):
-    #         # Ql in Quat Kinematics for Err St Kalman Filter
-    #         Q = np.block(
-    #             [
-    #                 [self.w, -self.qv],
-    #                 [self.qv[:, None], self.w * np.eye(3) + self.skew()],
-    #             ]
-    #         )
-    #         return Quaternion(Q @ q.q)
+    def otimes(self, q):
+        # Ql in Quat Kinematics for Err St Kalman Filter pg7
+        Q = np.block(
+            [
+                [self.w, -self.qv],
+                [self.qv[:, None], self.w * np.eye(3) + self.skew()],
+            ]
+        )
+        return Quaternion(Q @ q.q)
 
-    #     def skew(self):
-    #         qv = self.qv
-    #         return skew(qv)
+    def skew(self):
+        qv = self.qv
+        return skew(qv)
 
     #     def inv(self, Jr=None, Jl=None):
     #         if not Jr is None:
