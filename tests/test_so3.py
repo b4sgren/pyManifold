@@ -507,6 +507,7 @@ class SO3_testing(unittest.TestCase):
             rpy = R.euler
             R2 = SO3.fromRPY(rpy)
 
+            # Test rotation matrices b/c euler angles are not unique
             np.testing.assert_allclose(R.R, R2.R)
 
         # for i in range(100):
