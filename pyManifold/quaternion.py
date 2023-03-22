@@ -232,53 +232,53 @@ class Quaternion:
         q3 = np.sqrt(u[0]) * np.cos(2 * np.pi * u[2])
         return Quaternion(np.array([qw, q1, q2, q3]))
 
-        #     @classmethod
-        #     def fromRotationMatrix(cls, R):
-        #         d = np.trace(R)
-        #         if d > 0:
-        #             s = 2 * np.sqrt(d + 1)
-        #             q = np.array(
-        #                 [
-        #                     s / 4,
-        #                     1 / s * (R[1, 2] - R[2, 1]),
-        #                     1 / s * (R[2, 0] - R[0, 2]),
-        #                     1 / s * (R[0, 1] - R[1, 0]),
-        #                 ]
-        #             )
-        #         elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
-        #             s = 2 * np.sqrt(1 + R[0, 0] - R[1, 1] - R[2, 2])
-        #             q = np.array(
-        #                 [
-        #                     1 / s * (R[1, 2] - R[2, 1]),
-        #                     s / 4,
-        #                     1 / s * (R[1, 0] + R[0, 1]),
-        #                     1 / s * (R[2, 0] + R[0, 2]),
-        #                 ]
-        #             )
-        #         elif R[1, 1] > R[2, 2]:
-        #             s = 2 * np.sqrt(1 + R[1, 1] - R[0, 0] - R[2, 2])
-        #             q = np.array(
-        #                 [
-        #                     1 / s * (R[2, 0] - R[0, 2]),
-        #                     1 / s * (R[1, 0] + R[0, 1]),
-        #                     s / 4,
-        #                     1 / s * (R[2, 1] + R[1, 2]),
-        #                 ]
-        #             )
-        #         else:
-        #             s = 2 * np.sqrt(1 + R[2, 2] - R[0, 0] - R[1, 1])
-        #             q = np.array(
-        #                 [
-        #                     1 / s * (R[0, 1] - R[1, 0]),
-        #                     1 / s * (R[2, 0] + R[0, 2]),
-        #                     1 / s * (R[2, 1] + R[1, 2]),
-        #                     s / 4,
-        #                 ]
-        #             )
+    @classmethod
+    def fromRotationMatrix(cls, R):
+        d = np.trace(R)
+        if d > 0:
+            s = 2 * np.sqrt(d + 1)
+            q = np.array(
+                [
+                    s / 4,
+                    1 / s * (R[1, 2] - R[2, 1]),
+                    1 / s * (R[2, 0] - R[0, 2]),
+                    1 / s * (R[0, 1] - R[1, 0]),
+                ]
+            )
+        elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
+            s = 2 * np.sqrt(1 + R[0, 0] - R[1, 1] - R[2, 2])
+            q = np.array(
+                [
+                    1 / s * (R[1, 2] - R[2, 1]),
+                    s / 4,
+                    1 / s * (R[1, 0] + R[0, 1]),
+                    1 / s * (R[2, 0] + R[0, 2]),
+                ]
+            )
+        elif R[1, 1] > R[2, 2]:
+            s = 2 * np.sqrt(1 + R[1, 1] - R[0, 0] - R[2, 2])
+            q = np.array(
+                [
+                    1 / s * (R[2, 0] - R[0, 2]),
+                    1 / s * (R[1, 0] + R[0, 1]),
+                    s / 4,
+                    1 / s * (R[2, 1] + R[1, 2]),
+                ]
+            )
+        else:
+            s = 2 * np.sqrt(1 + R[2, 2] - R[0, 0] - R[1, 1])
+            q = np.array(
+                [
+                    1 / s * (R[0, 1] - R[1, 0]),
+                    1 / s * (R[2, 0] + R[0, 2]),
+                    1 / s * (R[2, 1] + R[1, 2]),
+                    s / 4,
+                ]
+            )
 
-        #         q[1:] *= -1
+        q[1:] *= -1
 
-        #         return Quaternion(q)
+        return Quaternion(q)
 
     @classmethod
     def fromRPY(cls, rpy):
@@ -313,55 +313,55 @@ class Quaternion:
     def vee(W):
         return W[1:]
 
-    #     @staticmethod
-    #     def log(q, Jr=None, Jl=None):
-    #         qw = q.w
-    #         qv = q.qv
-    #         theta = np.linalg.norm(qv)
+    @staticmethod
+    def log(q, Jr=None, Jl=None):
+        qw = q.w
+        qv = q.qv
+        theta = np.linalg.norm(qv)
 
-    #         if np.abs(theta) > 1e-8:
-    #             w = 2 * np.arctan(theta / qw) * qv / theta
-    #         else:
-    #             temp = (
-    #                 1 / qw - theta**2 / (3 * qw**3) + theta**4 / (5 * qw**5)
-    #             )
-    #             w = 2 * temp * qv
-    #         logq = np.array([0, *w])
+        if np.abs(theta) > 1e-8:
+            w = 2 * np.arctan(theta / qw) * qv / theta
+        else:
+            temp = (
+                1 / qw - theta**2 / (3 * qw**3) + theta**4 / (5 * qw**5)
+            )
+            w = 2 * temp * qv
+        logq = np.array([0, *w])
 
-    #         if not Jr is None:
-    #             wx = skew(w)
-    #             phi = np.linalg.norm(w)
-    #             J = (
-    #                 np.eye(3)
-    #                 + 0.5 * wx
-    #                 + (1 / phi**2 - (1 + np.cos(phi)) / (2 * phi * np.sin(phi)))
-    #                 * (wx @ wx)
-    #             )
-    #             return logq, J @ Jr
-    #         elif not Jl is None:
-    #             wx = skew(w)
-    #             phi = np.linalg.norm(w)
-    #             J = (
-    #                 np.eye(3)
-    #                 - 0.5 * wx
-    #                 + (1 / phi**2 - (1 + np.cos(phi)) / (2 * phi * np.sin(phi)))
-    #                 * (wx @ wx)
-    #             )
-    #             return logq, J @ Jl
-    #         else:
-    #             return logq
+        if not Jr is None:
+            wx = skew(w)
+            phi = np.linalg.norm(w)
+            J = (
+                np.eye(3)
+                + 0.5 * wx
+                + (1 / phi**2 - (1 + np.cos(phi)) / (2 * phi * np.sin(phi)))
+                * (wx @ wx)
+            )
+            return logq, J @ Jr
+        elif not Jl is None:
+            wx = skew(w)
+            phi = np.linalg.norm(w)
+            J = (
+                np.eye(3)
+                - 0.5 * wx
+                + (1 / phi**2 - (1 + np.cos(phi)) / (2 * phi * np.sin(phi)))
+                * (wx @ wx)
+            )
+            return logq, J @ Jl
+        else:
+            return logq
 
-    #     @staticmethod
-    #     def Log(q, Jr=None, Jl=None):
-    #         if not Jr is None:
-    #             W, J = Quaternion.log(q, Jr=Jr)
-    #             return Quaternion.vee(W), J
-    #         elif not Jl is None:
-    #             W, J = Quaternion.log(q, Jl=Jl)
-    #             return Quaternion.vee(W), J
-    #         else:
-    #             W = Quaternion.log(q)
-    #             return Quaternion.vee(W)
+    @staticmethod
+    def Log(q, Jr=None, Jl=None):
+        if not Jr is None:
+            W, J = Quaternion.log(q, Jr=Jr)
+            return Quaternion.vee(W), J
+        elif not Jl is None:
+            W, J = Quaternion.log(q, Jl=Jl)
+            return Quaternion.vee(W), J
+        else:
+            W = Quaternion.log(q)
+            return Quaternion.vee(W)
 
     @classmethod
     def exp(cls, W, Jr=None, Jl=None):
@@ -414,20 +414,3 @@ class Quaternion:
             return Quaternion.exp(W, Jl=Jl)
         else:
             return Quaternion.exp(W)
-
-
-# def from_euler(rpy):
-#     phi, theta, psi = rpy / 2
-
-#     cp, sp = np.cos(phi), np.sin(phi)
-#     ct, st = np.cos(theta), np.sin(theta)
-#     cps, sps = np.cos(psi), np.sin(psi)
-
-#     q = np.zeros(4)
-#     q[0] = cp * ct * cps - sp * st * sps
-#     q[1] = sp * ct * cps + cp * st * sps
-#     q[2] = cp * st * cps - sp * ct * sps
-#     q[3] = cp * ct * sps + sp * st * cps
-#     q = q / np.linalg.norm(q)
-
-#     return Quaternion(q)

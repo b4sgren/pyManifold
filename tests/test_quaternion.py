@@ -170,52 +170,52 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(R, q.R, atol=1e-5)
 
-    # def testFromRotationMatrix(self):
-    #     for i in range(100):
-    #         R = SO3.random()
-    #         q = Quaternion.fromRotationMatrix(R.R)
+    def testFromRotationMatrix(self):
+        for i in range(100):
+            R = SO3.random()
+            q = Quaternion.fromRotationMatrix(R.R)
 
-    #         # np.testing.assert_allclose(R.R, q.R)
+            np.testing.assert_allclose(R.R, q.R)
 
-    # def testHat(self):
-    #     for i in range(100):
-    #         w = np.random.uniform(-10, 10, size=3)
+    def testHat(self):
+        for i in range(100):
+            w = np.random.uniform(-10, 10, size=3)
 
-    #         W = Quaternion.hat(w)
-    #         W_true = np.array([0, w[0], w[1], w[2]])
+            W = Quaternion.hat(w)
+            W_true = np.array([0, w[0], w[1], w[2]])
 
-    #         np.testing.assert_allclose(W_true, W)
+            np.testing.assert_allclose(W_true, W)
 
-    # def testVee(self):
-    #     for i in range(100):
-    #         W = np.random.uniform(-10, 10, size=4)
-    #         W[0] = 0
+    def testVee(self):
+        for i in range(100):
+            W = np.random.uniform(-10, 10, size=4)
+            W[0] = 0
 
-    #         w_true = W[1:]
-    #         w = Quaternion.vee(W)
+            w_true = W[1:]
+            w = Quaternion.vee(W)
 
-    #         np.testing.assert_allclose(w_true, w)
+            np.testing.assert_allclose(w_true, w)
 
-    # def testLog(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+    def testLog(self):
+        for i in range(100):
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
 
-    #         w_true = SO3.Log(R)
-    #         w = Quaternion.Log(q)
+            w_true = SO3.Log(R)
+            w = Quaternion.Log(q)
 
-    #         np.testing.assert_allclose(w_true, w)
+            np.testing.assert_allclose(w_true, w)
 
-    # def testLogTaylor(self):
-    #     for i in range(100):
-    #         theta = np.random.uniform(0, 1e-3)
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vec = theta * v / np.linalg.norm(v)
+    def testLogTaylor(self):
+        for i in range(100):
+            theta = np.random.uniform(0, 1e-3)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v / np.linalg.norm(v)
 
-    #         q = Quaternion.fromAxisAngle(vec)
-    #         w = Quaternion.Log(q)
+            q = Quaternion.fromAxisAngle(vec)
+            w = Quaternion.Log(q)
 
-    #         # np.testing.assert_allclose(vec, w, atol=1e-8)
+            # np.testing.assert_allclose(vec, w, atol=1e-8)
 
     # def testAdj(self):
     #     for i in range(100):
