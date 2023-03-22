@@ -297,9 +297,9 @@ class Quaternion:
 
         # return q1 * q2 * q3
 
-    #     @classmethod
-    #     def fromAxisAngle(cls, vec):
-    #         return cls.Exp(vec)
+    @classmethod
+    def fromAxisAngle(cls, vec):
+        return cls.Exp(vec)
 
     #     @staticmethod
     #     def Identity():
