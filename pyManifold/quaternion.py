@@ -205,18 +205,18 @@ class Quaternion:
         else:
             return Quaternion.Log(self * q.inv())
 
-    #     def compose(self, q, Jr=None, Jl=None, Jr2=None, Jl2=None):
-    #         res = self * q
-    #         if not Jr is None:
-    #             return res, q.inv().Adj @ Jr
-    #         elif not Jl is None:
-    #             return res, np.eye(3) @ Jl
-    #         elif not Jr2 is None:
-    #             return res, np.eye(3) @ Jr2
-    #         elif not Jl2 is None:
-    #             return res, self.Adj @ Jl2
-    #         else:
-    #             return res
+    def compose(self, q, Jr=None, Jl=None, Jr2=None, Jl2=None):
+        res = self * q
+        if not Jr is None:
+            return res, q.inv().Adj @ Jr
+        elif not Jl is None:
+            return res, np.eye(3) @ Jl
+        elif not Jr2 is None:
+            return res, np.eye(3) @ Jr2
+        elif not Jl2 is None:
+            return res, self.Adj @ Jl2
+        else:
+            return res
 
     @classmethod
     def random(cls):
