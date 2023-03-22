@@ -114,21 +114,21 @@ class Quaternion:
             return q_inv, -q_inv.Adj @ Jl
         return Quaternion(np.array([self.w, -self.x, -self.y, -self.z]))
 
-    #     # Does q*v*q.inv()
-    #     def rota(self, v, Jr=None, Jl=None):
-    #         qw = self.w
-    #         qv = self.qv
+    # Does q*v*q.inv()
+    def rota(self, v, Jr=None, Jl=None):
+        qw = self.w
+        qv = self.qv
 
-    #         t = 2 * skew(v) @ qv
-    #         vp = v + qw * t + skew(t) @ qv
-    #         if not Jr is None:
-    #             J = -self.R @ skew(v)
-    #             return vp, J @ Jr
-    #         elif not Jl is None:
-    #             J = -skew(vp)
-    #             return vp, J @ Jl
-    #         else:
-    #             return vp
+        t = 2 * skew(v) @ qv
+        vp = v - qw * t + skew(t) @ qv
+        if not Jr is None:
+            J = -self.R @ skew(v)
+            return vp, J @ Jr
+        elif not Jl is None:
+            J = -skew(vp)
+            return vp, J @ Jl
+        else:
+            return vp
 
     #     def rotp(self, v, Jr=None, Jl=None):
     #         if not Jr is None:

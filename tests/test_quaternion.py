@@ -103,13 +103,19 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(R.R, q.R)
 
-    # def testRota(self):
-    #     v = np.array([1, 0, 0])
-    #     q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi / 2)
-    #     vp = q.rota(v)
-    #     vp_true = np.array([0, 1, 0])
+    def testRota(self):
+        vec = np.random.uniform(-10, 10, size=3)
+        theta = np.random.uniform(-np.pi, np.pi)
+        v = np.random.uniform(-1.0, 1.0, size=3)
+        w = theta * v / np.linalg.norm(v)
+        q = Quaternion.Exp(w)
+        R = SO3.Exp(w)
 
-    #     np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+        vp = q.rota(vec)
+        # vp = q.R @ vec
+        vp_true = R.rota(vec)
+
+        np.testing.assert_allclose(vp_true, vp, atol=1e-10)
 
     # def testRotationMatrixFromQuaternion(self):
     #     for i in range(100):
