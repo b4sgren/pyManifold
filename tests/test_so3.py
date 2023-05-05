@@ -20,21 +20,17 @@ class SO3_testing(unittest.TestCase):
 
             cp = np.cos(angles[0])
             sp = np.sin(angles[0])
-            R1 = np.array([[1, 0, 0], [0, cp, -sp], [0, sp, cp]])
+            R1 = np.array([[1, 0, 0], [0, cp, sp], [0, -sp, cp]])
 
             ct = np.cos(angles[1])
             st = np.sin(angles[1])
-            R2 = np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
+            R2 = np.array([[ct, 0, -st], [0, 1, 0], [st, 0, ct]])
 
             cps = np.cos(angles[2])
             sps = np.sin(angles[2])
-            R3 = np.array([[cps, -sps, 0], [sps, cps, 0], [0, 0, 1]])
+            R3 = np.array([[cps, sps, 0], [-sps, cps, 0], [0, 0, 1]])
 
-            R_true = Rotation.from_euler(
-                # "ZYX", [angles[2], angles[1], angles[0]]
-                "XYZ",
-                [angles[0], angles[1], angles[2]],
-            ).as_matrix()
+            R_true = R1 @ R2 @ R3
 
             R_ex2 = SO3(R_true)
 
