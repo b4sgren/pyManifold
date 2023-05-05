@@ -41,56 +41,56 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(R_true, R_ex.arr)
             np.testing.assert_allclose(R_true, R_ex2.arr)
 
-    # def testLog(self):  # This has issues sometimes. It is infrequent though
-    #     for i in range(100):
-    #         temp = Rotation.random().as_matrix()
-    #         R = SO3(temp)
+    def testLog(self):  # This has issues sometimes. It is infrequent though
+        for i in range(100):
+            temp = Rotation.random().as_matrix()
+            R = SO3(temp)
 
-    #         logR = SO3.log(R)
-    #         logR_true = sp.linalg.logm(temp)
+            logR = SO3.log(R)
+            logR_true = sp.linalg.logm(temp)
 
-    #         if np.linalg.norm(logR_true - logR, ord="fro") > 1e-3:
-    #             Pdb().set_trace()
-    #             debug = 1
-    #             temp = SO3.log(R)
+            if np.linalg.norm(logR_true - logR, ord="fro") > 1e-3:
+                Pdb().set_trace()
+                debug = 1
+                temp = SO3.log(R)
 
-    #         np.testing.assert_allclose(logR_true, logR, atol=1e-10)
+            np.testing.assert_allclose(logR_true, logR, atol=1e-10)
 
-    # def testTaylorLog(self):
-    #     for i in range(100):  # Around 0
-    #         vec = np.random.uniform(-3.0, 3.0, size=3)
-    #         vec = vec / np.linalg.norm(vec)
-    #         ang = np.random.uniform(-1e-8, 1e-3)
-    #         temp = vec * ang
-    #         R = SO3.fromAxisAngle(temp)
+    def testTaylorLog(self):
+        for i in range(100):  # Around 0
+            vec = np.random.uniform(-3.0, 3.0, size=3)
+            vec = vec / np.linalg.norm(vec)
+            ang = np.random.uniform(-1e-8, 1e-3)
+            temp = vec * ang
+            R = SO3.fromAxisAngle(temp)
 
-    #         logR = SO3.log(R)
-    #         logR_true = sp.linalg.logm(R.R)
+            logR = SO3.log(R)
+            logR_true = sp.linalg.logm(R.R)
 
-    #         if np.linalg.norm(logR_true - logR, ord="fro") > 1e-8:
-    #             Pdb().set_trace()
-    #             debug = 1
-    #             temp = SO3.log(R)
+            if np.linalg.norm(logR_true - logR, ord="fro") > 1e-8:
+                Pdb().set_trace()
+                debug = 1
+                temp = SO3.log(R)
 
-    #         np.testing.assert_allclose(logR_true, logR, atol=1e-10)
+            np.testing.assert_allclose(logR_true, logR, atol=1e-10)
 
-    #     for i in range(100):  # Around pi
-    #         vec = np.random.uniform(-1.0, 1.0, size=3)
-    #         ang = np.random.uniform(-0, 1e-8)
-    #         vec = vec / np.linalg.norm(vec) * (np.pi - ang)
+        for i in range(100):  # Around pi
+            vec = np.random.uniform(-1.0, 1.0, size=3)
+            ang = np.random.uniform(-0, 1e-8)
+            vec = vec / np.linalg.norm(vec) * (np.pi - ang)
 
-    #         R = SO3.fromAxisAngle(vec)
+            R = SO3.fromAxisAngle(vec)
 
-    #         logR = SO3.log(R)
-    #         logR_true = sp.linalg.logm(R.R)
+            logR = SO3.log(R)
+            logR_true = sp.linalg.logm(R.R)
 
-    #         # if np.linalg.norm(logR_true - logR, ord='fro') > 1e-8:
-    #         # Pdb().set_trace()
-    #         # debug = 1
-    #         # temp = SO3.log(R)
+            # if np.linalg.norm(logR_true - logR, ord='fro') > 1e-8:
+            # Pdb().set_trace()
+            # debug = 1
+            # temp = SO3.log(R)
 
-    #         # np.testing.assert_allclose(logR_true, logR, atol=1e-10)
-    #         # This test has issues. Same with this part in SE3
+            # np.testing.assert_allclose(logR_true, logR, atol=1e-10)
+            # This test has issues. Same with this part in SE3
 
     def testExp(self):
         for i in range(100):
@@ -327,21 +327,21 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(Adj_R, res)
 
-    # def test_right_jacobian_of_logarithm(self):
-    #     for i in range(100):
-    #         R = SO3.random()
-    #         logR, Jr_inv = SO3.Log(R, Jr=np.eye(3))
-    #         _, Jr = SO3.Exp(logR, Jr=np.eye(3))
+    def test_right_jacobian_of_logarithm(self):
+        for i in range(100):
+            R = SO3.random()
+            logR, Jr_inv = SO3.Log(R, Jr=np.eye(3))
+            _, Jr = SO3.Exp(logR, Jr=np.eye(3))
 
-    #         np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
-    # def test_left_jacobian_of_logarithm(self):
-    #     for i in range(100):
-    #         R = SO3.random()
-    #         logR, Jl_inv = SO3.Log(R, Jl=np.eye(3))
-    #         _, Jl = SO3.Exp(logR, Jl=np.eye(3))
+    def test_left_jacobian_of_logarithm(self):
+        for i in range(100):
+            R = SO3.random()
+            logR, Jl_inv = SO3.Log(R, Jl=np.eye(3))
+            _, Jl = SO3.Exp(logR, Jl=np.eye(3))
 
-    #         np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+            np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
     # def test_right_jacobian_of_rotation(self):
     #     for i in range(100):
