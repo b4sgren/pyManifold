@@ -3,8 +3,6 @@ import numpy as np
 # Get rid of this eventually
 from scipy.spatial.transform import Rotation as Rot
 
-# TODO: the euler function may not be working. It is working in SO3
-
 
 def skew(qv):
     return np.array(
@@ -13,7 +11,32 @@ def skew(qv):
 
 
 """
-The way this class is written it behaves like a rotation matrix. May want to change this in the future. TO fix would require fixing stuff in R, Adj and otimes as well as the unit tests and maybe stuff in SE3
+Quaternion Convention:
+This class has been developed to follow the Hamiltonian convention for
+quaternions. In other words the quaternion looks like qw + qxi + qyj + qzk
+and ij=k, jk=i, ki=j, i^2=j^2=k^2=ijk=-1. However, one of the disadvantages
+of the original hamiltonian quaternion is that the rotation matrices formed
+from the quaternion multiply in the opposite order of the quaternions themselves
+R(q1)R(q2) = R(q2*q1). This is a result of (what I consider to be) a poor
+choice of conversion between quaternions and rotation matrices. I have modified
+the convention such that R(q1)R(q2)=R(q1*q2) to keep the behavior of
+quaternions consistent with rotation matrices. Other quaternion conventions
+exist, most predominantly the JPL/Shuster convention. The existence of different
+conventions can be confusing and the following references helped me sort out
+the confusing aspects.
+
+References:
+Blog post: https://fzheng.me/2017/11/12/quaternion_conventions_en/
+Blog post: https://possiblywrong.wordpress.com/2021/05/10/beware-the-natural-quaternion/
+Hamiltonian Quaternions: file:///home/brendon/Downloads/giq-1-2000-127-143.pdf : Quaternions and Rotation Sequences by Jack Kuipers
+JPL Quaternions: http://malcolmdshuster.com/Pubp_021_072x_J_JAS0000_quat_MDS.pdf
+Quaternion Kinematics for the Err State Kalman Filter: https://arxiv.org/pdf/1711.02508.pdf
+Why and how to avoid the flipped quaternion: https://arxiv.org/pdf/1801.07478.pdf
+
+
+
+The way this class is written it behaves just like a rotation matrix and can
+serve as a drop in replacement for the SO3 class.
 """
 
 
@@ -27,7 +50,8 @@ class Quaternion:
             else:
                 raise ValueError("Input must be a numpy array of length 4")
         else:
-            raise ValueError("Input must be a numpy array of length 4")
+            # Initialize to identity
+            self.arr = np.array([1, 0, 0, 0])
 
     @property
     def w(self):
