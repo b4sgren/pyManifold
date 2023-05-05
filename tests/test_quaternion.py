@@ -145,56 +145,56 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(vp_true, vp)
 
-    # def testHat(self):
-    #     for i in range(100):
-    #         w = np.random.uniform(-10, 10, size=3)
+    def testHat(self):
+        for i in range(100):
+            w = np.random.uniform(-10, 10, size=3)
 
-    #         W = Quaternion.hat(w)
-    #         W_true = np.array([0, w[0], w[1], w[2]])
+            W = Quaternion.hat(w)
+            W_true = np.array([0, w[0], w[1], w[2]])
 
-    #         np.testing.assert_allclose(W_true, W)
+            np.testing.assert_allclose(W_true, W)
 
-    # def testVee(self):
-    #     for i in range(100):
-    #         W = np.random.uniform(-10, 10, size=4)
-    #         W[0] = 0
+    def testVee(self):
+        for i in range(100):
+            W = np.random.uniform(-10, 10, size=4)
+            W[0] = 0
 
-    #         w_true = W[1:]
-    #         w = Quaternion.vee(W)
+            w_true = W[1:]
+            w = Quaternion.vee(W)
 
-    #         np.testing.assert_allclose(w_true, w)
+            np.testing.assert_allclose(w_true, w)
 
-    # def testLog(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+    def testLog(self):
+        for i in range(100):
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
 
-    #         w_true = SO3.Log(R)
-    #         w = Quaternion.Log(q)
+            w_true = SO3.Log(R)
+            w = Quaternion.Log(q)
 
-    #         np.testing.assert_allclose(w_true, w)
+            np.testing.assert_allclose(w_true, w)
 
-    # def testLogTaylor(self):
-    #     for i in range(100):
-    #         theta = np.random.uniform(0, 1e-3)
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vec = theta * v / np.linalg.norm(v)
+    def testLogTaylor(self):
+        for i in range(100):
+            theta = np.random.uniform(0, 1e-3)
+            v = np.random.uniform(-10, 10, size=3)
+            vec = theta * v / np.linalg.norm(v)
 
-    #         q = Quaternion.fromAxisAngle(vec)
-    #         w = Quaternion.Log(q)
+            q = Quaternion.fromAxisAngle(vec)
+            w = Quaternion.Log(q)
 
-    #         # np.testing.assert_allclose(vec, w, atol=1e-8)
+            # np.testing.assert_allclose(vec, w, atol=1e-8)
 
-    # def testExp(self):
-    #     for i in range(100):
-    #         theta = np.random.uniform(-np.pi, np.pi)
-    #         v = np.random.uniform(-1.0, 1.0, size=3)
-    #         w = theta * v / np.linalg.norm(v)
+    def testExp(self):
+        for i in range(100):
+            theta = np.random.uniform(-np.pi, np.pi)
+            v = np.random.uniform(-1.0, 1.0, size=3)
+            w = theta * v / np.linalg.norm(v)
 
-    #         R = SO3.Exp(w)
-    #         q = Quaternion.Exp(w)
+            R = SO3.Exp(w)
+            q = Quaternion.Exp(w)
 
-    #         np.testing.assert_allclose(R.R, q.R)
+            np.testing.assert_allclose(R.R, q.R)
 
     # def testAdj(self):
     #     for i in range(100):

@@ -337,7 +337,7 @@ class Quaternion:
         theta = np.linalg.norm(qv)
 
         if np.abs(theta) > 1e-8:
-            w = 2 * np.arctan(theta / qw) * qv / theta
+            w = 2 * np.arctan2(theta, qw) * qv / theta
         else:
             temp = (
                 1 / qw - theta**2 / (3 * qw**3) + theta**4 / (5 * qw**5)
