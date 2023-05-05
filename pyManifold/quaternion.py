@@ -87,21 +87,13 @@ class Quaternion:
 
     @property
     def euler(self) -> np.ndarray:
-        # # Doesn't quite work
-        # num = 2 * (self.w * self.x + self.y * self.z)
-        # den = self.z**2 - self.x**2 - self.y**2 + self.w**2
-        # phi = np.arctan2(num, den)
+        w, x, y, z = self.w, self.x, self.y, self.z
 
-        # theta = np.arcsin(2 * (self.w * self.y - self.x * self.z))
+        phi = np.arctan2(2 * (w * x + y * z), w**2 + z**2 - x**2 - y**2)
+        theta = np.arcsin(2 * (w * y - x * z))
+        psi = np.arctan2(2 * (w * z + x * y), w**2 + x**2 - y**2 - z**2)
 
-        # num = 2 * (self.w * self.z + self.x * self.y)
-        # den = self.x**2 - self.y**2 - self.z**2 + self.w**2
-        # psi = np.arctan2(num, den)
-
-        # return np.array([phi, theta, psi])
-
-        # Find what the correct equation is for this
-        return Rot.from_matrix(self.R).as_euler("XYZ")
+        return np.array([phi, theta, psi])
 
     @property
     def Adj(self):
@@ -306,6 +298,10 @@ class Quaternion:
 
     @classmethod
     def fromRPY(cls, rpy):
+        """
+        Note that the SO3 class produces R^b_i but this class produces the
+        inverse or q^i_b. Need to look into this a little bit more
+        """
         cp, ct, cps = np.cos(rpy / 2)
         sp, st, sps = np.sin(rpy / 2)
 

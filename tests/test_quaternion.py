@@ -70,96 +70,80 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(R, q.R)
 
-    # def testInverse(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         q_inv = q.inv()
+    def testFromRotationMatrix(self):
+        for i in range(100):
+            R = SO3.random()
+            q = Quaternion.fromRotationMatrix(R.R)
 
-    #         I = q * q_inv
-    #         I_true = np.array([1.0, 0.0, 0.0, 0.0])
+            np.testing.assert_allclose(R.R, q.R)
 
-    #         np.testing.assert_allclose(I_true, I.q)
+    def testFromRPY(self):
+        for i in range(100):
+            rpy = np.random.uniform(-np.pi, np.pi, size=3)
+            R = SO3.fromRPY(rpy).R
+            q = Quaternion.fromRPY(rpy)
 
-    # def testRotationMatrixFromQuaternion(self):
-    #     for i in range(100):
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+            np.testing.assert_allclose(R.T, q.R)
 
-    #         np.testing.assert_allclose(q.R, R.R)
+    def test_euler(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            rpy = q1.euler
+            q2 = Quaternion.fromRPY(rpy)
+            np.testing.assert_allclose(q1.q, q2.q)
 
-    # def testRota(self):
-    #     v = np.array([1, 0, 0])
-    #     q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi / 2)
-    #     vp = q.rota(v)
-    #     vp_true = np.array([0, 1, 0])
+    def testInverse(self):
+        for i in range(100):
+            q = Quaternion.random()
+            q_inv = q.inv()
 
-    #     np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+            I = q * q_inv
+            I_true = np.array([1.0, 0.0, 0.0, 0.0])
 
-    # def testRotp(self):
-    #     v = np.array([1, 0, 0])
-    #     q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi / 2)
-    #     vp = q.rotp(v)
-    #     vp_true = np.array([0, -1, 0])
+            np.testing.assert_allclose(I_true, I.q)
 
-    #     np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+    def testRota(self):
+        v = np.array([1, 0, 0])
+        q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi / 2)
+        qv = Quaternion(np.array([0, *v]))
+        vp = q.rota(v)
+        vp_true = np.array([0, 1, 0])
+        vp2 = quatMultiply(quatMultiply(q, qv), q.inv())
 
-    # def testRotatingVector(self):
-    #     for i in range(100):
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+        np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+        np.testing.assert_allclose(vp_true, vp2.qv, atol=1e-10)
 
-    #         vp_true = R.rota(v)
-    #         vp = q.rota(v)
+    def testRotp(self):
+        v = np.array([1, 0, 0])
+        q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi / 2)
+        qv = Quaternion(np.array([0, *v]))
+        vp = q.rotp(v)
+        vp_true = np.array([0, -1, 0])
+        vp2 = quatMultiply(quatMultiply(q.inv(), qv), q)
 
-    #         np.testing.assert_allclose(vp_true, vp)
+        np.testing.assert_allclose(vp_true, vp, atol=1e-10)
+        np.testing.assert_allclose(vp_true, vp2.qv, atol=1e-10)
 
-    #     for i in range(100):
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         q = Quaternion.random()
-    #         R = SO3.fromQuaternion(q.q)
+    def testRotatingVector(self):
+        for i in range(100):
+            v = np.random.uniform(-10, 10, size=3)
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
 
-    #         vp_true = R.rotp(v)
-    #         vp = q.rotp(v)
+            vp_true = R.rota(v)
+            vp = q.rota(v)
 
-    #         np.testing.assert_allclose(vp_true, vp)
+            np.testing.assert_allclose(vp_true, vp)
 
-    # def testFromRPY(self):
-    #     for i in range(100):
-    #         rpy = np.random.uniform(-np.pi, np.pi, size=3)
-    #         R = SO3.fromRPY(rpy).R
-    #         q = Quaternion.fromRPY(rpy)
+        for i in range(100):
+            v = np.random.uniform(-10, 10, size=3)
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
 
-    #         np.testing.assert_allclose(R, q.R)
+            vp_true = R.rotp(v)
+            vp = q.rotp(v)
 
-    # def testFromAxisAngle(self):
-    #     for i in range(100):
-    #         theta = np.random.uniform(0, np.pi)
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vec = theta * v / np.linalg.norm(v)
-
-    #         R = SO3.fromAxisAngle(vec).R
-    #         q = Quaternion.fromAxisAngle(vec)
-
-    #         np.testing.assert_allclose(R, q.R)
-
-    # def testFromAxisAngleTaylor(self):
-    #     for i in range(100):  # Taylor series
-    #         theta = np.random.uniform(0, 1e-3)
-    #         v = np.random.uniform(-10, 10, size=3)
-    #         vec = theta * v / np.linalg.norm(v)
-
-    #         R = SO3.fromAxisAngle(vec).R
-    #         q = Quaternion.fromAxisAngle(vec)
-
-    #         np.testing.assert_allclose(R, q.R, atol=1e-5)
-
-    # def testFromRotationMatrix(self):
-    #     for i in range(100):
-    #         R = SO3.random()
-    #         q = Quaternion.fromRotationMatrix(R.R)
-
-    #         np.testing.assert_allclose(R.R, q.R)
+            np.testing.assert_allclose(vp_true, vp)
 
     # def testHat(self):
     #     for i in range(100):
@@ -274,13 +258,6 @@ class Quaternion_Testing(unittest.TestCase):
     #         q = q2.boxplusl(w)
 
     #         np.testing.assert_allclose(q1.q, q.q)
-
-    # def test_euler(self):
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         rpy = q1.euler
-    #         q2 = Quaternion.fromRPY(rpy)
-    #         np.testing.assert_allclose(q1.q, q2.q)
 
     # def test_right_jacobian_of_inversion(self):
     #     q = Quaternion.random()
