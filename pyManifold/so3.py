@@ -548,32 +548,20 @@ class SO3:
         An instance of SO3
         """
         assert logR.shape == (3, 3)
-
         w = cls.vee(logR)
-        theta = np.sqrt(w @ w)
-        if np.abs(theta) > 1e-8:
-            R = (
-                np.eye(3)
-                + np.sin(theta) / theta * logR
-                + (1 - np.cos(theta)) / (theta**2) * (logR @ logR)
-            )
-        else:  # Do taylor series expansion for small thetas
-            R = np.eye(3) + logR
+        theta = np.linalg.norm(w)
+        wx = skew(w / theta)
+        R = np.eye(3) + np.sin(theta) * wx + (1 - np.cos(theta)) * wx @ wx
 
-        if not Jr is None:  # Possibly add taylor series logic
-            wx = skew(w)
-            if theta > 1e-8:
-                a = (1 - np.cos(theta)) / theta**2
-                b = (theta - np.sin(theta)) / theta**3
-                J = np.eye(3) - a * wx + b * (wx @ wx)
-            else:
-                J = np.eye(3) - 0.5 * wx + 1 / 6 * (wx @ wx)
-            return cls(R), J @ Jr
-        elif not Jl is None:
-            wx = skew(w)
+        if not Jr is None:
             a = (1 - np.cos(theta)) / theta**2
             b = (theta - np.sin(theta)) / theta**3
-            J = np.eye(3) + a * wx + b * (wx @ wx)
+            J = np.eye(3) - a * logR + b * logR @ logR
+            return cls(R), J @ Jr
+        elif not Jl is None:
+            a = (1 - np.cos(theta)) / theta**2
+            b = (theta - np.sin(theta)) / theta**3
+            J = np.eye(3) + a * logR + b * logR @ logR
             return cls(R), J @ Jl
         else:
             return cls(R)

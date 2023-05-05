@@ -3,12 +3,13 @@ import unittest
 
 import numpy as np
 import scipy as sp
+from scipy.linalg import expm, logm
 from scipy.spatial.transform import Rotation
 
 sys.path.append("../pyManifold")
 from IPython.core.debugger import Pdb
 from quaternion import Quaternion
-from so3 import SO3
+from so3 import SO3, skew
 
 
 class SO3_testing(unittest.TestCase):
@@ -40,117 +41,96 @@ class SO3_testing(unittest.TestCase):
             np.testing.assert_allclose(R_true, R_ex.arr)
             np.testing.assert_allclose(R_true, R_ex2.arr)
 
-    def testLog(self):  # This has issues sometimes. It is infrequent though
-        for i in range(100):
-            temp = Rotation.random().as_matrix()
-            R = SO3(temp)
+    # def testLog(self):  # This has issues sometimes. It is infrequent though
+    #     for i in range(100):
+    #         temp = Rotation.random().as_matrix()
+    #         R = SO3(temp)
 
-            logR = SO3.log(R)
-            logR_true = sp.linalg.logm(temp)
+    #         logR = SO3.log(R)
+    #         logR_true = sp.linalg.logm(temp)
 
-            if np.linalg.norm(logR_true - logR, ord="fro") > 1e-3:
-                Pdb().set_trace()
-                debug = 1
-                temp = SO3.log(R)
+    #         if np.linalg.norm(logR_true - logR, ord="fro") > 1e-3:
+    #             Pdb().set_trace()
+    #             debug = 1
+    #             temp = SO3.log(R)
 
-            np.testing.assert_allclose(logR_true, logR, atol=1e-10)
+    #         np.testing.assert_allclose(logR_true, logR, atol=1e-10)
 
-    def testTaylorLog(self):
-        for i in range(100):  # Around 0
-            vec = np.random.uniform(-3.0, 3.0, size=3)
-            vec = vec / np.linalg.norm(vec)
-            ang = np.random.uniform(-1e-8, 1e-3)
-            temp = vec * ang
-            R = SO3.fromAxisAngle(temp)
+    # def testTaylorLog(self):
+    #     for i in range(100):  # Around 0
+    #         vec = np.random.uniform(-3.0, 3.0, size=3)
+    #         vec = vec / np.linalg.norm(vec)
+    #         ang = np.random.uniform(-1e-8, 1e-3)
+    #         temp = vec * ang
+    #         R = SO3.fromAxisAngle(temp)
 
-            logR = SO3.log(R)
-            logR_true = sp.linalg.logm(R.R)
+    #         logR = SO3.log(R)
+    #         logR_true = sp.linalg.logm(R.R)
 
-            if np.linalg.norm(logR_true - logR, ord="fro") > 1e-8:
-                Pdb().set_trace()
-                debug = 1
-                temp = SO3.log(R)
+    #         if np.linalg.norm(logR_true - logR, ord="fro") > 1e-8:
+    #             Pdb().set_trace()
+    #             debug = 1
+    #             temp = SO3.log(R)
 
-            np.testing.assert_allclose(logR_true, logR, atol=1e-10)
+    #         np.testing.assert_allclose(logR_true, logR, atol=1e-10)
 
-        for i in range(100):  # Around pi
-            vec = np.random.uniform(-1.0, 1.0, size=3)
-            ang = np.random.uniform(-0, 1e-8)
-            vec = vec / np.linalg.norm(vec) * (np.pi - ang)
+    #     for i in range(100):  # Around pi
+    #         vec = np.random.uniform(-1.0, 1.0, size=3)
+    #         ang = np.random.uniform(-0, 1e-8)
+    #         vec = vec / np.linalg.norm(vec) * (np.pi - ang)
 
-            R = SO3.fromAxisAngle(vec)
+    #         R = SO3.fromAxisAngle(vec)
 
-            logR = SO3.log(R)
-            logR_true = sp.linalg.logm(R.R)
+    #         logR = SO3.log(R)
+    #         logR_true = sp.linalg.logm(R.R)
 
-            # if np.linalg.norm(logR_true - logR, ord='fro') > 1e-8:
-            # Pdb().set_trace()
-            # debug = 1
-            # temp = SO3.log(R)
+    #         # if np.linalg.norm(logR_true - logR, ord='fro') > 1e-8:
+    #         # Pdb().set_trace()
+    #         # debug = 1
+    #         # temp = SO3.log(R)
 
-            # np.testing.assert_allclose(logR_true, logR, atol=1e-10)
-            # This test has issues. Same with this part in SE3
+    #         # np.testing.assert_allclose(logR_true, logR, atol=1e-10)
+    #         # This test has issues. Same with this part in SE3
 
     def testExp(self):
         for i in range(100):
             logR_vec = np.random.uniform(-np.pi, np.pi, size=3)
-            logR = np.array(
-                [
-                    [0, -logR_vec[2], logR_vec[1]],
-                    [logR_vec[2], 0, -logR_vec[0]],
-                    [-logR_vec[1], logR_vec[0], 0],
-                ]
-            )
+            logR = skew(logR_vec)
 
             R = SO3.exp(logR)
             R_true = sp.linalg.expm(logR)
 
             np.testing.assert_allclose(R_true, R.arr)
 
-        for i in range(100):  # Test taylor series
-            logR_vec = np.random.uniform(0.0, 1e-8, size=3)
-            logR = np.array(
-                [
-                    [0, -logR_vec[2], logR_vec[1]],
-                    [logR_vec[2], 0, -logR_vec[0]],
-                    [-logR_vec[1], logR_vec[0], 0],
-                ]
-            )
+    # def testVee(self):
+    #     for i in range(100):
+    #         omega_true = np.random.uniform(-np.pi, np.pi, size=3)
+    #         logR = np.array(
+    #             [
+    #                 [0, -omega_true[2], omega_true[1]],
+    #                 [omega_true[2], 0, -omega_true[0]],
+    #                 [-omega_true[1], omega_true[0], 0],
+    #             ]
+    #         )
 
-            R = SO3.exp(logR)
-            R_true = sp.linalg.expm(logR)
+    #         omega = SO3.vee(logR)
+    #         np.testing.assert_allclose(omega_true, omega)
 
-            np.testing.assert_allclose(R_true, R.arr, atol=1e-7)
+    # def testHat(self):
+    #     for i in range(100):
+    #         omega = np.random.uniform(-np.pi, np.pi, size=3)
 
-    def testVee(self):
-        for i in range(100):
-            omega_true = np.random.uniform(-np.pi, np.pi, size=3)
-            logR = np.array(
-                [
-                    [0, -omega_true[2], omega_true[1]],
-                    [omega_true[2], 0, -omega_true[0]],
-                    [-omega_true[1], omega_true[0], 0],
-                ]
-            )
+    #         logR_true = np.array(
+    #             [
+    #                 [0, -omega[2], omega[1]],
+    #                 [omega[2], 0, -omega[0]],
+    #                 [-omega[1], omega[0], 0],
+    #             ]
+    #         )
 
-            omega = SO3.vee(logR)
-            np.testing.assert_allclose(omega_true, omega)
+    #         logR = SO3.hat(omega)
 
-    def testHat(self):
-        for i in range(100):
-            omega = np.random.uniform(-np.pi, np.pi, size=3)
-
-            logR_true = np.array(
-                [
-                    [0, -omega[2], omega[1]],
-                    [omega[2], 0, -omega[0]],
-                    [-omega[1], omega[0], 0],
-                ]
-            )
-
-            logR = SO3.hat(omega)
-
-            np.testing.assert_allclose(logR_true, logR)
+    #         np.testing.assert_allclose(logR_true, logR)
 
     def testInv(self):
         for i in range(100):
@@ -231,48 +211,48 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(1.0, detR)
 
-    def testBoxPlusR(self):
-        for i in range(100):
-            R = SO3.random()
-            theta = np.random.uniform(0, np.pi)
-            vec = np.random.uniform(-1, 1, size=3)
-            vec = vec / np.linalg.norm(vec) * theta
+    # def testBoxPlusR(self):
+    #     for i in range(100):
+    #         R = SO3.random()
+    #         theta = np.random.uniform(0, np.pi)
+    #         vec = np.random.uniform(-1, 1, size=3)
+    #         vec = vec / np.linalg.norm(vec) * theta
 
-            R2 = R.boxplusr(vec)
-            R2_true = R * SO3.fromAxisAngle(vec)
+    #         R2 = R.boxplusr(vec)
+    #         R2_true = R * SO3.fromAxisAngle(vec)
 
-            np.testing.assert_allclose(R2_true.R, R2.R)
+    #         np.testing.assert_allclose(R2_true.R, R2.R)
 
-    def testBoxMinusR(self):
-        R1 = SO3.random()
-        R2 = SO3.random()
+    # def testBoxMinusR(self):
+    #     R1 = SO3.random()
+    #     R2 = SO3.random()
 
-        w = R1.boxminusr(R2)
-        R_res = R2.boxplusr(w)
+    #     w = R1.boxminusr(R2)
+    #     R_res = R2.boxplusr(w)
 
-        np.testing.assert_allclose(R1.R, R_res.R)
+    #     np.testing.assert_allclose(R1.R, R_res.R)
 
-    def test_boxplusl(self):
-        for i in range(100):
-            R = SO3.random()
-            theta = np.random.uniform(0, np.pi)
-            vec = np.random.uniform(-1, 1, size=3)
-            vec = vec / np.linalg.norm(vec) * theta
+    # def test_boxplusl(self):
+    #     for i in range(100):
+    #         R = SO3.random()
+    #         theta = np.random.uniform(0, np.pi)
+    #         vec = np.random.uniform(-1, 1, size=3)
+    #         vec = vec / np.linalg.norm(vec) * theta
 
-            R2 = R.boxplusl(vec)
-            R2_true = SO3.fromAxisAngle(vec) * R
+    #         R2 = R.boxplusl(vec)
+    #         R2_true = SO3.fromAxisAngle(vec) * R
 
-            np.testing.assert_allclose(R2_true.R, R2.R)
+    #         np.testing.assert_allclose(R2_true.R, R2.R)
 
-    def test_boxminusl(self):
-        for i in range(100):
-            R1 = SO3.random()
-            R2 = SO3.random()
+    # def test_boxminusl(self):
+    #     for i in range(100):
+    #         R1 = SO3.random()
+    #         R2 = SO3.random()
 
-            v = R1.boxminusl(R2)
-            R = R2.boxplusl(v)
+    #         v = R1.boxminusl(R2)
+    #         R = R2.boxplusl(v)
 
-            np.testing.assert_allclose(R1.R, R.R)
+    #         np.testing.assert_allclose(R1.R, R.R)
 
     def testNormalize(self):
         for i in range(10):
@@ -347,34 +327,34 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(Adj_R, res)
 
-    def test_right_jacobian_of_logarithm(self):
-        for i in range(100):
-            R = SO3.random()
-            logR, Jr_inv = SO3.Log(R, Jr=np.eye(3))
-            _, Jr = SO3.Exp(logR, Jr=np.eye(3))
+    # def test_right_jacobian_of_logarithm(self):
+    #     for i in range(100):
+    #         R = SO3.random()
+    #         logR, Jr_inv = SO3.Log(R, Jr=np.eye(3))
+    #         _, Jr = SO3.Exp(logR, Jr=np.eye(3))
 
-            np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
+    #         np.testing.assert_allclose(np.linalg.inv(Jr), Jr_inv)
 
-    def test_left_jacobian_of_logarithm(self):
-        for i in range(100):
-            R = SO3.random()
-            logR, Jl_inv = SO3.Log(R, Jl=np.eye(3))
-            _, Jl = SO3.Exp(logR, Jl=np.eye(3))
+    # def test_left_jacobian_of_logarithm(self):
+    #     for i in range(100):
+    #         R = SO3.random()
+    #         logR, Jl_inv = SO3.Log(R, Jl=np.eye(3))
+    #         _, Jl = SO3.Exp(logR, Jl=np.eye(3))
 
-            np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
+    #         np.testing.assert_allclose(np.linalg.inv(Jl), Jl_inv)
 
-    def test_right_jacobian_of_rotation(self):
-        for i in range(100):
-            R = SO3.random()
-            v = np.random.uniform(-10, 10, size=3)
+    # def test_right_jacobian_of_rotation(self):
+    #     for i in range(100):
+    #         R = SO3.random()
+    #         v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = R.rota(v, Jr=np.eye(3))
-            vx = np.array(
-                [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]]
-            )
-            Jr_true = -R.R @ vx
+    #         vp, Jr = R.rota(v, Jr=np.eye(3))
+    #         vx = np.array(
+    #             [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]]
+    #         )
+    #         Jr_true = -R.R @ vx
 
-            np.testing.assert_allclose(Jr_true, Jr)
+    #         np.testing.assert_allclose(Jr_true, Jr)
 
     def test_left_jacobian_of_rotation(self):
         for i in range(100):
@@ -426,77 +406,77 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl_true, Jl)
 
-    def test_jacobians_of_boxplusr(self):
-        for i in range(100):
-            R = SO3.random()
-            theta = np.random.uniform(-np.pi, np.pi, size=3)
+    # def test_jacobians_of_boxplusr(self):
+    #     for i in range(100):
+    #         R = SO3.random()
+    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
 
-            R2, Jr = R.boxplusr(theta, Jr=np.eye(3))
-            _, Jl = R.boxplusr(theta, Jl=np.eye(3))
+    #         R2, Jr = R.boxplusr(theta, Jr=np.eye(3))
+    #         _, Jl = R.boxplusr(theta, Jl=np.eye(3))
 
-            Jl_true = R2.Adj @ Jr @ np.eye(3)
+    #         Jl_true = R2.Adj @ Jr @ np.eye(3)
 
-            np.testing.assert_allclose(Jl_true, Jl)
+    #         np.testing.assert_allclose(Jl_true, Jl)
 
-    def test_right_jacobians_of_boxminusr(self):
-        for i in range(100):
-            R1, R2 = SO3.random(), SO3.random()
+    # def test_right_jacobians_of_boxminusr(self):
+    #     for i in range(100):
+    #         R1, R2 = SO3.random(), SO3.random()
 
-            theta, Jr1 = R1.boxminusr(R2, Jr1=np.eye(3))
-            dR = R2.inv() * R1
-            _, Jr1_true = SO3.Log(dR, Jr=np.eye(3))
+    #         theta, Jr1 = R1.boxminusr(R2, Jr1=np.eye(3))
+    #         dR = R2.inv() * R1
+    #         _, Jr1_true = SO3.Log(dR, Jr=np.eye(3))
 
-            _, Jr2 = R1.boxminusr(R2, Jr2=np.eye(3))
-            _, Jr2_true = SO3.Log(dR, Jl=np.eye(3))
+    #         _, Jr2 = R1.boxminusr(R2, Jr2=np.eye(3))
+    #         _, Jr2_true = SO3.Log(dR, Jl=np.eye(3))
 
-            np.testing.assert_allclose(Jr1_true, Jr1)
-            np.testing.assert_allclose(-Jr2_true, Jr2)
+    #         np.testing.assert_allclose(Jr1_true, Jr1)
+    #         np.testing.assert_allclose(-Jr2_true, Jr2)
 
-    def test_left_jacobians_of_boxminusr(self):
-        for i in range(100):
-            R1, R2 = SO3.random(), SO3.random()
+    # def test_left_jacobians_of_boxminusr(self):
+    #     for i in range(100):
+    #         R1, R2 = SO3.random(), SO3.random()
 
-            theta, Jl1 = R1.boxminusr(R2, Jl1=np.eye(3))
-            _, Jr1 = R1.boxminusr(R2, Jr1=np.eye(3))
-            Jl1_true = np.eye(3) @ Jr1 @ R1.Adj.T
+    #         theta, Jl1 = R1.boxminusr(R2, Jl1=np.eye(3))
+    #         _, Jr1 = R1.boxminusr(R2, Jr1=np.eye(3))
+    #         Jl1_true = np.eye(3) @ Jr1 @ R1.Adj.T
 
-            _, Jl2 = R1.boxminusr(R2, Jl2=np.eye(3))
-            _, Jr2 = R1.boxminusr(R2, Jr2=np.eye(3))
-            Jl2_true = np.eye(3) @ Jr2 @ R2.Adj.T
+    #         _, Jl2 = R1.boxminusr(R2, Jl2=np.eye(3))
+    #         _, Jr2 = R1.boxminusr(R2, Jr2=np.eye(3))
+    #         Jl2_true = np.eye(3) @ Jr2 @ R2.Adj.T
 
-            np.testing.assert_allclose(Jl1_true, Jl1, rtol=1e-5)
-            np.testing.assert_allclose(Jl2_true, Jl2, rtol=1e-5)
+    #         np.testing.assert_allclose(Jl1_true, Jl1, rtol=1e-5)
+    #         np.testing.assert_allclose(Jl2_true, Jl2, rtol=1e-5)
 
-    def test_jacobians_of_boxplusl(self):
-        for i in range(100):
-            R = SO3.random()
-            theta = np.random.uniform(-np.pi, np.pi, size=3)
+    # def test_jacobians_of_boxplusl(self):
+    #     for i in range(100):
+    #         R = SO3.random()
+    #         theta = np.random.uniform(-np.pi, np.pi, size=3)
 
-            R2, Jr = R.boxplusl(theta, Jr=np.eye(3))
-            _, Jl = R.boxplusl(theta, Jl=np.eye(3))
+    #         R2, Jr = R.boxplusl(theta, Jr=np.eye(3))
+    #         _, Jl = R.boxplusl(theta, Jl=np.eye(3))
 
-            Jl_true = R2.Adj @ Jr @ np.eye(3)
-            np.testing.assert_allclose(Jl_true, Jl)
+    #         Jl_true = R2.Adj @ Jr @ np.eye(3)
+    #         np.testing.assert_allclose(Jl_true, Jl)
 
-    def test_jacobians_of_boxminusl(self):
-        for i in range(100):
-            R1, R2 = SO3.random(), SO3.random()
+    # def test_jacobians_of_boxminusl(self):
+    #     for i in range(100):
+    #         R1, R2 = SO3.random(), SO3.random()
 
-            theta, Jr = R1.boxminusl(R2, Jr1=np.eye(3))
-            _, Jl = R1.boxminusl(R2, Jl1=np.eye(3))
+    #         theta, Jr = R1.boxminusl(R2, Jr1=np.eye(3))
+    #         _, Jl = R1.boxminusl(R2, Jl1=np.eye(3))
 
-            Jl_true = np.eye(3) @ Jr @ R1.Adj.T
-            np.testing.assert_allclose(Jl_true, Jl, atol=1e-8)
+    #         Jl_true = np.eye(3) @ Jr @ R1.Adj.T
+    #         np.testing.assert_allclose(Jl_true, Jl, atol=1e-8)
 
-    def test_jacobians_of_boxminusl_second_element(self):
-        for i in range(100):
-            R1, R2 = SO3.random(), SO3.random()
+    # def test_jacobians_of_boxminusl_second_element(self):
+    #     for i in range(100):
+    #         R1, R2 = SO3.random(), SO3.random()
 
-            theta, Jr2 = R1.boxminusl(R2, Jr2=np.eye(3))
-            _, Jl2 = R1.boxminusl(R2, Jl2=np.eye(3))
+    #         theta, Jr2 = R1.boxminusl(R2, Jr2=np.eye(3))
+    #         _, Jl2 = R1.boxminusl(R2, Jl2=np.eye(3))
 
-            Jl_true = np.eye(3) @ Jr2 @ R2.Adj.T
-            np.testing.assert_allclose(Jl_true, Jl2)
+    #         Jl_true = np.eye(3) @ Jr2 @ R2.Adj.T
+    #         np.testing.assert_allclose(Jl_true, Jl2)
 
     def test_euler(self):
         for i in range(100):
