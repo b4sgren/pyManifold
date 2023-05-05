@@ -27,7 +27,7 @@ def quatMultiply(q1, q2):
         ]
     )
 
-    return q3
+    return Quaternion(q3)
 
 
 class Quaternion_Testing(unittest.TestCase):
@@ -38,30 +38,37 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(1.0, q_norm)
 
-    # def testR(self):
+    def testQuaternionMultiply(self):
+        for i in range(100):
+            q1 = Quaternion.random()
+            q2 = Quaternion.random()
+
+            q3 = q1 * q2
+
+            q3_true = quatMultiply(q1, q2).q
+
+            if q3_true[0] < 0:
+                q3_true *= -1
+
+            np.testing.assert_allclose(q3_true, q3.q)
+
+    def testR(self):
+        for i in range(100):
+            q = Quaternion.random()
+            R = SO3.fromQuaternion(q.q)
+
+            np.testing.assert_allclose(R.R, q.R)
+
+    # def testFromAxisAngle(self):
     #     for i in range(100):
-    #         q = Quaternion.random()
-    #         R = (
-    #             (q.w**2 - q.qv @ q.qv) * np.eye(3)
-    #             + 2 * np.outer(q.qv, q.qv)
-    #             + 2 * q.w * skew(q.qv)
-    #         )
+    #         theta = np.random.uniform(0, np.pi)
+    #         v = np.random.uniform(-10, 10, size=3)
+    #         vec = theta * v / np.linalg.norm(v)
 
-    #         np.testing.assert_allclose(q.R, R)
+    #         R = SO3.fromAxisAngle(vec).R
+    #         q = Quaternion.fromAxisAngle(vec)
 
-    # def testQuaternionMultiply(self):
-    #     for i in range(100):
-    #         q1 = Quaternion.random()
-    #         q2 = Quaternion.random()
-
-    #         q3 = q1 * q2
-
-    #         q3_true = quatMultiply(q1, q2)
-
-    #         if q3_true[0] < 0:
-    #             q3_true *= -1
-
-    #         np.testing.assert_allclose(q3_true, q3.q)
+    #         np.testing.assert_allclose(R, q.R)
 
     # def testInverse(self):
     #     for i in range(100):
