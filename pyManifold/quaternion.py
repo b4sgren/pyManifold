@@ -300,7 +300,7 @@ class Quaternion:
     def fromRPY(cls, rpy):
         """
         Note that the SO3 class produces R^b_i but this class produces the
-        inverse or q^i_b. Need to look into this a little bit more
+        inverse or q^i_b
         """
         cp, ct, cps = np.cos(rpy / 2)
         sp, st, sps = np.sin(rpy / 2)
