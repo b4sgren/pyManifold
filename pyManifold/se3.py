@@ -1,5 +1,9 @@
 import numpy as np
-from .quaternion import Quaternion, skew # move skew to a different file
+
+from .quaternion import Quaternion, skew  # move skew to a different file
+
+# from quaternion import Quaternion, skew  # move skew to a different file
+
 
 class SE3:
     def __init__(self, q, t):
@@ -9,34 +13,41 @@ class SE3:
 
     def isValidTransform(self):
         q_norm = self.q_.norm()
-        return (np.abs(q_norm - 1.0) <= 1e-8)
+        return np.abs(q_norm - 1.0) <= 1e-8
 
     @classmethod
     def random(cls):
         q = Quaternion.random()
         t = np.random.uniform(-10.0, 10.0, size=3)
-        return cls(q,t)
+        return cls(q, t)
 
     @classmethod
     def fromRAndt(cls, R, t):
         q = Quaternion.fromRotationMatrix(R)
-        return cls(q,t)
+        return cls(q, t)
 
     @classmethod
     def fromRPYandt(cls, rpy, t):
+        """
+        JUST BE AWARE THAT RPY produces qi_from_b but Rb_from_i. Verify what
+        frame t is in so that the SE3 object makes sense
+
+        Avoid using this function. Convert RPY to q or R
+        Use this instead SE3.fromRAndt(SO3.fromRPY(rpy), t) to get Tb_from_i
+        """
         q = Quaternion.fromRPY(rpy)
-        return cls(q,t)
+        return cls(q, t)
 
     @classmethod
     def fromAxisAngleAndt(cls, v, t):
         q = Quaternion.fromAxisAngle(v)
-        return cls(q,t)
+        return cls(q, t)
 
     @classmethod
     def from7vec(cls, arr):
         t = arr[:3]
         q = Quaternion(arr[3:])
-        return cls(q,t)
+        return cls(q, t)
 
     @property
     def w(self):
@@ -64,7 +75,7 @@ class SE3:
 
     @property
     def q_arr(self):
-        return self.q.q
+        return self.q_.q
 
     @property
     def t(self):
@@ -77,14 +88,12 @@ class SE3:
     @property
     def T(self):
         # arr = np.array([*self.t,*self.q_arr])
-        arr = np.block([[self.R, self.t[:,None]],
-                        [np.array([0, 0, 0, 1])]])
+        arr = np.block([[self.R, self.t[:, None]], [np.array([0, 0, 0, 1])]])
         return arr
 
     @property
     def matrix(self):
-        arr = np.block([[self.R, self.t[:,None]],
-                        [np.array([0, 0, 0, 1])]])
+        arr = np.block([[self.R, self.t[:, None]], [np.array([0, 0, 0, 1])]])
         return arr
 
     @property
@@ -107,12 +116,12 @@ class SE3:
     def Adj(self):
         R = self.R
         tx = skew(self.t)
-        return np.block([[R, tx @ R], [np.zeros((3,3)), R]])
+        return np.block([[R, tx @ R], [np.zeros((3, 3)), R]])
 
     def __mul__(self, T):
         q = self.q * T.q
         t = self.t + self.q.rota(T.t)
-        return SE3(q,t)
+        return SE3(q, t)
 
     def __str__(self):
         return str(self.T)
@@ -248,7 +257,11 @@ class SE3:
         if theta > 1e-3:
             A = np.sin(theta) / theta
             B = (1.0 - np.cos(theta)) / (theta**2)
-            V_inv = np.eye(3) - 0.5 * wx + 1/(theta**2) * (1 - A/(2*B)) * (wx @ wx)
+            V_inv = (
+                np.eye(3)
+                - 0.5 * wx
+                + 1 / (theta**2) * (1 - A / (2 * B)) * (wx @ wx)
+            )
             logt = V_inv @ T.t
         else:
             logt = T.t
@@ -262,9 +275,22 @@ class SE3:
         if Jl is not None or Jr is not None:
             ct, st = np.cos(theta), np.sin(theta)
             wx2 = wx @ wx
-            Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
-            J = np.block([[Jq_inv, -Jq_inv @ Q @ Jq_inv],
-                          [np.zeros((3,3)), Jq_inv]])
+            Q = (
+                0.5 * vx
+                + (theta - st) / theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx)
+                - (1 - theta**2 / 2 - ct)
+                / theta**4
+                * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx)
+                - 0.5
+                * (
+                    (1 - theta**2 / 2 - ct) / theta**4
+                    - 3 * (theta - st - theta**3 / 6) / theta**5
+                )
+                * (wx @ vx @ wx2 + wx2 @ vx @ wx)
+            )
+            J = np.block(
+                [[Jq_inv, -Jq_inv @ Q @ Jq_inv], [np.zeros((3, 3)), Jq_inv]]
+            )
             return logT, J @ Jl
         else:
             return logT
@@ -296,7 +322,11 @@ class SE3:
 
         wx = skew(w)
         if theta > 1e-8:
-            V = np.eye(3) + (1 - np.cos(theta))/theta**2 * wx + (theta - np.sin(theta)) / theta**3 * (wx @ wx)
+            V = (
+                np.eye(3)
+                + (1 - np.cos(theta)) / theta**2 * wx
+                + (theta - np.sin(theta)) / theta**3 * (wx @ wx)
+            )
             t = V @ v
         else:
             t = v
@@ -306,14 +336,28 @@ class SE3:
             vx = -vx
             wx = -wx
             Jl = Jr
-        if Jl is not None or Jr is not None: # Consider doing a taylor series on Q (should simplify quite a bit)
+        if (
+            Jl is not None or Jr is not None
+        ):  # Consider doing a taylor series on Q (should simplify quite a bit)
             ct, st = np.cos(theta), np.sin(theta)
             wx2 = wx @ wx
-            Q = 0.5 * vx +  (theta - st)/theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx) - (1 - theta**2/2 - ct)/theta**4 * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx) - 0.5 * ((1 - theta**2/2 - ct)/theta**4 - 3 * (theta - st - theta**3/6)/theta**5) * (wx @ vx @ wx2 + wx2 @ vx @ wx)
-            J = np.block([[Jq, Q], [np.zeros((3,3)), Jq]])
-            return cls(q,t), J @ Jl
+            Q = (
+                0.5 * vx
+                + (theta - st) / theta**3 * (wx @ vx + vx @ wx + wx @ vx @ wx)
+                - (1 - theta**2 / 2 - ct)
+                / theta**4
+                * (wx2 @ vx + vx @ wx2 - 3 * wx @ vx @ wx)
+                - 0.5
+                * (
+                    (1 - theta**2 / 2 - ct) / theta**4
+                    - 3 * (theta - st - theta**3 / 6) / theta**5
+                )
+                * (wx @ vx @ wx2 + wx2 @ vx @ wx)
+            )
+            J = np.block([[Jq, Q], [np.zeros((3, 3)), Jq]])
+            return cls(q, t), J @ Jl
         else:
-            return cls(q,t)
+            return cls(q, t)
 
     @staticmethod
     def Exp(vec, Jr=None, Jl=None):

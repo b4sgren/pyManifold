@@ -1,21 +1,24 @@
+import sys
 import unittest
+
 import numpy as np
 import scipy as sp
 from scipy.spatial.transform import Rotation
-import sys
-
 from test_quaternion import quatMultiply
-sys.path.append('../pyManifold')
+
+sys.path.append("../pyManifold/")
+from quaternion import Quaternion, skew
 from se3 import SE3
 from so3 import SO3
-from quaternion import Quaternion, skew
 
 np.set_printoptions(linewidth=200)
+
 
 def e(i):
     v = np.zeros(6)
     v[i] = 1e-4
     return v
+
 
 class SE3_Test(unittest.TestCase):
     def setUp(self):
@@ -28,25 +31,25 @@ class SE3_Test(unittest.TestCase):
 
     def test_rotation_from_quaternion(self):
         for T in self.transforms:
-            R = T.R # because from quaternion
+            R = T.R  # because from quaternion
             R_true = SO3.fromQuaternion(T.q_arr).R
 
             np.testing.assert_allclose(R_true, R)
 
     def test_composition(self):
         transforms2 = [SE3.random() for i in range(100)]
-        for (T1, T2) in zip(self.transforms, transforms2):
+        for T1, T2 in zip(self.transforms, transforms2):
             t1 = T1.t
             t2 = T2.t
 
             T3 = T1 * T2
 
             q3_true = quatMultiply(T1.q, T2.q)
-            if q3_true[0] < 0:
+            if q3_true.w < 0:
                 q3_true *= -1
 
             t3_true = T1.t + T1.R @ T2.t
-            T3_true = SE3(Quaternion(q3_true), t3_true)
+            T3_true = SE3(q3_true, t3_true)
 
             np.testing.assert_allclose(T3_true.q_arr, T3.q_arr)
             np.testing.assert_allclose(T3_true.t, T3.t)
@@ -63,8 +66,8 @@ class SE3_Test(unittest.TestCase):
     def test_from_rot_and_trans(self):
         rots = [SO3.random().R for i in range(100)]
         trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-        for (R,t) in zip(rots, trans):
-            T = SE3.fromRAndt(R,t)
+        for R, t in zip(rots, trans):
+            T = SE3.fromRAndt(R, t)
 
             q_true = Quaternion.fromRotationMatrix(R)
 
@@ -73,21 +76,25 @@ class SE3_Test(unittest.TestCase):
 
     def test_transforma(self):
         pt = np.array([1, 0, 0])
-        T = SE3.fromAxisAngleAndt(np.pi/2 * np.array([0, 0, 1]), np.array([0, 1, 0]))
+        T = SE3.fromAxisAngleAndt(
+            np.pi / 2 * np.array([0, 0, 1]), np.array([0, 1, 0])
+        )
         pt_p = T.transa(pt)
         pt_true = np.array([0, 2, 0])
         np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
 
     def test_transformp(self):
         pt = np.array([1, 0, 0])
-        T = SE3.fromAxisAngleAndt(np.pi/2 * np.array([0, 0, 1]), np.array([0, 1, 0]))
+        T = SE3.fromAxisAngleAndt(
+            np.pi / 2 * np.array([0, 0, 1]), np.array([0, 1, 0])
+        )
         pt_p = T.transp(pt)
         pt_true = np.array([-1, -1, 0])
         np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
 
     def test_active_transforming_a_point(self):
         pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
-        for (T,pt) in zip(self.transforms, pts):
+        for T, pt in zip(self.transforms, pts):
             pt_p = T.transa(pt)
 
             pt_p_true = T.t + T.R @ pt
@@ -96,33 +103,41 @@ class SE3_Test(unittest.TestCase):
 
     def test_passive_transforming_a_point(self):
         pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
-        for(T,pt) in zip(self.transforms, pts):
+        for T, pt in zip(self.transforms, pts):
             pt_p = T.transp(pt)
             T_inv = T.inv()
 
-            pt_p_true = T_inv.t + T_inv.R@pt
+            pt_p_true = T_inv.t + T_inv.R @ pt
 
             np.testing.assert_allclose(pt_p_true, pt_p)
 
     def test_from_RPY_and_trans(self):
         rpy = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
         trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-        for (eul, t) in zip(rpy, trans):
-            T = SE3.fromRPYandt(eul, t)
+        for eul, t in zip(rpy, trans):
+            # HOW does the t work
+            """
+            rpy -> Rb_from_i and t (Tb_from_i)
+            also
+            rpy -> qi_from_b and t (Ti_from_b)
+            Need to know what frame t is in.
+            Avoid using this function
+            """
+            Ti_from_b = SE3.fromRPYandt(eul, t)
 
-            R = SO3.fromRPY(eul).R
-            q = Quaternion.fromRotationMatrix(R)
+            Rb_from_i = SO3.fromRPY(eul).R
+            qb_from_i = Quaternion.fromRotationMatrix(Rb_from_i)
 
-            np.testing.assert_allclose(q.q, T.q_arr)
-            np.testing.assert_allclose(t, T.t)
+            np.testing.assert_allclose(qb_from_i.inv().q, Ti_from_b.q_arr)
+            np.testing.assert_allclose(t, Ti_from_b.t)
 
     def test_from_axis_angle(self):
         angle = [np.random.uniform(0.0, np.pi) for i in range(100)]
         axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-        for (v, phi, t) in zip(axis, angle, trans):
+        for v, phi, t in zip(axis, angle, trans):
             v = v / np.linalg.norm(v) * phi
-            T = SE3.fromAxisAngleAndt(v,t)
+            T = SE3.fromAxisAngleAndt(v, t)
 
             q = Quaternion.fromAxisAngle(v)
 
@@ -133,9 +148,9 @@ class SE3_Test(unittest.TestCase):
         angle = [np.random.uniform(0.0, 1e-3) for i in range(100)]
         axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-        for (v, phi, t) in zip(axis, angle, trans):
+        for v, phi, t in zip(axis, angle, trans):
             v = v / np.linalg.norm(v) * phi
-            T = SE3.fromAxisAngleAndt(v,t)
+            T = SE3.fromAxisAngleAndt(v, t)
 
             q = Quaternion.fromAxisAngle(v)
 
@@ -154,7 +169,9 @@ class SE3_Test(unittest.TestCase):
         algebras = [np.random.uniform(-3.0, 3.0, size=6) for i in range(100)]
         for vec in algebras:
             logT = SE3.hat(vec)
-            logT_true = np.array([vec[0], vec[1], vec[2], 0, vec[3], vec[4], vec[5]])
+            logT_true = np.array(
+                [vec[0], vec[1], vec[2], 0, vec[3], vec[4], vec[5]]
+            )
 
             np.testing.assert_allclose(logT_true, logT)
 
@@ -172,9 +189,19 @@ class SE3_Test(unittest.TestCase):
 
             R = T.R
             t = T.t
-            T2 = np.block([[R, t[:,None]], [np.zeros((1,3)), 1]])
+            T2 = np.block([[R, t[:, None]], [np.zeros((1, 3)), 1]])
             temp = sp.linalg.logm(T2)
-            logT_true = np.array([temp[0,3], temp[1,3], temp[2,3], 0, temp[2,1], temp[0,2], temp[1,0]])
+            logT_true = np.array(
+                [
+                    temp[0, 3],
+                    temp[1, 3],
+                    temp[2, 3],
+                    0,
+                    temp[2, 1],
+                    temp[0, 2],
+                    temp[1, 0],
+                ]
+            )
 
             np.testing.assert_allclose(logT_true, logT)
 
@@ -182,34 +209,48 @@ class SE3_Test(unittest.TestCase):
         angle = [np.random.uniform(0.0, 1e-8) for i in range(100)]
         axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         trans = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
-        for (v, phi, t) in zip(axis, angle, trans):
+        for v, phi, t in zip(axis, angle, trans):
             v = v / np.linalg.norm(v) * phi
-            T = SE3.fromAxisAngleAndt(v,t)
+            T = SE3.fromAxisAngleAndt(v, t)
 
             logT = SE3.log(T)
 
             R = T.R
             t = T.t
-            T2 = np.block([[R, t[:,None]], [np.zeros((1,3)), 1]])
+            T2 = np.block([[R, t[:, None]], [np.zeros((1, 3)), 1]])
             temp = sp.linalg.logm(T2)
-            logT_true = np.array([temp[0,3], temp[1,3], temp[2,3], 0, temp[2,1], temp[0,2], temp[1,0]])
+            logT_true = np.array(
+                [
+                    temp[0, 3],
+                    temp[1, 3],
+                    temp[2, 3],
+                    0,
+                    temp[2, 1],
+                    temp[0, 2],
+                    temp[1, 0],
+                ]
+            )
 
             np.testing.assert_allclose(logT_true, logT, atol=1e-3, rtol=1e-3)
 
     def test_exponential_map(self):
         v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-        for (v,w) in zip(v_list, w_list):
+        for v, w in zip(v_list, w_list):
             vec = np.array([*v, *w])
             T = SE3.Exp(vec)
 
-            logT = np.array([[0, -w[2], w[1], v[0]],
-                             [w[2], 0, -w[0], v[1]],
-                             [-w[1], w[0], 0, v[2]],
-                             [0, 0, 0, 0]])
+            logT = np.array(
+                [
+                    [0, -w[2], w[1], v[0]],
+                    [w[2], 0, -w[0], v[1]],
+                    [-w[1], w[0], 0, v[2]],
+                    [0, 0, 0, 0],
+                ]
+            )
             T_true = sp.linalg.expm(logT)
-            R_true = T_true[:3,:3]
-            t_true = T_true[:3,3]
+            R_true = T_true[:3, :3]
+            t_true = T_true[:3, 3]
 
             np.testing.assert_allclose(R_true, T.R)
             np.testing.assert_allclose(t_true, T.t)
@@ -218,19 +259,23 @@ class SE3_Test(unittest.TestCase):
         axis = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         angles = [np.random.uniform(0, 1e-8) for i in range(100)]
-        for (a,v,psi) in zip(axis, v_list, angles):
+        for a, v, psi in zip(axis, v_list, angles):
             w = a / np.linalg.norm(a) * psi
             vec = np.array([*v, *w])
 
             T = SE3.Exp(vec)
 
-            logT = np.array([[0, -w[2], w[1], v[0]],
-                             [w[2], 0, -w[0], v[1]],
-                             [-w[1], w[0], 0, v[2]],
-                             [0, 0, 0, 0]])
+            logT = np.array(
+                [
+                    [0, -w[2], w[1], v[0]],
+                    [w[2], 0, -w[0], v[1]],
+                    [-w[1], w[0], 0, v[2]],
+                    [0, 0, 0, 0],
+                ]
+            )
             T_true = sp.linalg.expm(logT)
-            R_true = T_true[:3,:3]
-            t_true = T_true[:3,3]
+            R_true = T_true[:3, :3]
+            t_true = T_true[:3, 3]
 
             np.testing.assert_allclose(R_true, T.R, rtol=1e-4, atol=1e-4)
             np.testing.assert_allclose(t_true, T.t, rtol=1e-4, atol=1e-4)
@@ -238,7 +283,7 @@ class SE3_Test(unittest.TestCase):
     def test_adjoint(self):
         v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-        for (v,w, T) in zip(v_list, w_list, self.transforms):
+        for v, w, T in zip(v_list, w_list, self.transforms):
             vec = np.array([*v, *w])
 
             T1 = T * SE3.Exp(vec)
@@ -257,7 +302,7 @@ class SE3_Test(unittest.TestCase):
     def test_boxplusr(self):
         v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-        for (T, v, w) in zip(self.transforms, v_list, w_list):
+        for T, v, w in zip(self.transforms, v_list, w_list):
             vec = np.array([*v, *w])
             T2 = T.boxplusr(vec)
 
@@ -268,7 +313,7 @@ class SE3_Test(unittest.TestCase):
 
     def test_boxminusr(self):
         transforms2 = [SE3.random() for i in range(100)]
-        for (T1, T2) in zip(self.transforms, transforms2):
+        for T1, T2 in zip(self.transforms, transforms2):
             diffT = T1.boxminusr(T2)
             T = T2.boxplusr(diffT)
 
@@ -277,7 +322,7 @@ class SE3_Test(unittest.TestCase):
     def test_boxplusl(self):
         v_list = [np.random.uniform(-10.0, 10.0, size=3) for i in range(100)]
         w_list = [np.random.uniform(-np.pi, np.pi, size=3) for i in range(100)]
-        for (T,v,w) in zip(self.transforms, v_list, w_list):
+        for T, v, w in zip(self.transforms, v_list, w_list):
             vec = np.array([*v, *w])
             T2 = T.boxplusl(vec)
 
@@ -287,7 +332,7 @@ class SE3_Test(unittest.TestCase):
 
     def test_boxminusl(self):
         transforms2 = [SE3.random() for i in range(100)]
-        for (T1,T2) in zip(self.transforms, transforms2):
+        for T1, T2 in zip(self.transforms, transforms2):
             v = T1.boxminusl(T2)
             T = T2.boxplusl(v)
 
@@ -365,9 +410,9 @@ class SE3_Test(unittest.TestCase):
             v = np.random.uniform(-10, 10, size=3)
 
             vp, Jr = T.transa(v, Jr=np.eye(6))
-            vx = np.array([[0, -v[2], v[1]],
-                           [v[2], 0, -v[0]],
-                           [-v[1], v[0], 0]])
+            vx = np.array(
+                [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]]
+            )
             Jr_true = np.block([T.R, -T.R @ vx])
 
             np.testing.assert_allclose(Jr_true, Jr)
@@ -510,5 +555,6 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(vp, vp2[:-1])
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     unittest.main()
