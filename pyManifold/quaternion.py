@@ -301,6 +301,8 @@ class Quaternion:
         """
         Note that the SO3 class produces R^b_i but this class produces the
         inverse or q^i_b
+        See Class notes for this:
+        https://drive.google.com/file/d/1BOwGqoJ2WjiIUYDA8p77TGwV-Ttrd4hc/view
         """
         cp, ct, cps = np.cos(rpy / 2)
         sp, st, sps = np.sin(rpy / 2)

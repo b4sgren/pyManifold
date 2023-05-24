@@ -80,10 +80,10 @@ class Quaternion_Testing(unittest.TestCase):
     def testFromRPY(self):
         for i in range(100):
             rpy = np.random.uniform(-np.pi, np.pi, size=3)
-            R = SO3.fromRPY(rpy).R
-            q = Quaternion.fromRPY(rpy)
+            Rb_from_i = SO3.fromRPY(rpy).R
+            qi_from_b = Quaternion.fromRPY(rpy)
 
-            np.testing.assert_allclose(R.T, q.R)
+            np.testing.assert_allclose(Rb_from_i.T, qi_from_b.R)
 
     def test_euler(self):
         for i in range(100):
