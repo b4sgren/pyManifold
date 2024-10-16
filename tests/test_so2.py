@@ -1,6 +1,6 @@
 import unittest
 import sys
-sys.path.append('..')
+sys.path.append('../pyManifold')
 from so2 import SO2
 import numpy as np
 
@@ -67,7 +67,7 @@ class SO2Test(unittest.TestCase):
 
             pt = np.random.uniform(-5, 5, size=2)
 
-            rot_pt = R.rota(pt)
+            rot_pt = R.rotate(pt)
 
             x_true = np.cos(theta) * pt[0] - np.sin(theta) * pt[1]
             y_true = np.sin(theta) * pt[0] + np.cos(theta) * pt[1]
@@ -81,7 +81,7 @@ class SO2Test(unittest.TestCase):
             R = SO2.fromAngle(theta)
             pt = np.random.uniform(-5, 5, size=2)
 
-            rot_pt = R.rotp(pt)
+            rot_pt = R.inv_rotate(pt)
 
             x_true = np.cos(theta) * pt[0] + np.sin(theta) * pt[1]
             y_true = -np.sin(theta) * pt[0] + np.cos(theta) * pt[1]
@@ -245,44 +245,44 @@ class SO2Test(unittest.TestCase):
 
         self.assertEqual(1/Jl, Jl_inv)
 
-    def test_right_jacobian_of_rota(self):
+    def test_right_jacobian_of_rotation(self):
         for i in range(100):
             R = SO2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jr = R.rota(v, Jr=True)
+            vp, Jr = R.rotate(v, Jr=True)
             vx = np.array([-v[1], v[0]])
             Jr_true = R.R @ vx
 
             np.testing.assert_allclose(Jr_true, Jr)
 
-    def test_left_jacobian_of_rota(self):
+    def test_left_jacobian_of_rotation(self):
         for i in range(100):
             R = SO2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jl = R.rota(v, Jl=True)
-            _, Jr = R.rota(v, Jr=True)
+            vp, Jl = R.rotate(v, Jl=True)
+            _, Jr = R.rotate(v, Jr=True)
 
             np.testing.assert_allclose(Jr, Jl)
 
-    def test_right_jacobian_of_rotp(self):
+    def test_right_jacobian_of_inv_rotate(self):
         for i in range(100):
             R = SO2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jr = R.rotp(v, Jr=1)
+            vp, Jr = R.inv_rotate(v, Jr=1)
             one_x = np.array([[0, -1], [1, 0]])
             Jr_true = -one_x @ vp
 
             np.testing.assert_allclose(Jr_true, Jr)
 
-    def test_left_jacobian_of_rotp(self):
+    def test_left_jacobian_of_inv_rotation(self):
         for i in range(100):
             R = SO2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jl = R.rotp(v, Jl=1)
+            vp, Jl = R.inv_rotate(v, Jl=1)
             one_x = np.array([[0, -1], [1, 0]])
             Jl_true = - R.R.T @ one_x @ v
 

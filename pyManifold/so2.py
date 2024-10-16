@@ -53,7 +53,7 @@ class SO2:
         else:
             return SO2(self.arr.T)
 
-    def rota(self, v: np.ndarray, Jr: int = None, Jl: int = None) -> np.ndarray:
+    def rotate(self, v: np.ndarray, Jr: int = None, Jl: int = None) -> np.ndarray:
         """
         Rotates an element using R
 
@@ -78,7 +78,7 @@ class SO2:
         else:
             return self.R @ v
 
-    def rotp(self, v, Jr=None, Jl=None) -> np.ndarray:
+    def inv_rotate(self, v, Jr=None, Jl=None) -> np.ndarray:
         """
         Rotates an element using R.inv()
 
@@ -96,14 +96,14 @@ class SO2:
         assert v.size == 2
         if Jr:
             R_inv, J = self.inv(Jr=Jr)
-            vp, J = R_inv.rota(v, Jr=J)
+            vp, J = R_inv.rotate(v, Jr=J)
             return vp, J
         elif Jl:
             R_inv, J = self.inv(Jl=Jl)
-            vp, J = R_inv.rota(v, Jl=J)
+            vp, J = R_inv.rotate(v, Jl=J)
             return vp, J
         else:
-            return self.inv().rota(v)
+            return self.inv().rotate(v)
 
     # For the boxplus I'm not sure I need the jacobian wrt the first element ever. I can add it later if I need to
     def boxplusr(self, w:float, Jr: int = None, Jl: int = None) -> 'SO2':
