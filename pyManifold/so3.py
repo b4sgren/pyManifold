@@ -74,7 +74,7 @@ class SO3:
         """Returns the transpose of the current instance"""
         return SO3(self.arr.T)
 
-    def rota(
+    def rotate(
         self, v: np.ndarray, Jr: np.ndarray = None, Jl: np.ndarray = None
     ) -> np.ndarray:
         """
@@ -101,7 +101,7 @@ class SO3:
         else:
             return vp
 
-    def rotp(
+    def inv_rotate(
         self, v: np.ndarray, Jr: np.ndarray = None, Jl: np.ndarray = None
     ) -> np.ndarray:
         """
@@ -120,14 +120,14 @@ class SO3:
         assert v.size == 3
         if not Jr is None:
             R_inv, J = self.inv(Jr=Jr)
-            vp, J = R_inv.rota(v, Jr=J)
+            vp, J = R_inv.rotate(v, Jr=J)
             return vp, J
         elif not Jl is None:
             R_inv, J = self.inv(Jl=Jl)
-            vp, J = R_inv.rota(v, Jl=J)
+            vp, J = R_inv.rotate(v, Jl=J)
             return vp, J
         else:
-            return self.inv().rota(v)
+            return self.inv().rotate(v)
 
     # Assumes jacobian is with respect to v
     def boxplusr(

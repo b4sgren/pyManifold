@@ -171,7 +171,7 @@ class SO3_testing(unittest.TestCase):
             R = SO3(rot1)
             pt = np.random.uniform(-5, 5, size=3)
 
-            rot_pt = R.rota(pt)
+            rot_pt = R.rotate(pt)
             rot_pt_true = rot1 @ pt
 
             np.testing.assert_allclose(rot_pt_true, rot_pt)
@@ -182,7 +182,7 @@ class SO3_testing(unittest.TestCase):
             R = SO3(rot1)
             pt = np.random.uniform(-5, 5, size=3)
 
-            rot_pt = R.rotp(pt)
+            rot_pt = R.inv_rotate(pt)
             rot_pt_true = rot1.T @ pt
 
             np.testing.assert_allclose(rot_pt_true, rot_pt)
@@ -344,7 +344,7 @@ class SO3_testing(unittest.TestCase):
             R = SO3.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = R.rota(v, Jr=np.eye(3))
+            vp, Jr = R.rotate(v, Jr=np.eye(3))
             vx = np.array(
                 [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]]
             )
@@ -357,8 +357,8 @@ class SO3_testing(unittest.TestCase):
             R = SO3.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jl = R.rota(v, Jl=np.eye(3))
-            _, Jr = R.rota(v, Jr=np.eye(3))
+            vp, Jl = R.rotate(v, Jl=np.eye(3))
+            _, Jr = R.rotate(v, Jr=np.eye(3))
 
             # Jl = f(R)_Adj * Jr * R_Adj
             Jl_true = np.eye(3) @ Jr @ R.Adj.T
@@ -377,24 +377,24 @@ class SO3_testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
-    def test_right_jacobian_or_rotp(self):
+    def test_right_jacobian_or_inv_rotate(self):
         for i in range(100):
             R = SO3.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = R.rotp(v, Jr=np.eye(3))
+            vp, Jr = R.inv_rotate(v, Jr=np.eye(3))
             Jr_true = np.array(
                 [[0, -vp[2], vp[1]], [vp[2], 0, -vp[0]], [-vp[1], vp[0], 0]]
             )
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
-    def test_left_jacobian_of_rotp(self):
+    def test_left_jacobian_of_inv_rotate(self):
         for i in range(100):
             R = SO3.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jl = R.rotp(v, Jl=np.eye(3))
+            vp, Jl = R.inv_rotate(v, Jl=np.eye(3))
             vx = np.array(
                 [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]]
             )
