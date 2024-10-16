@@ -1,8 +1,8 @@
 import numpy as np
 import sys
 sys.path.append("..")
-from quaternion import Quaternion as Quat, skew
-from so3 import SO3
+from pyManifold.quaternion import Quaternion as Quat, skew
+from pyManifold.so3 import SO3
 import matplotlib.pyplot as plt
 from trajectory import QuadPrams, Trajectory
 import scipy.linalg as spl
@@ -37,8 +37,8 @@ class Quadrotor:
 
     def propogateDynamics(self, ab, wb, dt):
         e3 = np.array([0, 0, 1])
-        xdot = self.q_i_from_b.rota(self.velocity)
-        vdot = skew(self.velocity) @ wb - self.q_i_from_b.rotp(self.g*e3) + ab[2]*e3
+        xdot = self.q_i_from_b.rotate(self.velocity)
+        vdot = skew(self.velocity) @ wb - self.q_i_from_b.inv_rotate(self.g*e3) + ab[2]*e3
 
         F, G = self.getOdomJacobians(ab, wb, dt)
 
@@ -78,7 +78,7 @@ class Quadrotor:
         self.q_i_from_b = self.q_i_from_b.boxplusr(dx[6:])
 
     def lmMeas(self, lm):
-        z, Jr = self.q_i_from_b.rotp(self.position - lm, Jr=np.eye(3))
+        z, Jr = self.q_i_from_b.inv_rotate(self.position - lm, Jr=np.eye(3))
         return z, Jr
 
 class EKF:

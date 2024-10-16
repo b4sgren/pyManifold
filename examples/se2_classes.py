@@ -42,7 +42,7 @@ class Robot:
   def measurements(self, lms):
     # Currently measing position for simplicity.
     # Move to range/bearing after it is working
-    z = [self.state.transp(lm) + np.random.multivariate_normal(np.zeros(2), self._R) for lm in lms]
+    z = [self.state.inv_transform(lm) + np.random.multivariate_normal(np.zeros(2), self._R) for lm in lms]
     return z
 
 class SE2_EKF:
@@ -58,7 +58,7 @@ class SE2_EKF:
   def measurementUpdate(self, robot, z, lms):
     for zi, lm in zip(z, lms):
       T_inv, J1 = robot.state.inv(Jr=np.eye(3))
-      z_hat, J2 = T_inv.transa(lm, Jr=np.eye(3))
+      z_hat, J2 = T_inv.transform(lm, Jr=np.eye(3))
       # Compose Jacobians according to chain rule
       H = J2 @ J1
 

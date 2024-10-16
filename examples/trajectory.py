@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 sys.path.append("..")
-from so3 import SO3
+from pyManifold.so3 import SO3
 
 class QuadPrams:
     def __init__(self, mass):
