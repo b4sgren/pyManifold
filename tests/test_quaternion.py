@@ -102,22 +102,22 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(I_true, I.q)
 
-    def testRota(self):
+    def testRotate(self):
         v = np.array([1, 0, 0])
         q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi / 2)
         qv = Quaternion(np.array([0, *v]))
-        vp = q.rota(v)
+        vp = q.rotate(v)
         vp_true = np.array([0, 1, 0])
         vp2 = quatMultiply(quatMultiply(q, qv), q.inv())
 
         np.testing.assert_allclose(vp_true, vp, atol=1e-10)
         np.testing.assert_allclose(vp_true, vp2.qv, atol=1e-10)
 
-    def testRotp(self):
+    def testInvRotate(self):
         v = np.array([1, 0, 0])
         q = Quaternion.fromAxisAngle(np.array([0, 0, 1]) * np.pi / 2)
         qv = Quaternion(np.array([0, *v]))
-        vp = q.rotp(v)
+        vp = q.inv_rotate(v)
         vp_true = np.array([0, -1, 0])
         vp2 = quatMultiply(quatMultiply(q.inv(), qv), q)
 
@@ -130,8 +130,8 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             R = SO3.fromQuaternion(q.q)
 
-            vp_true = R.rota(v)
-            vp = q.rota(v)
+            vp_true = R.rotate(v)
+            vp = q.rotate(v)
 
             np.testing.assert_allclose(vp_true, vp)
 
@@ -140,8 +140,8 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             R = SO3.fromQuaternion(q.q)
 
-            vp_true = R.rotp(v)
-            vp = q.rotp(v)
+            vp_true = R.inv_rotate(v)
+            vp = q.inv_rotate(v)
 
             np.testing.assert_allclose(vp_true, vp)
 
@@ -327,7 +327,7 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = q.rota(v, Jr=np.eye(3))
+            vp, Jr = q.rotate(v, Jr=np.eye(3))
             Jr_true = -q.R @ skew(v)  # James equation missing a transpose.
             # Confirmed by testing against numerical differentiation
 
@@ -338,8 +338,8 @@ class Quaternion_Testing(unittest.TestCase):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jl = q.rota(v, Jl=np.eye(3))
-            _, Jr = q.rota(v, Jr=np.eye(3))
+            vp, Jl = q.rotate(v, Jl=np.eye(3))
+            _, Jr = q.rotate(v, Jr=np.eye(3))
 
             Jl_true = np.eye(3) @ Jr @ np.linalg.inv(q.Adj)
 
@@ -357,23 +357,23 @@ class Quaternion_Testing(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
-    def test_right_jacobian_of_rotp(self):
+    def test_right_jacobian_of_inv_rotate(self):
         for i in range(100):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = q.rotp(v, Jr=np.eye(3))
+            vp, Jr = q.inv_rotate(v, Jr=np.eye(3))
             Jr_true = skew(vp)
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
-    def test_left_jacobian_of_rotp(self):
+    def test_left_jacobian_of_inv_rotate(self):
         for i in range(100):
             q = Quaternion.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jl = q.rotp(v, Jl=np.eye(3))
-            _, Jr = q.rotp(v, Jr=np.eye(3))
+            vp, Jl = q.inv_rotate(v, Jl=np.eye(3))
+            _, Jr = q.inv_rotate(v, Jr=np.eye(3))
 
             Jl_true = np.eye(3) @ Jr @ np.linalg.inv(q.Adj)
 

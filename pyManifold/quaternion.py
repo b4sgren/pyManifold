@@ -131,7 +131,7 @@ class Quaternion:
         return Quaternion(np.array([self.w, -self.x, -self.y, -self.z]))
 
     # Does q*v*q.inv()
-    def rota(self, v, Jr=None, Jl=None):
+    def rotate(self, v, Jr=None, Jl=None):
         qw = self.w
         qv = self.qv
 
@@ -146,17 +146,17 @@ class Quaternion:
         else:
             return vp
 
-    def rotp(self, v, Jr=None, Jl=None):
+    def inv_rotate(self, v, Jr=None, Jl=None):
         if not Jr is None:
             q_inv, J = self.inv(Jr=Jr)
-            vp, J = q_inv.rota(v, Jr=J)
+            vp, J = q_inv.rotate(v, Jr=J)
             return vp, J
         elif not Jl is None:
             q_inv, J = self.inv(Jl=Jl)
-            vp, J = q_inv.rota(v, Jl=J)
+            vp, J = q_inv.rotate(v, Jl=J)
             return vp, J
         else:
-            return self.inv().rota(v)
+            return self.inv().rotate(v)
 
     def normalize(self):
         self.arr = self.q / self.norm()
