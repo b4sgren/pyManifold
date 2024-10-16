@@ -33,7 +33,7 @@ class SE2:
     def __repr__(self):
         return str(self.T)
 
-    def transa(self, v, Jr=None, Jl=None):
+    def transform(self, v, Jr=None, Jl=None):
         assert v.size == 2
         v = np.array([*v, 1])
         vp = (self.T @ v)[:2]
@@ -48,16 +48,16 @@ class SE2:
         else:
             return vp
 
-    def transp(self, v, Jr=None, Jl=None):
+    def inv_transform(self, v, Jr=None, Jl=None):
         assert v.size == 2
         if not Jr is None:
             T_inv, J = self.inv(Jr=Jr)
-            return T_inv.transa(v, Jr=Jr)
+            return T_inv.transform(v, Jr=Jr)
         elif not Jl is None:
             T_inv, J = self.inv(Jl=Jl)
-            return T_inv.transa(v, Jl=J)
+            return T_inv.transform(v, Jl=J)
         else:
-            vp = self.inv().transa(v)
+            vp = self.inv().transform(v)
         return vp[:2]
 
     # Add a Ju option which takes wrt w

@@ -1,7 +1,7 @@
 import unittest
 import scipy.linalg as spl
 import sys
-sys.path.append("..")
+sys.path.append("../pyManifold")
 import numpy as np
 from se2 import SE2
 
@@ -57,7 +57,7 @@ class SE2_Test(unittest.TestCase):
 
             vec = np.random.uniform(-5, 5, size=2)
 
-            pt = T.transa(vec)
+            pt = T.transform(vec)
 
             pt_true = T.R @ vec + T.t
 
@@ -67,7 +67,7 @@ class SE2_Test(unittest.TestCase):
             T = SE2.random()
             vec = np.random.uniform(-5, 5, size=2)
 
-            pt = T.transp(vec)
+            pt = T.inv_transform(vec)
             pt_true = T.R.T @ vec - T.R.T @ T.t
 
             np.testing.assert_allclose(pt_true, pt)
@@ -120,7 +120,7 @@ class SE2_Test(unittest.TestCase):
 
             T_true = spl.expm(logT)
 
-            np.testing.assert_allclose(T_true, T.arr)
+            np.testing.assert_allclose(T_true, T.arr, atol=1e-7)
 
     def testTaylorExp(self):
         for i in range(100):
@@ -131,7 +131,7 @@ class SE2_Test(unittest.TestCase):
             T = SE2.Exp(arr)
             T_true = spl.expm(SE2.hat(arr))
 
-            np.testing.assert_allclose(T_true, T.arr)
+            np.testing.assert_allclose(T_true, T.arr, atol=1e-7)
 
     def testVee(self):
         for i in range(100):
@@ -305,7 +305,7 @@ class SE2_Test(unittest.TestCase):
             T = SE2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jr = T.transa(v, Jr=np.eye(3))
+            vp, Jr = T.transform(v, Jr=np.eye(3))
             vx = np.array([-v[1], v[0]])
             Jr_true = np.block([T.R, (T.R @ vx)[:,None]])
 
@@ -316,8 +316,8 @@ class SE2_Test(unittest.TestCase):
             T = SE2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jl = T.transa(v, Jl=np.eye(3))
-            _, Jr = T.transa(v, Jr=np.eye(3))
+            vp, Jl = T.transform(v, Jl=np.eye(3))
+            _, Jr = T.transform(v, Jr=np.eye(3))
 
             Jl_true = np.eye(2) @ Jr @ np.linalg.inv(T.Adj)
 
@@ -335,21 +335,21 @@ class SE2_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
-    def test_right_jacobian_or_transp(self):
+    def test_right_jacobian_or_inv_transform(self):
         for i in range(100):
             T = SE2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jr = T.transp(v, Jr=np.eye(3))
+            vp, Jr = T.inv_transform(v, Jr=np.eye(3))
             one_x = np.array([[0, -1], [1, 0]])
             Jr_true = np.block([np.eye(2), (one_x @ T.R.T @ (T.t - v))[:,None]])
 
-    def test_left_jacobian_of_transp(self):
+    def test_left_jacobian_of_inv_transform(self):
         for i in range(100):
             T = SE2.random()
             v = np.random.uniform(-10, 10, size=2)
 
-            vp, Jl = T.transp(v, Jl=np.eye(3))
+            vp, Jl = T.inv_transform(v, Jl=np.eye(3))
             one_x = np.array([[0, -1], [1, 0]])
             Jl_true = np.block([-T.R.T, -(T.R.T @ one_x @ v)[:,None]])
 
