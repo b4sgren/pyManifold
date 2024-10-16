@@ -79,7 +79,7 @@ class SE3_Test(unittest.TestCase):
         T = SE3.fromAxisAngleAndt(
             np.pi / 2 * np.array([0, 0, 1]), np.array([0, 1, 0])
         )
-        pt_p = T.transa(pt)
+        pt_p = T.transform(pt)
         pt_true = np.array([0, 2, 0])
         np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
 
@@ -88,14 +88,14 @@ class SE3_Test(unittest.TestCase):
         T = SE3.fromAxisAngleAndt(
             np.pi / 2 * np.array([0, 0, 1]), np.array([0, 1, 0])
         )
-        pt_p = T.transp(pt)
+        pt_p = T.inv_transform(pt)
         pt_true = np.array([-1, -1, 0])
         np.testing.assert_allclose(pt_true, pt_p, atol=1e-10)
 
     def test_active_transforming_a_point(self):
         pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
         for T, pt in zip(self.transforms, pts):
-            pt_p = T.transa(pt)
+            pt_p = T.transform(pt)
 
             pt_p_true = T.t + T.R @ pt
 
@@ -104,7 +104,7 @@ class SE3_Test(unittest.TestCase):
     def test_passive_transforming_a_point(self):
         pts = [np.random.uniform(-3.0, 3.0, size=3) for i in range(100)]
         for T, pt in zip(self.transforms, pts):
-            pt_p = T.transp(pt)
+            pt_p = T.inv_transform(pt)
             T_inv = T.inv()
 
             pt_p_true = T_inv.t + T_inv.R @ pt
@@ -409,7 +409,7 @@ class SE3_Test(unittest.TestCase):
             T = SE3.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = T.transa(v, Jr=np.eye(6))
+            vp, Jr = T.transform(v, Jr=np.eye(6))
             vx = np.array(
                 [[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]]
             )
@@ -422,8 +422,8 @@ class SE3_Test(unittest.TestCase):
             T = SE3.random()
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jl = T.transa(v, Jl=np.eye(6))
-            _, Jr = T.transa(v, Jr=np.eye(6))
+            vp, Jl = T.transform(v, Jl=np.eye(6))
+            _, Jr = T.transform(v, Jr=np.eye(6))
 
             Jl_true = np.eye(3) @ Jr @ np.linalg.inv(T.Adj)
 
@@ -441,20 +441,20 @@ class SE3_Test(unittest.TestCase):
 
             np.testing.assert_allclose(Jl2_true, Jl2)
 
-    def test_right_jacobian_of_transp(self):
+    def test_right_jacobian_of_inv_transform(self):
         for T in self.transforms:
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jr = T.transp(v, Jr=np.eye(6))
+            vp, Jr = T.inv_transform(v, Jr=np.eye(6))
             Jr_true = np.block([-np.eye(3), skew(vp)])
 
             np.testing.assert_allclose(Jr_true, Jr, atol=1e-10)
 
-    def test_left_jacobian_of_transp(self):
+    def test_left_jacobian_of_inv_transform(self):
         for T in self.transforms:
             v = np.random.uniform(-10, 10, size=3)
 
-            vp, Jl = T.transp(v, Jl=np.eye(6))
+            vp, Jl = T.inv_transform(v, Jl=np.eye(6))
             vx = skew(v)
             Jl_true = np.block([-T.R.T, T.R.T @ vx])
 
@@ -550,7 +550,7 @@ class SE3_Test(unittest.TestCase):
             v = np.random.uniform(-10, 10, size=3)
             vh = np.concatenate((v, np.array([1])))
 
-            vp = T1.transa(v)
+            vp = T1.transform(v)
             vp2 = T1.matrix @ vh
 
             np.testing.assert_allclose(vp, vp2[:-1])

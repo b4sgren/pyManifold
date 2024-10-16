@@ -1,8 +1,8 @@
 import numpy as np
 
-from .quaternion import Quaternion, skew  # move skew to a different file
+# from .quaternion import Quaternion, skew  # move skew to a different file
 
-# from quaternion import Quaternion, skew  # move skew to a different file
+from quaternion import Quaternion, skew  # move skew to a different file
 
 
 class SE3:
@@ -120,7 +120,7 @@ class SE3:
 
     def __mul__(self, T):
         q = self.q * T.q
-        t = self.t + self.q.rota(T.t)
+        t = self.t + self.q.rotate(T.t)
         return SE3(q, t)
 
     def __str__(self):
@@ -133,7 +133,7 @@ class SE3:
 
     def inv(self, Jr=None, Jl=None):
         q_inv = self.q.inv()
-        t_inv = -q_inv.rota(self.t)
+        t_inv = -q_inv.rotate(self.t)
         if Jr is not None:
             return SE3(q_inv, t_inv), -self.Adj @ Jr
         elif Jl is not None:
@@ -142,8 +142,8 @@ class SE3:
         else:
             return SE3(q_inv, t_inv)
 
-    def transa(self, v, Jr=None, Jl=None):
-        vp = self.t + self.q.rota(v)
+    def transform(self, v, Jr=None, Jl=None):
+        vp = self.t + self.q.rotate(v)
         if Jr is not None:
             J = np.block([self.R, -self.R @ skew(v)])
             return vp, J @ Jr
@@ -153,16 +153,16 @@ class SE3:
         else:
             return vp
 
-    def transp(self, v, Jr=None, Jl=None):
+    def inv_transform(self, v, Jr=None, Jl=None):
         if Jr is not None:
             T_inv, J = self.inv(Jr=Jr)
-            return T_inv.transa(v, Jr=J)
+            return T_inv.transform(v, Jr=J)
         elif Jl is not None:
             T_inv, J = self.inv(Jl=Jl)
-            return T_inv.transa(v, Jl=J)
+            return T_inv.transform(v, Jl=J)
         else:
             T_inv = self.inv()
-            return T_inv.transa(v)
+            return T_inv.transform(v)
 
     def normalize(self):
         self.q.normalize()
